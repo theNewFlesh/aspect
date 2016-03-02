@@ -154,16 +154,16 @@ class Aspect(dict):
     # --------------------------------------------------------------------------
 
     def register(self, item):
-        item_type = get_item_type(item)
+        item_type = get_object_type(item)
         
-        if item_type in ['class', 'instance']:
+        if item_type in ['class', 'abstract']:
             spec = class_to_aspect(item, levels=self.levels)
             self.specs.classes[item.__name__] = spec
             self.library.classes[item.__name__] = item
 
             return item 
         
-        elif item_type in ['function', 'generator_function', 'method']:        
+        elif item_type in ['function', 'generator_function', 'method']:
             spec = function_to_aspect(item)
             self.specs.functions[item.__name__] = spec
             self.library.functions[item.__name__] = item
