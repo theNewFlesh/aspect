@@ -5,107 +5,118 @@ from pprint import pprint, pformat
 from utils import *
 from random import randint
 from warnings import warn
+from functools import wraps
 # ------------------------------------------------------------------------------
 
-class Aspect(dict):
-    def __init__(self, levels=['public', 'semiprivate', 'private', 'builtin']):
-        self.levels    = levels
-        self.specs     = Item(classes={}, functions={})
-        self.library   = Item(classes={}, functions={})
-        self.instances = {}
+class Aspect(object):
+    def __init__(self, levels=['public', 'semiprivate', 'private', 'builtin'], json_response=True):
+        self._response  = json_response
+        self._levels    = levels
+        self._specs     = Item(classes={}, functions={})
+        self._library   = Item(classes={}, functions={})
+        self._instances = {}
         
     def __repr__(self):
         return '\n\n'.join([
-            pformat(self.levels),
-            pformat(self.specs),
-            pformat(self.library),
-            pformat(self.instances)
+            pformat({'json_response': self._response}),
+            pformat({'levels': self._levels}),
+            pformat(self._specs),
+            pformat(self._library),
+            pformat(self._instances)
         ])
     # --------------------------------------------------------------------------
 
     def request(self, spec):
         for action, spec_ in spec.iteritems():
             if action == 'create':
-                yield self.create(spec_)
+                yield self._create(spec_)
             elif action == 'read':
-                yield self.read(spec_)
+                yield self._read(spec_)
             elif action == 'update':
-                yield self.update(spec_)
+                yield self._update(spec_)
             elif action == 'delete':
-                yield self.delete(spec_)
+                yield self._delete(spec_)
             elif action == 'execute':
-                yield self.execute(spec_)
+                yield self._execute(spec_)
             else:
                 warn(action + ' is not a valid action')
 
-    def create(self, spec):
+    def _create(self, spec):
         class_, spec = spec.iteritems().next()
 
         if spec == None:
-            spec = self.specs.classes[class_]
+            spec = self._specs.classes[class_]
 
         init = spec['methods']['__init__']
-        instance = self.library.classes[class_]
+        instance = self._library.classes[class_]
         # id_ = str(randint(0, 1000000000)).zfill(10)
         id_ = randint(0, 1000000000)
-        self.instances[id_] = fire(instance, init)
+        self._instances[id_] = fire(instance, init)
 
-        response = {
-            'create': {
-                class_: id_
+        response = id_
+        if self._response:
+            response = {
+                'create': {
+                    class_: response
+                }
             }
-        }
         return response
 
-    def read(self, spec):
+    def _read(self, spec):
         id_, spec = spec.iteritems().next()
 
         if isinstance(id_, str): #class
-            item = self.library.classes[id_]
+            item = self._library.classes[id_]
         else: #instance
-            item = self.instances[id_]
+            item = self._instances[id_]
 
         attr, _ = spec.iteritems().next()
         value = getattr(item, attr)
 
-        response = {
-            'read': {
-                id_: {
-                    attr: value
+        response = value
+        if self._response:
+            response = {
+                'read': {
+                    id_: {
+                        attr: response
+                    }
                 }
             }
-        }
         return response
 
-    def update(self, spec):
+    def _update(self, spec):
         id_, spec = spec.iteritems().next()
 
-        instance = self.instances[id_]
+        instance = self._instances[id_]
         attr, value = spec.iteritems().next()
         setattr(instance, attr, value)
 
-        response = {
-            'update': {
-                id_: {
-                    attr: value
+        response = getattr(instance, attr) == value
+        if self._response:
+            response = {
+                'update': {
+                    id_: {
+                        attr: response
+                    }
                 }
             }
-        }
         return response
 
-    def delete(self, spec):
+    def _delete(self, spec):
         id_, _ = spec.iteritems().next()
 
-        del self.instances[id_]
+        del self._instances[id_]
 
-        response = {
-            'delete': {
-                id_: True
+        response = not self._instances.has_key(id_)
+        if self._response:
+            response = {
+                'delete': {
+                    id_: response
+                }
             }
-        }
         return response
 
-    def execute(self, spec):
+    def _execute(self, spec):
         id_, spec = spec.iteritems().next()
 
         func = None
@@ -113,64 +124,66 @@ class Aspect(dict):
 
         # instance method
         if isinstance(id_, int):
-            instance = self.instances[id_]
+            instance = self._instances[id_]
 
             func, spec = spec.iteritems().next()
             method = func
 
             if spec == None:
                 class_ = instance.__class__.__name__
-                spec = self.specs.classes[class_]['methods'][func]
+                spec = self._specs.classes[class_]['methods'][func]
             
             func = getattr(instance, func)
             
         else:
             # class method
-            if self.library.classes.has_key(id_):
-                class_ = self.library.classes[id_]
+            if self._library.classes.has_key(id_):
+                class_ = self._library.classes[id_]
 
                 func, spec = spec.iteritems().next()
                 method = func
                 func = getattr(class_, func)
                 if spec == None:
-                    spec = self.specs.classes[id_]
+                    spec = self._specs.classes[id_]
 
             # module function
-            elif self.library.functions.has_key(id_):
-                func = self.library.functions[id_]
+            elif self._library.functions.has_key(id_):
+                func = self._library.functions[id_]
                 if spec == None:
-                    spec = self.specs.functions[id_]
+                    spec = self._specs.functions[id_]
 
-        output = fire(func, spec)
-
-        if method:
-            output = {method: output}
-        response = {
-            'execute': {
-                id_: output
+        response = fire(func, spec)
+        if self._response:
+            if method:
+                response = {method: response}
+            response = {
+                'execute': {
+                    id_: response
+                }
             }
-        }
         return response
     # --------------------------------------------------------------------------
 
     def register(self, item):
-        item_type = get_object_type(item)
-        
-        if item_type in ['class', 'abstract']:
-            spec = class_to_aspect(item, levels=self.levels)
-            self.specs.classes[item.__name__] = spec
-            self.library.classes[item.__name__] = item
+        if is_visible(item.__name__, self._levels):
+            item_type = get_object_type(item)
+            if item_type in ['class', 'abstract']:
+                spec = class_to_aspect(item, levels=self._levels)
+                self._specs.classes[item.__name__] = spec
+                self._library.classes[item.__name__] = item
 
-            return item 
-        
-        elif item_type in ['function', 'generator_function', 'method']:
-            spec = function_to_aspect(item)
-            self.specs.functions[item.__name__] = spec
-            self.library.functions[item.__name__] = item
+                return item 
             
-            def wrapper(*args, **kwargs):
-                return func(*args, **kwargs)
-            return wrapper
+            elif item_type in ['function', 'generator_function', 'method']:
+                spec = function_to_aspect(item)
+                self._specs.functions[item.__name__] = spec
+                self._library.functions[item.__name__] = item
+                
+                return item
+                # @wraps(item)
+                # def wrapper(*args, **kwargs):
+                #     return func(*args, **kwargs)
+                # return wrapper
 # ------------------------------------------------------------------------------
 
 def main():

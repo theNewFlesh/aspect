@@ -1,17 +1,33 @@
 class Test(object):
-    width = 10
+    class_attr = 99
+    _class_attr = 100
+    __class_attr = 101
+
     def __init__(self):
-        self.name = 'test_name'
+        self.instance_attr = 'a'
+        self._instance_attr = 'b'
+        self.__instance_attr = 'c'
     
-    def height(self):
-        return 10
-
     @property
-    def age(self):
-        return 10
-
-    def do_something(self, a,b,c, kw1=1, kw2=4):
-        return a,b,c, kw1, kw2
+    def property_(self):
+        return self.instance_attr
+    
+    @property
+    def _property(self):
+        return self._instance_attr
+    
+    @property
+    def __property(self):
+        return self.__instance_attr
+    
+    def method(self, arg):
+        return arg
+    
+    def _method(self, kwarg=1):
+        return kwarg
+    
+    def __method(self, *args, **kwargs):
+        return args, kwargs
 
 def get_specs(id_):
     specs = {
@@ -38,7 +54,7 @@ def get_specs(id_):
         'read1': {
             'read': {
                 id_: {
-                    'name': None
+                    'instance_attr': None
                 }
             }
         },
@@ -46,7 +62,7 @@ def get_specs(id_):
         'read2': {
             'read': {
                 id_: {
-                    'age': None
+                    'class_attr': None
                 }
             }
         },
@@ -54,7 +70,7 @@ def get_specs(id_):
         'read3': {
             'read': {
                 id_: {
-                    'width': None
+                    '_instance_attr': None
                 }
             }
         },
@@ -62,7 +78,7 @@ def get_specs(id_):
         'update': {
             'update': {
                 id_: {
-                    'name': 'namey-mcnamerton'
+                    'instance_attr': 'new_value'
                 }
             }
         },
@@ -76,9 +92,9 @@ def get_specs(id_):
         'execute1': {
             'execute': {
                 id_: {
-                    'do_something': {
-                        'args': [1,2,3],
-                        'kwargs': {'kw1': 2, 'kw2': 8}
+                    'method': {
+                        'args': [1],
+                        'kwargs': {}
                     }
                 }
             }
@@ -87,9 +103,9 @@ def get_specs(id_):
         'execute2': {
             'execute': {
                 'Test': {
-                    'some_func': {
-                        'args': [1,2],
-                        'kwargs': {'flags': 2, 'ignore': False}
+                    '_method': {
+                        'args': [],
+                        'kwargs': {'kwarg': 2}
                     }
                 }
             }
@@ -97,7 +113,7 @@ def get_specs(id_):
 
         'execute3': {
             'execute': {
-                'module_func': {
+                '__method': {
                     'args': [1,2],
                     'kwargs': {'flags': 2, 'ignore': False}
                 }

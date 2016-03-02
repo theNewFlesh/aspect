@@ -53,7 +53,7 @@ def get_member_info(item):
             else:
                 yield key, val, 'unknown'
 
-def filter_items(items, levels, key_func=lambda x: x):
+def is_visible(item, levels):
     lut = {
              'public': '^[^_]',
         'semiprivate': '^_[^_A-Z]',
@@ -62,7 +62,7 @@ def filter_items(items, levels, key_func=lambda x: x):
     }
     regex = '|'.join([lut[x] for x in levels])
     regex += '|__init__'
-    return filter(lambda x: re.search(regex, key_func(*x)), items)
+    return True if re.search(regex, item) else False
 
 def fire(func, spec):
     args = []
@@ -116,10 +116,11 @@ def class_to_aspect(class_, levels=['public', 'semiprivate', 'private']):
     members.update(class_members)
     members = [[k, v[0], v[1]] for k,v in members.iteritems()]
     
-    members = filter_items(members, levels, key_func=lambda k,v,t: k)
+    members = filter(lambda x: is_visible(x[0], levels), members)
     
     methods = ['method', 'function', 'generator_function']
     methods = filter(lambda x: x[2] in methods, members)
+    print(methods)
     methods = {k:function_to_aspect(v) for k,v,t in methods}
     
     attrs_ = ['attribute', 'data_descriptor']
@@ -147,7 +148,7 @@ __all__ = [
     'Item',
     'get_object_type',
     'get_member_info',
-    'filter_items',
+    'is_visible',
     'fire',
     'function_to_aspect',
     'class_to_aspect'
