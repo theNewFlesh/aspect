@@ -1,42 +1,17 @@
-class Test(object):
-	class_attr = 99
-	_class_attr = 100
-	__class_attr = 101
+from aspect.core.aspect import Aspect
+aspect = Aspect()
+aspect.levels = ['public']
+aspect.json_response = True
+# ------------------------------------------------------------------------------
 
-	def __init__(self):
-		self.instance_attr = 'a'
-		self._instance_attr = 'b'
-		self.__instance_attr = 'c'
-	
-	@property
-	def property_(self):
-		return self.instance_attr
-	
-	@property
-	def _property(self):
-		return self._instance_attr
-	
-	@property
-	def __property(self):
-		return self.__instance_attr
-	
-	def deregistered_method(self, arg):
-		return 'deregistered method fired'
-
-	def method(self, arg):
-		return arg
-	
-	def _method(self, kwarg=1):
-		return kwarg
-	
-	def __method(self, *args, **kwargs):
-		return args, kwargs
-
-def get_specs(id_):
+def get_specs(id_=0, module=1):
+	c = 'Test' + str(module)
+	m = 'method' + str(module)
+	f = 'module_func' + str(module)
 	specs = {
 		'create1': {
 			'create': {
-				'Test': {
+				c: {
 					'methods': {
 						'__init__': {
 							'args': [],
@@ -49,10 +24,9 @@ def get_specs(id_):
 
 		'create2': {
 			'create': {
-				'Test': None
+				c: None
 			}
 		},
-
 
 		'read1': {
 			'read': {
@@ -86,7 +60,7 @@ def get_specs(id_):
 			}
 		},
 
-		'delete': {
+		'delete1': {
 			'delete': {
 				id_: None
 			}
@@ -95,7 +69,7 @@ def get_specs(id_):
 		'execute1': {
 			'execute': {
 				id_: {
-					'method': {
+					m: {
 						'args': [1],
 						'kwargs': {}
 					}
@@ -105,7 +79,7 @@ def get_specs(id_):
 
 		'execute2': {
 			'execute': {
-				'Test': {
+				c: {
 					'_method': {
 						'args': [],
 						'kwargs': {'kwarg': 2}
@@ -132,5 +106,31 @@ def get_specs(id_):
 				}
 			}
 		},
+		'execute5': {
+			'execute': {
+				f: {
+					'args': [1,2],
+					'kwargs': {'kiwi': 2}
+				}
+			}
+		}
 	}
 	return specs
+# ------------------------------------------------------------------------------
+
+def main():
+	'''
+	Run help if called directly
+	'''
+	
+	import __main__
+	help(__main__)
+# ------------------------------------------------------------------------------
+
+__all__ = [
+	'get_specs',
+	'aspect'
+]
+
+if __name__ == '__main__':
+	main()

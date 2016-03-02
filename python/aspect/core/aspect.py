@@ -9,36 +9,49 @@ from functools import wraps
 # ------------------------------------------------------------------------------
 
 class Aspect(object):
-	def __init__(self, levels=['public', 'semiprivate', 'private', 'builtin'], json_response=True):
-		self._response  = json_response
-		self._levels    = levels
-		self._specs     = Item(classes={}, functions={})
-		self._library   = Item(classes={}, functions={})
-		self._instances = {}
-		self._blacklist = []
+	def __init__(self, levels=['public'], json_response=True):
+		'''
+		Args:
+			levels opt(list):
+				options include:
+					'public'
+					'semiprivate'
+					'private'
+					'builtin'
+				default: ['public']
+			
+			json_response opt(bool):
+				default: True
+		'''
+		self.json_response  = json_response
+		self.levels         = levels
+		self._specs         = Item(classes={}, functions={})
+		self._library       = Item(classes={}, functions={})
+		self._instances     = {}
+		self._blacklist     = []
 		
 	def __repr__(self):
 		return '\n\n'.join([
-			pformat({'json_response': self._response}),
-			pformat({'levels': self._levels}),
+			pformat({'json_response': self.json_response}),
+			pformat({'levels': self.levels}),
 			pformat(self._specs),
 			pformat(self._library),
 			pformat(self._instances)
 		])
 	# --------------------------------------------------------------------------
 
-	def request(self, spec):
-		for action, spec_ in spec.iteritems():
+	def request(self, specs):
+		for action, spec in specs.iteritems():
 			if action == 'create':
-				yield self._create(spec_)
+				yield self._create(spec)
 			elif action == 'read':
-				yield self._read(spec_)
+				yield self._read(spec)
 			elif action == 'update':
-				yield self._update(spec_)
+				yield self._update(spec)
 			elif action == 'delete':
-				yield self._delete(spec_)
+				yield self._delete(spec)
 			elif action == 'execute':
-				yield self._execute(spec_)
+				yield self._execute(spec)
 			else:
 				warn(action + ' is not a valid action')
 
@@ -55,7 +68,7 @@ class Aspect(object):
 		self._instances[id_] = fire(instance, init)
 
 		response = id_
-		if self._response:
+		if self.json_response:
 			response = {
 				'create': {
 					class_: response
@@ -75,7 +88,7 @@ class Aspect(object):
 		value = getattr(item, attr)
 
 		response = value
-		if self._response:
+		if self.json_response:
 			response = {
 				'read': {
 					id_: {
@@ -93,7 +106,7 @@ class Aspect(object):
 		setattr(instance, attr, value)
 
 		response = getattr(instance, attr) == value
-		if self._response:
+		if self.json_response:
 			response = {
 				'update': {
 					id_: {
@@ -109,7 +122,7 @@ class Aspect(object):
 		del self._instances[id_]
 
 		response = not self._instances.has_key(id_)
-		if self._response:
+		if self.json_response:
 			response = {
 				'delete': {
 					id_: response
@@ -154,7 +167,7 @@ class Aspect(object):
 					spec = self._specs.functions[id_]
 
 		response = fire(func, spec)
-		if self._response:
+		if self.json_response:
 			if method:
 				response = {method: response}
 			response = {
@@ -166,10 +179,10 @@ class Aspect(object):
 	# --------------------------------------------------------------------------
 
 	def register(self, item):
-		if is_visible(item.__name__, self._levels):
+		if is_visible(item.__name__, self.levels):
 			item_type = get_object_type(item)
 			if item_type in ['class', 'abstract']:
-				spec = class_to_aspect(item, levels=self._levels)
+				spec = class_to_aspect(item, levels=self.levels)
 				self._specs.classes[item.__name__] = spec
 				self._library.classes[item.__name__] = item
 
