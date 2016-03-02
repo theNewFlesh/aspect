@@ -20,6 +20,9 @@ class Test(object):
 	def __property(self):
 		return self.__instance_attr
 	
+	def deregistered_method(self, arg):
+		return 'deregistered method fired'
+
 	def method(self, arg):
 		return arg
 	
@@ -118,6 +121,16 @@ def get_specs(id_):
 					'kwargs': {'flags': 2, 'ignore': False}
 				}
 			}
-		}
+		},
+		'execute4': {
+			'execute': {
+				id_: {
+					'deregistered_method': {
+						'args': [1],
+						'kwargs': {}
+					}
+				}
+			}
+		},
 	}
 	return specs

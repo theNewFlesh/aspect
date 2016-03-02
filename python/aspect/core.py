@@ -15,6 +15,7 @@ class Aspect(object):
 		self._specs     = Item(classes={}, functions={})
 		self._library   = Item(classes={}, functions={})
 		self._instances = {}
+		self._blacklist = []
 		
 	def __repr__(self):
 		return '\n\n'.join([
@@ -185,12 +186,17 @@ class Aspect(object):
 				#     return func(*args, **kwargs)
 				# return wrapper
 
-	# def deregister(self, item):
-	#     key = item.__name__
-	#     for cls_ in self._specs.classes.values():
-	#         if cls_['methods'].has_key(key):
-	#             cls_['methods'].pop(meth)
-	#     return item
+	def deregister(self, item=None):
+		if item == None:
+			for key in self._blacklist:
+				for cls_ in self._specs.classes.values():
+					if cls_['methods'].has_key(key):
+						cls_['methods'].pop(key)
+			return
+		else:
+			key = item.__name__
+			self._blacklist.append(key)
+			return item
 # ------------------------------------------------------------------------------
 
 def main():
