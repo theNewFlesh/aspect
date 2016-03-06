@@ -1,7 +1,7 @@
 from aspect.core.aspect import Aspect
 aspect = Aspect()
 aspect.levels = ['public']
-aspect.json_response = True
+# aspect.json_response = True
 # ------------------------------------------------------------------------------
 
 def get_specs(id_=0, module=1):

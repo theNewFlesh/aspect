@@ -1,15 +1,16 @@
+import sys
 import re
 from itertools import *
-from inspect import *
-from pprint import pprint, pformat
+from collections import *
+from pprint import pformat, pprint
 from utils import *
 from random import randint
-from warnings import warn
-from functools import wraps
+from validators import *
+from schematics.exceptions import ValidationError
 # ------------------------------------------------------------------------------
 
 class Aspect(object):
-	def __init__(self, levels=['public'], json_response=True):
+	def __init__(self, levels=['public']):#, json_response=True):
 		'''
 		Args:
 			levels opt(list):
@@ -19,197 +20,177 @@ class Aspect(object):
 					'private'
 					'builtin'
 				default: ['public']
-			
-			json_response opt(bool):
-				default: True
 		'''
-		self.json_response  = json_response
 		self.levels         = levels
-		self._specs         = Item(classes={}, functions={})
-		self._library       = Item(classes={}, functions={})
-		self._instances     = {}
-		self._blacklist     = []
+		self._specs         = []
+		self._library       = {}
+		self._blacklist     = defaultdict(lambda: [])
+	# --------------------------------------------------------------------------
 		
 	def __repr__(self):
-		return '\n\n'.join([
-			pformat({'json_response': self.json_response}),
-			pformat({'levels': self.levels}),
-			pformat(self._specs),
-			pformat(self._library),
-			pformat(self._instances)
-		])
+		output = [
+			       'LEVELS:', '\t' + ', '.join(self.levels) + '\n',
+			        'SPECS:', pformat(self._specs) + '\n',
+			      'LIBRARY:', pformat(self._library) + '\n',
+		]
+		return '\n'.join(output)
 	# --------------------------------------------------------------------------
 
-	def request(self, specs):
-		for action, spec in specs.iteritems():
-			if action == 'create':
-				yield self._create(spec)
-			elif action == 'read':
-				yield self._read(spec)
-			elif action == 'update':
-				yield self._update(spec)
-			elif action == 'delete':
-				yield self._delete(spec)
-			elif action == 'execute':
-				yield self._execute(spec)
-			else:
-				warn(action + ' is not a valid action')
+	def register(self, module):
+		def blacklist(item):
+			if self._blacklist.has_key(item['module']):
+				if item['name'] in self._blacklist[item['module']]:
+					return False
+			return True
+
+		specs = get_module_specs(sys.modules[module])
+		specs = filter(lambda x: x['level'] in self.levels, specs)
+		specs = filter(blacklist, specs)
+
+		for spec in specs:
+			self._specs.append(spec)
+
+	def deregister(self, item):
+		self._blacklist[getmodule(item).__name__].append(item.__name__)
+		return item
+	# --------------------------------------------------------------------------
+	
+	def request(self, spec, json_errors=False):
+		if json_errors:
+			try:
+				self._request(spec)
+			except ValidationError as e:
+				return e.messages[0]
+		else:
+			return self._request(spec)
+
+	def _request(self, spec):
+		action = spec['action']
+		if action == 'create':
+			spec = CreateSpec(spec)
+			spec.validate()			
+			return self._create(spec)
+
+		elif action == 'read':
+			spec = ReadSpec(spec)
+			spec.validate()			
+			return self._read(spec)
+
+		elif action == 'update':
+			spec = UpdateSpec(spec)
+			spec.validate()			
+			return self._update(spec)
+
+		elif action == 'delete':
+			spec = DeleteSpec(spec)
+			spec.validate()			
+			return self._delete(spec)
+
+		elif action == 'execute':
+			if spec.has_key('function'):
+				spec = FunctionSpec(spec)
+				spec.validate()				
+				return self._execute_function(spec)
+
+			elif spec.has_key('method'):
+				spec = MethodSpec(spec)
+				spec.validate()				
+				return self._execute_method(spec)
+
+		else:
+			raise ValidationError(action + ' is not a valid action')
+	# --------------------------------------------------------------------------
+
+	def _search(self, spec):
+		def validate(rows, keys, row_keys):
+			for key, rkey in zip(keys, row_keys):
+				if spec.has_key(key):
+					rows = filter(lambda row: row[rkey] == spec[key], rows)
+					if len(rows) < 1:
+						raise ValidationError(spec[key] + ' ' +  key + ' not found')
+			return rows
+
+		if spec.has_key('id_'):
+			id_ = spec['id_']
+			if not self._library.has_key(id_):
+				raise ValidationError( str(id_) + ' id not found' )
+
+			spec['module'] = self._library[id_]['module']
+			spec['class_'] = self._library[id_]['class_']
+		
+		rows = self._specs
+		rows = validate(rows, ['module', 'class_'], ['module', 'class_'])
+		rows = validate(rows, ['method', 'attribute', 'function'], ['name'] * 3)
+		
+		return rows
+	# --------------------------------------------------------------------------
 
 	def _create(self, spec):
-		class_, spec = spec.iteritems().next()
+		row = self._search(spec.to_native())
+		row = filter(lambda x: x['name'] == '__init__', row)
+		if len(row) > 1:
+			raise ValidationError( 'multiple inits found for ' + spec['class_'] )
+		row = row[0]
 
-		if spec == None:
-			spec = self._specs.classes[class_]
+		id_ = randint(1000000000, 9999999999)
+		while id_ in self._library.keys():
+			id_ = randint(1000000000, 9999999999)
 
-		init = spec['methods']['__init__']
-		instance = self._library.classes[class_]
-		# id_ = str(randint(0, 1000000000)).zfill(10)
-		id_ = randint(0, 1000000000)
-		self._instances[id_] = fire(instance, init)
-
+		item = {
+			'instance': fire(row['object'], row['args'], row['kwargs']),
+			'module': row['module'], 
+			'class_': row['class_']
+		}
+		self._library[id_] = item
+		
 		response = id_
-		if self.json_response:
-			response = {
-				'create': {
-					class_: response
-				}
-			}
 		return response
 
 	def _read(self, spec):
-		id_, spec = spec.iteritems().next()
-
-		if isinstance(id_, str): #class
-			item = self._library.classes[id_]
-		else: #instance
-			item = self._instances[id_]
-
-		attr, _ = spec.iteritems().next()
-		value = getattr(item, attr)
-
-		response = value
-		if self.json_response:
-			response = {
-				'read': {
-					id_: {
-						attr: response
-					}
-				}
-			}
+		row = self._search(spec.to_native())
+		response = getattr(self._library[ spec['id_'] ]['instance'], spec['attribute'])
 		return response
 
 	def _update(self, spec):
-		id_, spec = spec.iteritems().next()
+		row = self._search(spec.to_native())
+		if len(row) > 1:
+			raise ValidationError( 'multiple ' + spec['attribute'] + ' attributes found for ' + row[0]['class_'] )
 
-		instance = self._instances[id_]
-		attr, value = spec.iteritems().next()
-		setattr(instance, attr, value)
+		id_ = spec['id_']
+		attr = spec['attribute']
+		value = spec['value']
 
-		response = getattr(instance, attr) == value
-		if self.json_response:
-			response = {
-				'update': {
-					id_: {
-						attr: response
-					}
-				}
-			}
+		setattr(self._library[id_]['instance'], attr, value)
+		response = getattr(self._library[id_]['instance'], attr) == value
+
 		return response
 
 	def _delete(self, spec):
-		id_, _ = spec.iteritems().next()
+		id_ = spec['id_']
 
-		del self._instances[id_]
-
-		response = not self._instances.has_key(id_)
-		if self.json_response:
-			response = {
-				'delete': {
-					id_: response
-				}
-			}
+		if self._library.has_key(id_):
+			del self._library[id_]
+			response = not self._library.has_key(id_)
+		
 		return response
 
-	def _execute(self, spec):
-		id_, spec = spec.iteritems().next()
+	def _execute_method(self, spec):
+		row = self._search(spec.to_native())
+		if len(row) > 1:
+			raise ValidationError( 'multiple ' + spec['method'] + ' methods found for ' + spec['class_'] )
 
-		func = None
-		method = None
-
-		# instance method
-		if isinstance(id_, int):
-			instance = self._instances[id_]
-
-			func, spec = spec.iteritems().next()
-			method = func
-
-			if spec == None:
-				class_ = instance.__class__.__name__
-				spec = self._specs.classes[class_]['methods'][func]
-			
-			func = getattr(instance, func)
-			
-		else:
-			# class method
-			if self._library.classes.has_key(id_):
-				class_ = self._library.classes[id_]
-
-				func, spec = spec.iteritems().next()
-				method = func
-				func = getattr(class_, func)
-				if spec == None:
-					spec = self._specs.classes[id_]
-
-			# module function
-			elif self._library.functions.has_key(id_):
-				func = self._library.functions[id_]
-				if spec == None:
-					spec = self._specs.functions[id_]
-
-		response = fire(func, spec)
-		if self.json_response:
-			if method:
-				response = {method: response}
-			response = {
-				'execute': {
-					id_: response
-				}
-			}
+		func = getattr(self._library[ spec['id_'] ]['instance'], spec['method'])
+		response = fire(func, spec['args'], spec['kwargs'])
 		return response
-	# --------------------------------------------------------------------------
-
-	def register(self, item):
-		if is_visible(item.__name__, self.levels):
-			item_type = get_object_type(item)
-			if item_type in ['class', 'abstract']:
-				spec = class_to_aspect(item, levels=self.levels)
-				self._specs.classes[item.__name__] = spec
-				self._library.classes[item.__name__] = item
-
-				return item 
 			
-			elif item_type in ['function', 'generator_function', 'method']:
-				spec = function_to_aspect(item)
-				self._specs.functions[item.__name__] = spec
-				self._library.functions[item.__name__] = item
-				
-				return item
-				# @wraps(item)
-				# def wrapper(*args, **kwargs):
-				#     return func(*args, **kwargs)
-				# return wrapper
+	def _execute_function(self, spec):
+		row = self._search(spec.to_native())
+		if len(row) > 1:
+			raise ValidationError( 'multiple ' + spec['function'] + ' functions found for ' + spec['module'] )
+		row = row[0]
 
-	def deregister(self, item=None):
-		if item == None:
-			for key in self._blacklist:
-				for cls_ in self._specs.classes.values():
-					if cls_['methods'].has_key(key):
-						cls_['methods'].pop(key)
-			return
-		else:
-			key = item.__name__
-			self._blacklist.append(key)
-			return item
+		response = fire(row['object'], spec['args'], spec['kwargs'])
+		return response
 # ------------------------------------------------------------------------------
 
 def main():

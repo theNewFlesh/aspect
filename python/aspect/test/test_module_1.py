@@ -1,7 +1,10 @@
 from aspect.test.utils import aspect
+import re
+from itertools import *
 # ------------------------------------------------------------------------------
 
-@aspect.register
+some_var = re.compile('ksgfhdj')
+
 class Test1(object):
     '''Test class docstring'''
     class_attr = 99
@@ -31,21 +34,38 @@ class Test1(object):
     
     def method1(self, arg):
         return 'method1 fired'
+
+    def method2(self, arg1of2, arg2of2):
+        return 'method2 fired'
+
+    def method3(self, arg1of1, kwarg1of2=1, kwarg2of2=2):
+        return 'method3 fired'
+
+    def method4(self, arg1of2, arg2of2, kwarg1of2=1, kwarg2of2=2):
+        return 'method4 fired'
+
+    def method5(self, arg1of2, arg2of2, kwarg1of2=1, kwarg2of2=2, **kwargs):
+        return 'method5 fired'
     
-    def _method(self, kwarg=1):
+    def _method(self, kwarg1of1=1):
         return kwarg
     
     def __method(self, *args, **kwargs):
         return args, kwargs
 # ------------------------------------------------------------------------------    
 
-@aspect.register
 def module_func1(apple, banana, kiwi=3):
     '''test docstring'''
     print(apple, banana, kiwi)
     print('it works')
 
-aspect.deregister()
+@aspect.deregister
+def deregistered_module_func1(apple, banana, kiwi=3):
+    '''test docstring'''
+    print(apple, banana, kiwi)
+    print('it works')
+
+aspect.register(__name__)
 # ------------------------------------------------------------------------------
 
 def main():
@@ -57,7 +77,7 @@ def main():
     help(__main__)
 # ------------------------------------------------------------------------------
 
-__all__ = ['Test1', 'module_func1']
+__all__ = ['Test1', 'module_func1', 'deregistered_module_func1']
 
 if __name__ == '__main__':
     main()
