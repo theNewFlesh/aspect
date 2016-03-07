@@ -97,7 +97,7 @@ def execute_deregistered_function_001_test():
 		kwargs={}
 	)
 	with assert_raises(ValidationError):
-		aspect.request(spec)
+		aspect.request(spec, json_errors=False)
 # ------------------------------------------------------------------------------
 
 def main():
