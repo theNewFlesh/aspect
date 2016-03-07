@@ -10,7 +10,7 @@ from schematics.exceptions import ValidationError
 # ------------------------------------------------------------------------------
 
 class Aspect(object):
-	def __init__(self, levels=['public']):#, json_response=True):
+	def __init__(self, levels=['public']):
 		'''
 		Args:
 			levels opt(list):
@@ -55,12 +55,12 @@ class Aspect(object):
 		return item
 	# --------------------------------------------------------------------------
 	
-	def request(self, spec, json_errors=False):
+	def request(self, spec, json_errors=True):
 		if json_errors:
 			try:
-				self._request(spec)
+				return self._request(spec)
 			except ValidationError as e:
-				return e.messages[0]
+				return {'error': e.messages}
 		else:
 			return self._request(spec)
 
