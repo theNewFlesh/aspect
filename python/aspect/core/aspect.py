@@ -167,10 +167,13 @@ class Aspect(object):
 
 	def _delete(self, spec):
 		id_ = spec['id_']
+		response = False
 
 		if self._library.has_key(id_):
 			del self._library[id_]
 			response = not self._library.has_key(id_)
+		else:
+			raise ValidationError('no instance with ' + str(id_) + ' id exists')
 		
 		return response
 
