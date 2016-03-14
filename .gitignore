@@ -61,14 +61,14 @@ target/
 
 # OS X
 .DS_Store
+
+# Images
 *.pdf
-
 *.hdf
-
 *.jpg
-
 *.gif
-
 *.png
-
 *.pkl
+
+# Javascript
+node_modules/
