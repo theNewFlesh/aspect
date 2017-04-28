@@ -1,0 +1,9 @@
+sidebar:
+  - title: foo
+    link: www.google.com
+  - title: bar
+    link: www.amazon.com
+
+dashboard:
+  - title: blarg
+    html: <div></div>

@@ -1,0 +1,17 @@
+  {% block dashboard %}
+      <!-- dashboard -->
+      <div id="page-content-wrapper">
+          <div class="container-fluid" id="page-content">
+           <div class="dashboard">
+              <ul class="flex-container dashrow">
+              {% for item in dashboard %}
+                <li class="flex-item dashcell-1">
+                  {{ item['html'] }}
+                </li>
+              {% endfor %}
+              </ul>
+            </div>
+          </div>
+      </div>
+      <!-- /dashboard -->
+  {% endblock %}

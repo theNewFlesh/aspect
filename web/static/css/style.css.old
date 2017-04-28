@@ -1,0 +1,207 @@
+body {
+  background: #141414;
+  overflow-x: hidden;
+}
+
+a {
+  color: #7EC4CF;
+}
+
+a:hover {
+    color: #F4F4F4;
+}
+
+/* Flexbox */
+
+.flex-container {
+  list-style: none;
+  display: -webkit-box;
+  display: -moz-box;
+  display: -ms-flexbox;
+  display: -webkit-flex;
+  display: flex;
+  -webkit-flex-flow: row wrap;
+}
+
+.flex-item {
+  line-height: 0px;
+  font-size: 3em;
+  text-align: center;
+}
+
+/* Dashboard */
+
+.dashboard {
+  padding: 0px;
+  margin: 0px;
+  border: 4px;
+  border-style: solid;
+  border-color: #141414;
+}
+
+.dashrow {
+  background: #141414;
+  padding: 0px;
+  border: 1px;
+  margin: 0px;
+  justify-content: center;
+}
+
+.dashcell-0,
+.dashcell-1,
+.dashcell-2,
+.dashcell-3,
+.dashcell-4,
+.dashcell-5,
+.dashcell-6,
+.dashcell-7,
+.dashcell-8,
+.dashcell-9,
+.dashcell-10 {
+  background: #242424;
+  min-width: 375px;
+  height: 375px;
+  padding: 0px;
+  margin: 0px;
+  border: 5px;
+  border-style: solid;
+  border-color: #141414;
+  flex-grow: 1;
+}
+
+.dashcell-0 {
+  flex-grow: 0;
+}
+
+.dashcell-1 {
+  flex-grow: 1;
+}
+
+.dashcell-2 {
+  flex-grow: 2;
+}
+
+.dashcell-3 {
+  flex-grow: 6;
+}
+
+.dashcell-4 {
+  flex-grow: 10000000;
+}
+
+/* Toggle Styles */
+
+#wrapper {
+    -webkit-transition: all 0.5s ease;
+    -moz-transition: all 0.5s ease;
+    -o-transition: all 0.5s ease;
+    transition: all 0.5s ease;
+}
+
+#wrapper.toggled {
+    padding-left: 250px;
+}
+
+#page-content {
+  padding: 0px;
+}
+
+#sidebar-wrapper {
+    z-index: 1000;
+    position: fixed;
+    left: 250px;
+    width: 0;
+    height: 100%;
+    margin-left: -250px;
+    overflow-y: auto;
+    -webkit-transition: all 0.5s ease;
+    -moz-transition: all 0.5s ease;
+    -o-transition: all 0.5s ease;
+    transition: all 0.5s ease;
+}
+
+#wrapper.toggled #sidebar-wrapper {
+    width: 250px;
+}
+
+#page-content-wrapper {
+    width: 100%;
+    position: absolute;
+}
+
+#wrapper.toggled #page-content-wrapper {
+    position: absolute;
+    margin-right: -250px;
+}
+
+/* Sidebar Styles */
+
+.sidebar-nav {
+    position: absolute;
+    top: 0;
+    width: 250px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.sidebar-nav li {
+    text-indent: 20px;
+    line-height: 40px;
+}
+
+.sidebar-nav li a {
+    display: block;
+    text-decoration: none;
+}
+
+.sidebar-nav li a:hover {
+    text-decoration: none;
+    background: #242424;
+}
+
+.sidebar-nav li a:active,
+.sidebar-nav li a:focus {
+    text-decoration: none;
+    color: #7EC4CF;
+}
+
+.sidebar-nav > .sidebar-brand {
+    height: 65px;
+    font-size: 18px;
+    line-height: 60px;
+}
+
+.sidebar-nav > .sidebar-brand a {
+}
+
+.sidebar-nav > .sidebar-brand a:hover {
+    background: none;
+}
+
+@media(min-width:625px) {
+    #wrapper {
+        padding-left: 250px;
+    }
+
+    #wrapper.toggled {
+        padding-left: 0;
+    }
+
+    #sidebar-wrapper {
+        width: 250px;
+    }
+
+    #wrapper.toggled #sidebar-wrapper {
+        width: 0;
+    }
+
+    #page-content-wrapper {
+        position: relative;
+    }
+
+    #wrapper.toggled #page-content-wrapper {
+        position: relative;
+        margin-right: 0;
+    }
+}

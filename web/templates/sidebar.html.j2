@@ -1,0 +1,13 @@
+  {% block sidebar %}
+    <!-- sidebar -->
+    <div id="sidebar-wrapper">
+      <ul class="sidebar-nav">
+      {% for item in sidebar %}
+        <li>
+          <a href="{{ item['link'] }}">{{ item['title'] }}</a>
+        </li>
+      {% endfor %}
+      </ul>
+    </div>
+    <!-- /sidebar -->
+  {% endblock %}
