@@ -1,13 +1,5 @@
 title: aspect
 
-sidebar:
-  title: sidebar
-  list_items:
-  - title: foo
-    html: www.google.com
-  - title: bar
-    html: www.amazon.com
-
 dashboard:
   - title: card-0
     html: <div></div>
@@ -52,50 +44,60 @@ dashboard:
     height: 250px
     id: 5
 
-modules:
-  - name: module1
-    classes:
-      - name: ClassFoo
-        methods:
-          - name: method1
-            args:
-              - name: arg1
-                value: 50
-              - name: arg2
-                value: 40
-            kwargs:
-              - name: kwarg1
-                default: 0
-              - name: kwarg2
-                default: 1
-              - name: method1
-      - name: ClassBar
-        methods:
-          - name: method1
-            args:
-              - name: arg1
-                value: 50
-        attributes:
-          - name: name
-            value: "ClassBar's name"
-    functions:
-      - name: func1
-        args:
-          - name: fruit
-            value: banana
-          - name: vegetable
-            value: lettuce
-        kwargs:
-          - name: meat
-            default: chicken
-    variables:
-      - name: var1
-        value: boo
-  - name: module2
-    classes:
-      - name: ClassBaz
-        methods:
-          - name: method1
-            args:
-              - name: blarg
-                value: blerg
+library:
+  name: some_lib
+  modules:
+    - name: module1
+      classes:
+        - name: ClassFoo
+          methods:
+            - name: method1
+              args:
+                - name: arg1
+                  value: 50
+                - name: arg2
+                  value: 40
+              kwargs:
+                - name: kwarg1
+                  default: 0
+                - name: kwarg2
+                  default: 1
+                - name: method1
+        - name: ClassBar
+          methods:
+            - name: method1
+              args:
+                - name: arg1
+                  value: 50
+          attributes:
+            - name: name
+              value: "ClassBar's name"
+      functions:
+        - name: func1
+          args:
+            - name: fruit
+              value: banana
+            - name: vegetable
+              value: lettuce
+          kwargs:
+            - name: meat
+              default: chicken
+      variables:
+        - name: var1
+          value: boo
+    - name: module2
+      classes:
+        - name: ClassBaz
+          methods:
+            - name: method1
+              args:
+                - name: blarg
+                  value: blerg
+    - name: module3
+      classes:
+        - name: ClassFizz
+          methods:
+            - name: method1
+              args:
+                - name: buzz
+                  value: bang

@@ -78,15 +78,15 @@
 
 {# ---TREEGRID--------------------------------------------------------------- #}
 <div class="table-responsive">
-  <table class="table table-bordered table-hover table-treegrid">
-    <thead>
+  <table class="table table-hover table-treegrid">
+    {# <thead>
     <tr>
       <th>object</th>
       <th>value</th>
     </tr>
-    </thead>
+    </thead> #}
     <tbody>
-    {% for module in modules %}
+    {% for module in library.modules %}
       {{ to_tree_module(module) }}
     {% endfor %}
     </tbody>

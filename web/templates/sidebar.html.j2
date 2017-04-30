@@ -1,8 +1,5 @@
   <div class="grid-cell" id="sidebar-container">
     <l id="sidebar">
-    <h3 id="sidebar-header">{{ sidebar.title }}</h3>
-{#  #}{% for item in sidebar.list_items %}
-      <li id="sidebar-item">{{ item.html }}</li>
-{#  #}{% endfor %}
+    {% include 'treegrid.html.j2' %}
     </l>
   </div>
