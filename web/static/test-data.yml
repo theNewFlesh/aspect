@@ -17,7 +17,7 @@ dashboard:
     flex_grow: 10
     flex_shrink: 0
     width: 500px
-    height: 500px
+    height: 250px
     id: 1
   - title: card-2
     html: <div></div>
@@ -44,8 +44,8 @@ dashboard:
     html: <div></div>
     flex_grow: 1
     flex_shrink: 0
-    width: 250px
-    height: 250px
+    width: 500px
+    height: 500px
     id: 5
 
 library:
@@ -70,7 +70,7 @@ library:
           methods:
             - name: method1
               args:
-                - name: arg1kjdsfkjhsgdfjhgsdfgkjd
+                - name: very-long-argument-name
                   value: 50
           attributes:
             - name: name

@@ -31,6 +31,11 @@ a:active {
   height: inherit;
 }
 
+#logo {
+  padding-top: 17px;
+  color: #B6ECF3;
+}
+
 .breadcrumb > li + li:before {
     color: #A4A4A4;
     content: "/ ";
@@ -51,6 +56,28 @@ a:active {
 
 .breadcrumb-item.active {
     color: #F4F4F4;
+}
+
+#search-container {
+  display: flex;
+  flex: 1 0 100%;
+  -webkit-justify-content: flex-end;
+  justify-content: flex-end;
+}
+
+#search {
+  display: flex;
+  flex: 1 0 100%;
+  -webkit-justify-content: flex-end;
+  justify-content: flex-end;
+}
+
+#searchbar, #searchbar:focus {
+    width: 700px !important;
+    background: #444444;
+    color: #A4A4A4;
+    border: 2px solid #444444;
+    border-radius: 3px;
 }
 
 #app {
@@ -150,12 +177,16 @@ td {
   width: 50%;
 }
 
+.indent {
+  margin-left: 6px !important;
+  margin-right: 6px !important;
+}
+
 #sidebar-key {
   word-wrap: break-word !important;
 }
 
 #sidebar-value {
-
 }
 
 *{
