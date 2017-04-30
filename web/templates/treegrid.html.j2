@@ -5,11 +5,11 @@
     {% else %}
       <tr id="{{ item.name }}">
     {% endif %}
-      <td class="treegrid-node">
+      <td class="treegrid-node" id="sidebar-key">
         <span class="icon node-icon fa {{ icon }}"></span>
         {{ item.name }}
       </td>
-      <td>{{ value }}</td>
+      <td id="sidebar-value">{{ value }}</td>
     </tr>
 {%- endmacro %}
 

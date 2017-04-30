@@ -1,4 +1,8 @@
 title: aspect
+filetree:
+  - library
+  - subpackage
+  - module
 
 dashboard:
   - title: card-0
@@ -62,12 +66,11 @@ library:
                   default: 0
                 - name: kwarg2
                   default: 1
-                - name: method1
         - name: ClassBar
           methods:
             - name: method1
               args:
-                - name: arg1
+                - name: arg1kjdsfkjhsgdfjhgsdfgkjd
                   value: 50
           attributes:
             - name: name
