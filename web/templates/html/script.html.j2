@@ -15,4 +15,19 @@ $("#menu-toggle").click(function(e) {
 
 // Init treegrid
 $('.table-treegrid').treegrid();
+
+function toggleSidebar() {
+    var right = $("#right")[0];
+    var left = $("#left")[0];
+    var sidebarIcon = $("#sidebar-icon")[0];
+    if (right.style.display === 'none') {
+        right.style.display = 'block';
+        left.style.width = "70%";
+        sidebarIcon.className = "fa fa-caret-right fa-2x"
+    } else {
+        right.style.display = 'none';
+        left.style.width = "100%";
+        sidebarIcon.className = "fa fa-caret-left fa-2x"
+    }
+};
 </script>
