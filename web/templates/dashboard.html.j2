@@ -1,17 +1,12 @@
-  {% block dashboard %}
-      <!-- dashboard -->
-      <div id="page-content-wrapper">
-          <div class="container-fluid" id="page-content">
-           <div class="dashboard">
-              <ul class="flex-container dashrow">
-              {% for item in dashboard %}
-                <li class="flex-item dashcell-1">
-                  {{ item['html'] }}
-                </li>
-              {% endfor %}
-              </ul>
-            </div>
-          </div>
+  <div class="grid-cell" id="dashboard-container">
+    <div class="grid" id="dashboard">
+{##}{% for card in dashboard %}
+      <div class="grid-cell" id="card-container-{{ card.id }}">
+        <h3>{{ card.title }}</h3>
+        <div id="card">
+          {{ card.html }}
+        </div>
       </div>
-      <!-- /dashboard -->
-  {% endblock %}
+{##}{% endfor %}
+    </div>
+  </div>

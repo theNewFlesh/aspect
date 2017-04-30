@@ -17,7 +17,7 @@ def module_relative_path(path):
     new_path = os.path.join(root, *new_path)
     return os.path.abspath(new_path)
 
-DATA_FILE = module_relative_path('static/data.yml')
+DATA_FILE = module_relative_path('static/test-data.yml')
 
 def setup(data_file):
     env = jinja2.Environment(
@@ -40,7 +40,7 @@ app = Flask('test',
     static_folder=module_relative_path('static'),
     template_folder=module_relative_path('templates')
 )
-bootstrap = Bootstrap(app)
+# bootstrap = Bootstrap(app)
 
 @app.route('/')
 def index():

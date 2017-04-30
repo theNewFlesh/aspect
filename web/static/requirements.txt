@@ -1,0 +1,5 @@
+npm install patternfly --save
+npm install datatables.net --save
+npm install datatables.net-bs --save
+npm install bootstrap@3 --save
+npm install plotly.js --save

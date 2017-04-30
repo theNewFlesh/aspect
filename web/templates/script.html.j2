@@ -1,15 +1,18 @@
-  {% block script %}
-    <!-- jQuery -->
-    <script src="{{ url_for('static', filename='js/jquery.js') }}"></script>
+{% macro bower(filepath) -%}
+{##}{{ url_for('static', filename='bower_components/' + filepath) }}
+{%- endmacro %}
+<script src="{{ bower('jquery/dist/jquery.min.js') }}"></script>
+<script src="{{ bower('bootstrap/dist/js/bootstrap.min.js') }}"></script>
+<script src="{{ bower('patternfly/dist/js/patternfly.min.js') }}"></script>
+<script src="{{ bower('plotly.js/dist/plotly.min.js') }}"></script>
 
-    <!-- Bootstrap Core JavaScript -->
-    <script src="{{ url_for('static', filename='bootstrap/js/bootstrap.min.js') }}"></script>
+<!-- Menu Toggle Script -->
+<script>
+$("#menu-toggle").click(function(e) {
+  e.preventDefault();
+  $("#wrapper").toggleClass("toggled");
+});
 
-    <!-- Menu Toggle Script -->
-    <script>
-    $("#menu-toggle").click(function(e) {
-      e.preventDefault();
-      $("#wrapper").toggleClass("toggled");
-    });
-    </script>
-  {% endblock %}
+// Init treegrid
+$('.table-treegrid').treegrid();
+</script>
