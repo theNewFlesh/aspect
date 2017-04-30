@@ -1,8 +1,8 @@
 html, body {
   width: 100%;
   min-height: 100%;
-  margin: 0;
-  padding: 0;
+  margin: 0px;
+  padding: 0px;
   color: #A4A4A4;
   font-size:14px;
   font-family:Verdana, Geneva, sans-serif;
@@ -22,6 +22,7 @@ a:active {
 
 #navbar {
   background: #242424;
+  border-bottom: 5px solid #000;
   border-bottom: 5px solid #000;
   height: 55px;
   padding: 0px 10px 0px 10px;
@@ -98,7 +99,7 @@ a:active {
 #dashboard {
   display: flex;
   flex-flow: row wrap;
-  margin: 0px -5px -5px 0px;
+  margin: 50px -5px -5px 0px;
   border-top: 5px solid #000000;
 }
 
@@ -160,11 +161,11 @@ a:active {
   -ms-flex-direction: row;
   flex-direction: row;
   display: flex;
-  overflow:hidden;
+  overflow: hidden;
 }
 
 .grid-cell {
-  overflow:hidden;
+  overflow: hidden;
 }
 
 #sidebar-container {
@@ -180,7 +181,7 @@ a:active {
 #sidebar {
   position: fixed;
   padding: 0px;
-  margin-top: 5px;
+  margin-top: 55px;
   margin-bottom: 5px;
   background: #242424;
   min-width: 200px;
