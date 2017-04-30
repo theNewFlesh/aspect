@@ -1,0 +1,31 @@
+#dashboard-container {
+  -webkit-flex-wrap: wrap;
+  -ms-flex-wrap: wrap;
+  flex-wrap: wrap;
+  background: #000000;
+  flex: 1 0 50%;
+}
+
+#dashboard {
+  display: flex;
+  flex-flow: row wrap;
+  border-top: 5px solid #000000;
+}
+
+#dashboard > .grid-cell {
+  flex: 1 0 250px;
+  min-height: 250px;
+  background: #242424;
+  border-bottom: 5px solid #000000;
+  border-left: 5px solid #000000;
+  padding: 0;
+}
+
+{% for card in dashboard %}
+#card-container-{{ card.id }} {
+  flex-grow: {{ card.flex_grow }} !important;
+  flex-shrink: {{ card.flex_shrink }} !important;
+  flex-basis: {{ card.width }} !important;
+  height: {{ card.height }} !important;
+}
+{% endfor %}
