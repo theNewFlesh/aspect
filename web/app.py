@@ -29,7 +29,7 @@ def setup(data_file):
         data = yaml.load(f)
 
     with open(module_relative_path('static/css/style.css'), 'w') as f:
-        css = env.get_template('style.css.j2').render(data)
+        css = env.get_template('css/style.css.j2').render(data)
         f.write(css)
 
     return data
@@ -44,7 +44,7 @@ app = Flask('test',
 
 @app.route('/')
 def index():
-    return render_template('index.html.j2', **data)
+    return render_template('html/index.html.j2', **data)
 
 if __name__ == '__main__':
     app.run(debug=True)
