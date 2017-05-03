@@ -3,3 +3,7 @@ web/static/node_modules/
 web/static/css/style.css
 
 *.css
+
+*.pyc
+
+*.css

@@ -1,0 +1,9 @@
+<div class="grid-cell" id="search">
+  <input class="form-control" type="text" id="searchbar" placeholder="search library" list="library">
+   <datalist id="library">
+   {# {{ library | library_to_list}} #}
+    {% for item in library_to_list(library) %}
+      <option value="{{ item }}">
+    {% endfor %}
+  </datalist>
+</div>

@@ -20,11 +20,7 @@
     <!-- Collect the nav links, forms, and other content for toggling -->
     <div class="collapse navbar-collapse" id="hamburger">
       <div class="grid" id="search-container">
-
-        <div class="grid-cell" id="search">
-          <input class="form-control" type="text" id="searchbar" placeholder="search aspect">
-        </div>
-
+        {% include 'html/searchbar.html.j2' %}
         <div class="grid-cell" id="sidebar-toggle">
           <button class="btn" type="button" id="sidebar-btn" onclick="toggleSidebar()">
             <i class="fa fa-caret-right fa-2x" id="sidebar-icon"></i>

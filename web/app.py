@@ -3,19 +3,7 @@ from flask import Flask, render_template
 from flask_bootstrap import Bootstrap
 import jinja2
 import yaml
-
-def module_relative_path(path):
-    root = os.path.dirname(os.path.abspath(__file__))
-    new_path = []
-    for dir_ in path.split(os.sep):
-        if dir_ == '..':
-            root = os.path.dirname(root)
-        elif dir_ == '.':
-            pass
-        else:
-            new_path.append(dir_)
-    new_path = os.path.join(root, *new_path)
-    return os.path.abspath(new_path)
+from utils import *
 
 DATA_FILE = module_relative_path('static/test-data.yml')
 
@@ -40,6 +28,10 @@ app = Flask('test',
     static_folder=module_relative_path('static'),
     template_folder=module_relative_path('templates')
 )
+
+# app.jinja_env.extensions['is_list'] = is_list
+# app.jinja_env.extensions['library_to_list'] = library_to_list
+
 # bootstrap = Bootstrap(app)
 
 @app.route('/')
