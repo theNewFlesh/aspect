@@ -35,7 +35,7 @@ app = Flask('test',
 def utility_processor():
     return dict(
         library_to_list=library_to_list,
-        to_list=to_list
+        is_list=is_list
     )
 
 @app.route('/')
