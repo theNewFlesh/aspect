@@ -1,8 +1,9 @@
 title: aspect
-filetree:
-  - library
-  - subpackage
+
+library_cursor:
+  - lib
   - module
+  - class
 
 dashboard:
   - title: card-0

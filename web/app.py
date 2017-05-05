@@ -29,10 +29,14 @@ app = Flask('test',
     template_folder=module_relative_path('templates')
 )
 
-# app.jinja_env.extensions['is_list'] = is_list
-# app.jinja_env.extensions['library_to_list'] = library_to_list
-
 # bootstrap = Bootstrap(app)
+
+@app.context_processor
+def utility_processor():
+    return dict(
+        library_to_list=library_to_list,
+        to_list=to_list
+    )
 
 @app.route('/')
 def index():

@@ -1,7 +1,7 @@
 <div class="grid-cell" id="search">
   <input class="form-control" type="text" id="searchbar" placeholder="search library" list="library">
    <datalist id="library">
-    {% for item in temp_lib %}
+    {% for item in library_to_list(library) %}
       <option id="searchbar-item" value="{{ item }}">
     {% endfor %}
   </datalist>

@@ -10,10 +10,10 @@
       </button>
       <a class="navbar-brand icon node-icon fa fa-first-order fa-lg align-middle" href="#" id="logo"></a>
       <ol class="breadcrumb navbar-left">
-      {% for node in filetree[:-1] %}
-          <li class="breadcrumb-item"><a href="#">{{ node }}</a></li>
+      {% for item in library_cursor[:-1] %}
+          <li class="breadcrumb-item"><a href="#">{{ item }}</a></li>
       {% endfor %}
-          <li class="breadcrumb-item active">{{ filetree[-1] }}</li>
+          <li class="breadcrumb-item active">{{ library_cursor[-1] }}</li>
       </ol>
     </div>
 
