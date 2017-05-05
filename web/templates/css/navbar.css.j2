@@ -17,11 +17,15 @@
   color: #B6ECF3;
 }
 
+.breadcrumb {
+  margin-top: -22px;
+}
+
 .breadcrumb > li + li:before {
     color: #B6ECF3;
-    content: ". ";
-    padding: 0px 2px 0px 0px;
-    font-size: 20px;
+    content: ".";
+    margin: 0px -3px 0px -8px;
+    font-size: 40px;
 }
 
 .breadcrumb-item:hover a {
@@ -52,11 +56,10 @@
   flex: 1 0 50px !important;
   -webkit-justify-content: flex-start;
   justify-content: flex-start;
-  {# position: relative;
-  margin: 100px; #}
+  padding: 10px;
 }
 
-#searchbar, #searchbar:focus {
+#searchbar, #searchbar:focus, #searchbar:hover {
     width: 1000px !important;
     background: #444444;
     color: #A4A4A4;
@@ -64,7 +67,7 @@
     border-radius: 3px;
 }
 
-#sidebar-btn, #sidebar-btn:before, #sidebar-btn:after {
+#sidebar-btn, #sidebar-btn:before, #sidebar-btn:after, #sidebar-btn:hover {
   display: flex !important;
   flex: 1 0 50px !important;
   align-items: center;
@@ -83,34 +86,8 @@
 #sidebar-icon {
   align-items: center;
 }
-/*
-.typeahead, .tt-query, .tt-hint {
-}
-.typeahead {
-}
 
-.typeahead:focus {
+#library {
+  background: #242424 !important;
+  color: #A4A4A4 !important;
 }
-
-.tt-query {
-}
-
-.tt-hint {
-}
-
-.tt-menu {
-}
-
-.tt-suggestion {
-}
-
-.tt-suggestion:hover {
-  cursor: pointer;
-  background: #f00;
-  color: #ff0;
-}
-.tt-suggestion p {
-}
-
-
-*/

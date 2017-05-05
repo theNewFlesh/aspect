@@ -8,6 +8,7 @@ html, body {
   font-size: 14px;
   font-family: Verdana, Geneva, sans-serif;
   background: #000000;
+  outline: none !important;
 }
 
 a:link,
@@ -15,6 +16,19 @@ a:visited,
 a:hover,
 a:active {
   text-decoration: none;
+}
+
+input[type=text], input[type=text]:focus,
+textarea, textarea:focus {
+  -moz-box-shadow: 0 0 0px;
+  -webkit-box-shadow: 0 0 0px;
+  outline: none;
+}
+
+.btn.active.focus, .btn.active:focus, .btn.focus, .btn:active.focus, .btn:active:focus, .btn:focus {
+  -moz-box-shadow: 0 0 0px;
+  -webkit-box-shadow: 0 0 0px;
+  outline: none;
 }
 
 @media (min-width: 500px){
@@ -73,11 +87,15 @@ a:active {
   color: #B6ECF3;
 }
 
+.breadcrumb {
+  margin-top: -22px;
+}
+
 .breadcrumb > li + li:before {
-    color: #A4A4A4;
-    content: "/ ";
-    padding: 0px 2px 0px 0px;
-    font-size: 20px;
+    color: #B6ECF3;
+    content: ".";
+    margin: 0px -3px 0px -8px;
+    font-size: 40px;
 }
 
 .breadcrumb-item:hover a {
@@ -108,9 +126,10 @@ a:active {
   flex: 1 0 50px !important;
   -webkit-justify-content: flex-start;
   justify-content: flex-start;
+  padding: 10px;
 }
 
-#searchbar, #searchbar:focus {
+#searchbar, #searchbar:focus, #searchbar:hover {
     width: 1000px !important;
     background: #444444;
     color: #A4A4A4;
@@ -118,7 +137,7 @@ a:active {
     border-radius: 3px;
 }
 
-#sidebar-btn, #sidebar-btn:before, #sidebar-btn:after {
+#sidebar-btn, #sidebar-btn:before, #sidebar-btn:after, #sidebar-btn:hover {
   display: flex !important;
   flex: 1 0 50px !important;
   align-items: center;
@@ -136,6 +155,11 @@ a:active {
 
 #sidebar-icon {
   align-items: center;
+}
+
+#library {
+  background: #242424 !important;
+  color: #A4A4A4 !important;
 }
 
 #dashboard-container {

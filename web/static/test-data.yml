@@ -48,6 +48,15 @@ dashboard:
     height: 500px
     id: 5
 
+temp_lib:
+  - module1
+  - module1.ClassFoo
+  - module1.ClassFoo.method1
+  - module1.ClassBar
+  - module1.ClassBar.method1
+  - module1.ClassBar.name
+  - module1.func1
+
 library:
   name: some_lib
   modules:

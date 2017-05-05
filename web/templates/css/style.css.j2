@@ -8,6 +8,7 @@ html, body {
   font-size: 14px;
   font-family: Verdana, Geneva, sans-serif;
   background: #000000;
+  outline: none !important;
 }
 
 a:link,
@@ -15,6 +16,19 @@ a:visited,
 a:hover,
 a:active {
   text-decoration: none;
+}
+
+input[type=text], input[type=text]:focus,
+textarea, textarea:focus {
+  -moz-box-shadow: 0 0 0px;
+  -webkit-box-shadow: 0 0 0px;
+  outline: none;
+}
+
+.btn.active.focus, .btn.active:focus, .btn.focus, .btn:active.focus, .btn:active:focus, .btn:focus {
+  -moz-box-shadow: 0 0 0px;
+  -webkit-box-shadow: 0 0 0px;
+  outline: none;
 }
 
 {% include 'css/layout.css.j2' %}
