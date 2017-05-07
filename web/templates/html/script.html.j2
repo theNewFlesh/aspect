@@ -123,9 +123,6 @@ function refreshBreadcrumb(cursor, destination) {
         var item = items[i];
         var element = document.createElement('li');
         element.classList.add('breadcrumb-item');
-        if (i == items.length - 1) {
-            element.classList.add('active');
-        };
 
         var a = document.createElement('a');
         a.textContent = item;
@@ -133,6 +130,11 @@ function refreshBreadcrumb(cursor, destination) {
         a.setAttribute('onclick', 'setBreadcrumbItemLink(event)');
         element.appendChild(a);
         breadcrumb.appendChild(element);
+
+        if (i == items.length - 1) {
+            element.classList.add('active');
+            a.removeAttribute('onclick');
+        };
     };
 
     // ol cannot be empty for proper display
