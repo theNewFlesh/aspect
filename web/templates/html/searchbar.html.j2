@@ -1,5 +1,14 @@
 <div class="grid-cell" id="search">
-  <input class="form-control" type="text" id="searchbar" placeholder="search library" list="library">
+  <input class="form-control"
+    type="text"
+    id="searchbar"
+    placeholder="search library"
+    list="library"
+    autocomplete="off"
+    autocorrect="off"
+    autocapitalize="off"
+    spellcheck="false"
+    onkeypress="refreshApp(event)">
    <datalist id="library">
     {% for item in library_to_list(library) %}
       <option id="searchbar-item" value="{{ item }}">

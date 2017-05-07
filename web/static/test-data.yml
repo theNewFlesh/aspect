@@ -1,9 +1,9 @@
 title: aspect
 
-library_cursor:
-  - lib
-  - module
-  - class
+library_cursor: []
+  # - lib
+  # - module
+  # - class
 
 dashboard:
   - title: card-0
@@ -58,112 +58,213 @@ temp_lib:
   - module1.ClassBar.name
   - module1.func1
 
+# library:
+#   name: some_lib
+#   modules:
+#     - name: module1
+#       classes:
+#         - name: ClassFoo
+#           methods:
+#             - name: method1
+#               args:
+#                 - name: arg1
+#                   value: 50
+#                 - name: arg2
+#                   value: 40
+#               kwargs:
+#                 - name: kwarg1
+#                   default: 0
+#                 - name: kwarg2
+#                   default: 1
+#         - name: ClassBar
+#           methods:
+#             - name: method1
+#               args:
+#                 - name: very-long-argument-name
+#                   value: 50
+#           attributes:
+#             - name: name
+#               value: "ClassBar's name"
+#       functions:
+#         - name: func1
+#           args:
+#             - name: fruit
+#               value: banana
+#             - name: vegetable
+#               value: lettuce
+#           kwargs:
+#             - name: meat
+#               default: chicken
+#       variables:
+#         - name: var1
+#           value: boo
+#     - name: module2
+#       classes:
+#         - name: ClassBaz
+#           methods:
+#             - name: method1
+#               args:
+#                 - name: blarg
+#                   value: blerg
+#     - name: module3
+#       classes:
+#         - name: ClassFizz
+#           methods:
+#             - name: method1
+#               args:
+#                 - name: buzz
+#                   value: bang
+#     - name: module1
+#       classes:
+#         - name: ClassFoo
+#           methods:
+#             - name: method1
+#               args:
+#                 - name: arg1
+#                   value: 50
+#                 - name: arg2
+#                   value: 40
+#               kwargs:
+#                 - name: kwarg1
+#                   default: 0
+#                 - name: kwarg2
+#                   default: 1
+#         - name: ClassBar
+#           methods:
+#             - name: method1
+#               args:
+#                 - name: very-long-argument-name
+#                   value: 50
+#           attributes:
+#             - name: name
+#               value: "ClassBar's name"
+#       functions:
+#         - name: func1
+#           args:
+#             - name: fruit
+#               value: banana
+#             - name: vegetable
+#               value: lettuce
+#           kwargs:
+#             - name: meat
+#               default: chicken
+#       variables:
+#         - name: var1
+#           value: boo
+#     - name: module2
+#       classes:
+#         - name: ClassBaz
+#           methods:
+#             - name: method1
+#               args:
+#                 - name: blarg
+#                   value: blerg
+#     - name: module3
+#       classes:
+#         - name: ClassFizz
+#           methods:
+#             - name: method1
+#               args:
+#                 - name: buzz
+#                   value: bang
+
+
 library:
-  name: some_lib
-  modules:
-    - name: module1
-      classes:
-        - name: ClassFoo
-          methods:
-            - name: method1
-              args:
-                - name: arg1
-                  value: 50
-                - name: arg2
-                  value: 40
-              kwargs:
-                - name: kwarg1
-                  default: 0
-                - name: kwarg2
-                  default: 1
-        - name: ClassBar
-          methods:
-            - name: method1
-              args:
-                - name: very-long-argument-name
-                  value: 50
-          attributes:
-            - name: name
-              value: "ClassBar's name"
-      functions:
-        - name: func1
-          args:
-            - name: fruit
-              value: banana
-            - name: vegetable
-              value: lettuce
-          kwargs:
-            - name: meat
-              default: chicken
-      variables:
-        - name: var1
-          value: boo
-    - name: module2
-      classes:
-        - name: ClassBaz
-          methods:
-            - name: method1
-              args:
-                - name: blarg
-                  value: blerg
-    - name: module3
-      classes:
-        - name: ClassFizz
-          methods:
-            - name: method1
-              args:
-                - name: buzz
-                  value: bang
-    - name: module1
-      classes:
-        - name: ClassFoo
-          methods:
-            - name: method1
-              args:
-                - name: arg1
-                  value: 50
-                - name: arg2
-                  value: 40
-              kwargs:
-                - name: kwarg1
-                  default: 0
-                - name: kwarg2
-                  default: 1
-        - name: ClassBar
-          methods:
-            - name: method1
-              args:
-                - name: very-long-argument-name
-                  value: 50
-          attributes:
-            - name: name
-              value: "ClassBar's name"
-      functions:
-        - name: func1
-          args:
-            - name: fruit
-              value: banana
-            - name: vegetable
-              value: lettuce
-          kwargs:
-            - name: meat
-              default: chicken
-      variables:
-        - name: var1
-          value: boo
-    - name: module2
-      classes:
-        - name: ClassBaz
-          methods:
-            - name: method1
-              args:
-                - name: blarg
-                  value: blerg
-    - name: module3
-      classes:
-        - name: ClassFizz
-          methods:
-            - name: method1
-              args:
-                - name: buzz
-                  value: bang
+  some_lib.module1:
+    classes:
+      - name: ClassFoo
+        methods:
+          - name: method1
+            args:
+              - name: arg1
+                value: 50
+              - name: arg2
+                value: 40
+            kwargs:
+              - name: kwarg1
+                default: 0
+              - name: kwarg2
+                default: 1
+      - name: ClassBar
+        methods:
+          - name: method1
+            args:
+              - name: very-long-argument-name
+                value: 50
+        attributes:
+          - name: name
+            value: "ClassBar's name"
+    functions:
+      - name: func1
+        args:
+          - name: fruit
+            value: banana
+          - name: vegetable
+            value: lettuce
+        kwargs:
+          - name: meat
+            default: chicken
+    variables:
+      - name: var1
+        value: boo
+  some_lib.pkg1.module2:
+    classes:
+      - name: ClassBaz
+        methods:
+          - name: method1
+            args:
+              - name: blarg
+                value: blerg
+  some_lib.pkg1.module3:
+    classes:
+      - name: ClassFizz
+        methods:
+          - name: method1
+            args:
+              - name: buzz
+                value: bang
+  some_lib.pkg1.pkg2.module4:
+    classes:
+      - name: ClassFoo
+        methods:
+          - name: method1
+            args:
+              - name: arg1
+                value: 50
+              - name: arg2
+                value: 40
+            kwargs:
+              - name: kwarg1
+                default: 0
+              - name: kwarg2
+                default: 1
+      - name: ClassBar
+        methods:
+          - name: method1
+            args:
+              - name: very-long-argument-name
+                value: 50
+        attributes:
+          - name: name
+            value: "ClassBar's name"
+    functions:
+      - name: func1
+        args:
+          - name: fruit
+            value: banana
+          - name: vegetable
+            value: lettuce
+        kwargs:
+          - name: meat
+            default: chicken
+    variables:
+      - name: var1
+        value: boo
+  some_lib.pkg3.module5:
+    classes:
+      - name: ClassFizz
+        methods:
+          - name: method1
+            args:
+              - name: buzz
+                value: bang

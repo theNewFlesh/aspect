@@ -8,13 +8,57 @@
 
 <!-- Menu Toggle Script -->
 <script>
-$("#menu-toggle").click(function(e) {
-  e.preventDefault();
-  $("#wrapper").toggleClass("toggled");
-});
+var library = {{ library | tojson }};
 
-// Init treegrid
-$('.table-treegrid').treegrid();
+function libraryToList(lib) {
+    items = [];
+    for (key in lib) {
+        var temp = key.split('.');
+        for (var i=0; i < temp.length; i++) {
+            items.push( temp.slice(0, i+1).join('.') );
+        };
+    };
+    items = [...new Set(items)];
+    items.sort();
+    return items;
+};
+
+function cursorToLibraryList(cursor) {
+    var lib = libraryToList(library);
+    var output = [];
+    for (i in lib) {
+        var item = lib[i];
+        if (item.includes(cursor)) {
+            output.push(item);
+        };
+    };
+    return output;
+};
+
+function clearChildren (node) {
+    // var children = element.children;
+    // for (var i=0; i < children.length; i++) {
+    //     element.removeChild(children[i]);
+    // }
+    while (node.hasChildNodes()) {
+        node.removeChild(node.lastChild);
+    };
+};
+
+function addChildren (element, children) {
+    for (var i = 0; i < children.length; i++) {
+        element.appendChild(children[i]);
+    };
+};
+
+function contains(item, arr) {
+    var i = arr.length;
+    while (i--) {
+        if (arr[i] === item) return true;
+    };
+    return false;
+};
+// -----------------------------------------------------------------------------
 
 function toggleSidebar() {
     var right = $("#right")[0];
@@ -30,4 +74,78 @@ function toggleSidebar() {
         sidebarIcon.className = "fa fa-caret-left fa-2x"
     }
 };
+
+function refreshSearchbar(cursor) {
+    // clear searchbar
+    var searchbar = document.getElementById('searchbar');
+    searchbar.value = '';
+    clearChildren(searchbar);
+
+    var lib = cursorToLibraryList(cursor);
+    for (name in lib) {
+        var option = document.createElement('option');
+        option.id = "searchbar-item";
+        option.value = name;
+        searchbar.appendChild(option);
+    };
+};
+
+function refreshBreadcrumb(cursor) {
+    var breadcrumb = document.getElementById('breadcrumb-nav');
+    clearChildren(breadcrumb);
+
+    var items = [];
+    if (cursor != '') {
+        items = cursor.split('.');
+    };
+
+    for (var i = 0; i < items.length; i++) {
+        var item = items[i];
+        var element = document.createElement('li');
+        element.classList.add('breadcrumb-item');
+        if (i == items.length - 1) {
+            element.classList.add('active');
+        };
+
+        var a = document.createElement('a');
+        a.href = '#';
+        a.textContent = item;
+        element.appendChild(a);
+        breadcrumb.appendChild(element);
+    };
+
+    // ol cannot be empty for proper display
+    var empty = document.createElement('li')
+    breadcrumb.appendChild(empty);
+};
+
+function _refreshApp(cursor) {
+    refreshBreadcrumb(cursor);
+    refreshSearchbar(cursor);
+}
+
+function refreshApp(e) {
+    var keys = ['Enter']; //, '.'];
+    if (contains(e.key, keys)) {
+        var cursor = document.getElementById('searchbar').value;
+        if ( contains(cursor, libraryToList(library)) ) {
+            _refreshApp(cursor);
+        };
+    };
+};
+// -----------------------------------------------------------------------------
+
+$("#menu-toggle").click(function(e) {
+  e.preventDefault();
+  $("#wrapper").toggleClass("toggled");
+});
+
+// Init treegrid
+$('.table-treegrid').treegrid();
+// -----------------------------------------------------------------------------
+
+$(document).ready(function(){
+    var cursor = libraryToList(library)[0];
+    _refreshApp(cursor);
+});
 </script>

@@ -6,25 +6,34 @@ from jinja2 import Environment, FileSystemLoader
 def is_list(item):
     return isinstance(item, list)
 
-def library_to_list(library):
-    def _recurse(items, parent='', store=[]):
-        if isinstance(items, str):
-            return parent[:-1]
+# def library_to_list(library):
+#     def _recurse(items, parent='', store=[]):
+#         if isinstance(items, str):
+#             return parent[:-1]
 
-        if isinstance(items, list):
-            for item in items:
-                store.append( _recurse(item, parent, store) )
+#         if isinstance(items, list):
+#             for item in items:
+#                 store.append( _recurse(item, parent, store) )
 
-        elif isinstance(items, dict):
-            parent += items['name'] + '.'
-            for key, val in items.items():
-                store.append( _recurse(val, parent, store) )
+#         elif isinstance(items, dict):
+#             parent += items['name'] + '.'
+#             for key, val in items.items():
+#                 store.append( _recurse(val, parent, store) )
 
-    output = []
-    _recurse([library], store=output)
-    output = filter(lambda x: x is not None, set(output))
-    output = sorted(list(output))
-    return output
+#     output = []
+#     _recurse([library], store=output)
+#     output = filter(lambda x: x is not None, set(output))
+#     output = sorted(list(output))
+#     return output
+
+def library_to_list(item):
+    items = []
+    for item in item.keys():
+        temp = item.split('.')
+        for i in range(len(temp)):
+            items.append('.'.join(temp[:i+1]))
+    items = sorted(list(set(items)))
+    return items
 
 def module_relative_path(path):
     root = os.path.dirname(os.path.abspath(__file__))

@@ -9,12 +9,7 @@
         <span class="icon-bar"></span>
       </button>
       <a class="navbar-brand icon node-icon fa fa-first-order fa-lg align-middle" href="#" id="logo"></a>
-      <ol class="breadcrumb navbar-left">
-      {% for item in library_cursor[:-1] %}
-          <li class="breadcrumb-item"><a href="#">{{ item }}</a></li>
-      {% endfor %}
-          <li class="breadcrumb-item active">{{ library_cursor[-1] }}</li>
-      </ol>
+      <ol class="breadcrumb navbar-left" id="breadcrumb-nav"></ol>
     </div>
 
     <!-- Collect the nav links, forms, and other content for toggling -->
