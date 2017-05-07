@@ -276,11 +276,14 @@ function refreshSearchbar(cursor, destination) {
 
     var lib = cursorToLibraryList(cursor);
 
-    for (i in lib) {
-        var option = document.createElement('option');
-        option.id = "searchbar-item";
-        option.value = lib[i].replace(cursor + '.', '');
-        searchbarLib.appendChild(option);
+    // skips if cursor is at module level
+    if ( !dictContains(cursor, LIBRARY) ) {
+        for (i in lib) {
+            var option = document.createElement('option');
+            option.id = "searchbar-item";
+            option.value = lib[i].replace(cursor + '.', '');
+            searchbarLib.appendChild(option);
+        };
     };
 
     // clear input text and update placeholder
