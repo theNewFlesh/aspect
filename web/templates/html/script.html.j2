@@ -60,7 +60,17 @@ function libraryToList(lib) {
         for (var i=0; i < temp.length; i++) {
             items.push( temp.slice(0, i+1).join('.') );
         };
+
+        // add classes
+        if (dictContains('classes', lib[key]) ) {
+            var cls = lib[key]['classes'];
+            for (i in cls) {
+                items.push(key + '.' + cls[i]['name']);
+            };
+        };
+
     };
+
     items = [...new Set(items)];
     items.sort();
     return items;
@@ -272,7 +282,7 @@ function refreshSearchbar(cursor, destination) {
 
     // clear input text and update placeholder
     var searchbar = document.getElementById('searchbar');
-    searchbar.placeholder = 'search ' + cursor;
+    searchbar.placeholder = 'search ' + cursor.split('.').slice(-1)[0];
     searchbar.value = '';
 };
 
