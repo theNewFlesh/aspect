@@ -252,8 +252,6 @@ function refreshSidebar(cursor, destination) {
         var moduleName = lib[i];
         var parent = moduleName.split('.').join('-');
         if (moduleName != undefined) {
-            console.log('defined');
-            console.log(moduleName);
             if ( dictContains(moduleName, LIBRARY) ) {
                 var module = toTreeModule(LIBRARY[moduleName], parent);
                 addChildren(body, module);
