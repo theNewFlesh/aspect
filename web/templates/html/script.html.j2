@@ -25,12 +25,13 @@ function libraryToList(lib) {
 
 function cursorToLibraryList(cursor) {
     var lib = libraryToList(LIBRARY);
-    lib = lib.slice(1, lib.length)
     var output = [];
     for (i in lib) {
         var item = lib[i];
         if (item.includes(cursor)) {
-            output.push(item);
+            if (item != cursor) {
+                output.push(item);
+            };
         };
     };
     return output;
@@ -131,6 +132,7 @@ function refreshBreadcrumb(cursor, destination) {
 
     // ol cannot be empty for proper display
     var empty = document.createElement('li')
+    empty.id = "breadcrumb-last-dot";
     breadcrumb.appendChild(empty);
 
     // set new cursor
@@ -147,7 +149,6 @@ function refreshApp(e) {
     if (contains(e.key, keys)) {
         var destination = document.getElementById('searchbar').value;
         var cursor = document.getElementById('breadcrumb-nav').getAttribute('data-cursor');
-        console.log(cursor);
         if ( contains(cursor, libraryToList(LIBRARY)) ) {
             _refreshApp(cursor, destination);
         };

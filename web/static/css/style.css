@@ -114,6 +114,11 @@ textarea, textarea:focus {
     font-size: 20px;
 }
 
+#breadcrumb-last-dot:before {
+  content: '';
+  margin: 0px -10px 0px -10px;
+}
+
 #search-container {
   display: flex !important;
   flex: 1 0 50px !important;
