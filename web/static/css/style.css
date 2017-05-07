@@ -278,8 +278,8 @@ td {
 #sidebar {
   position: absolute;
   padding: 0px;
-  margin-bottom: 5px;
   background: #242424;
+  height: 100%;
   min-width: 400px !important;
   overflow-y: auto !important;
 }
@@ -300,5 +300,37 @@ td {
 }
 
 #sidebar-value {
+}
+
+[data-icon-type="module"] {
+  color: #F4F4F4;
+}
+
+[data-icon-type="variable"] {
+  color: #DE958E;
+}
+
+[data-icon-type="class"] {
+  color: #A4A4A4;
+}
+
+[data-icon-type="method"] {
+  color: #A4A4A4;
+}
+
+[data-icon-type="attribute"] {
+  color: #DE958E;
+}
+
+[data-icon-type="function"] {
+  color: #A4A4A4;
+}
+
+[data-icon-type="arg"] {
+  color: #B6ECF3;
+}
+
+[data-icon-type="kwarg"] {
+  color: #E9EABE;
 }
 

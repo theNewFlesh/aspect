@@ -50,6 +50,17 @@ function testFunc(a, b="banana") {
     return output;
 };
 
+var ICONS = {
+    // 'module': 'fa-file',
+    // 'class': 'fa-cogs',
+    // 'method': 'fa-cog',
+    'attribute': 'fa-flag-o',
+    // 'function': 'fa-circle-thin',
+    'arg': 'fa-asterisk',
+    'kwarg': 'fa-check-square',
+    'variable': 'fa-flag'
+};
+
 // ---LIBRARY-------------------------------------------------------------------
 var LIBRARY = {{ library | tojson }};
 
@@ -94,7 +105,7 @@ function cursorToLibraryList(cursor) {
 };
 
 // ---ROW-----------------------------------------------------------------------
-function toTreeRow(item, parent, value, icon, data_parent=true) {
+function toTreeRow(item, parent, value, icon, data_parent=true, iconType='') {
     var row = document.createElement('tr');
     var name = '';
     if (data_parent) {
@@ -112,10 +123,13 @@ function toTreeRow(item, parent, value, icon, data_parent=true) {
 
     var span = document.createElement('span');
     span.classList.add('treegrid-node');
-    span.classList.add('icon');
-    span.classList.add('node-icon');
-    span.classList.add('fa');
-    span.classList.add(icon);
+    if (icon != undefined) {
+        span.classList.add('icon');
+        span.classList.add('node-icon');
+        span.classList.add('fa');
+        span.classList.add(icon);
+    };
+    span.setAttribute('data-icon-type', iconType);
 
     key.appendChild(span);
 
@@ -137,16 +151,31 @@ function toTreeRow(item, parent, value, icon, data_parent=true) {
 function toTreeFunction(func, parent, icon) {
     undefinedError(parent);
 
-    var row = toTreeRow(func, parent, '', icon);
+    var row = toTreeRow(
+        func,
+        parent,
+        '',
+        icon,
+        dataParent=true,
+        iconType='function'
+    );
+
     var output = [row];
     parent = parent + '-' + func['name'];
 
     if (dictContains('args', func)) {
         for (i in func['args']) {
             var arg = func['args'][i];
+
             arg = toTreeRow(
-                arg, parent, arg['value'], 'fa-asterisk'
+                arg,
+                parent,
+                arg['value'],
+                ICONS['arg'],
+                dataParent=true,
+                iconType='arg'
             );
+
             output.push(arg);
         };
     };
@@ -154,9 +183,16 @@ function toTreeFunction(func, parent, icon) {
     if (dictContains('kwargs', func)) {
         for (i in func['kwargs']) {
             var kwarg = func['kwargs'][i];
+
             kwarg = toTreeRow(
-                kwarg, parent, kwarg['default'], 'fa-check-square'
+                kwarg,
+                parent,
+                kwarg['default'],
+                ICONS['kwarg'],
+                dataParent=true,
+                iconType='kwarg'
             );
+
             output.push(kwarg);
         };
     };
@@ -165,7 +201,14 @@ function toTreeFunction(func, parent, icon) {
 
 // ---CLASS---------------------------------------------------------------------
 function toTreeClass(cls, parent) {
-    var row = toTreeRow(cls, parent, '', 'fa-cogs');
+    var row = toTreeRow(cls,
+        parent,
+        '',
+        ICONS['class'],
+        dataParent=true,
+        iconType='class'
+    );
+
     var output = [row];
 
     parent = parent + '-' + cls['name'];
@@ -173,7 +216,7 @@ function toTreeClass(cls, parent) {
     if (dictContains('methods', cls)) {
         for (i in cls['methods']) {
             var method = cls['methods'][i];
-            var method = toTreeFunction(method, parent, 'fa-cog');
+            var method = toTreeFunction(method, parent, ICONS['method']);
             output = output.concat(method);
         };
     };
@@ -181,9 +224,16 @@ function toTreeClass(cls, parent) {
     if (dictContains('attributes', cls)) {
         for (i in cls['attributes']) {
             var attribute = cls['attributes'][i];
+
             var attribute = toTreeRow(
-                attribute, parent, attribute['value'], 'fa-flag-o'
+                attribute,
+                parent,
+                attribute['value'],
+                ICONS['attribute'],
+                dataParent=true,
+                iconType='attribute'
             );
+
             output.push(attribute);
         };
     };
@@ -193,8 +243,14 @@ function toTreeClass(cls, parent) {
 // ---MODULE--------------------------------------------------------------------
 function toTreeModule(module, parent) {
     var row = toTreeRow(
-            module, parent, '', 'fa-file', data_parent=false
+        module,
+        parent,
+        '',
+        ICONS['module'],
+        data_parent=false,
+        iconType='module'
     );
+
     var output = [row];
 
     if (dictContains('classes', module)) {
@@ -208,7 +264,7 @@ function toTreeModule(module, parent) {
     if (dictContains('functions', module)) {
         for (i in module['functions']) {
             var func = module['functions'][i];
-            func = toTreeFunction(func, parent, 'fa-circle-thin');
+            func = toTreeFunction(func, parent, ICONS['function']);
             output = output.concat(func);
         };
     };
@@ -216,7 +272,16 @@ function toTreeModule(module, parent) {
     if (dictContains('variables', module)) {
         for (i in module['variables']) {
             var variable = module['variables'][i];
-            variable = toTreeRow(variable, parent, variable['value'], 'fa-flag');
+
+            variable = toTreeRow(
+                variable,
+                parent,
+                variable['value'],
+                ICONS['variable'],
+                dataParent=true,
+                iconType='variable'
+            );
+
             output.push(variable);
         };
     };
