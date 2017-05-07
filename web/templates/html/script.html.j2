@@ -7,6 +7,48 @@
 <script src="{{ bower('plotly.js/dist/plotly.min.js') }}"></script>
 
 <script>
+// ---UTILS---------------------------------------------------------------------
+function clearChildren (node) {
+    while (node.hasChildNodes()) {
+        node.removeChild(node.lastChild);
+    };
+};
+
+function addChildren (node, children) {
+    for (var i=0; i < children.length; i++) {
+        node.appendChild(children[i]);
+    };
+};
+
+function contains(item, arr) {
+    var i = arr.length;
+    while (i--) {
+        if (arr[i] === item) return true;
+    };
+    return false;
+};
+
+function dictContains(item, dict) {
+    var arr = Object.keys(dict);
+    var i = arr.length;
+    while (i--) {
+        if (arr[i] === item) return true;
+    };
+    return false;
+};
+
+function undefinedError(item) {
+    if (item == undefined) {
+        throw 'undefined value';
+    };
+};
+
+function testFunc(a, b="banana") {
+    var output = [a,b];
+    return output;
+};
+
+// ---LIBRARY-------------------------------------------------------------------
 var LIBRARY = {{ library | tojson }};
 
 function libraryToList(lib) {
@@ -36,31 +78,139 @@ function cursorToLibraryList(cursor) {
     return output;
 };
 
-function clearChildren (node) {
-    // var children = element.children;
-    // for (var i=0; i < children.length; i++) {
-    //     element.removeChild(children[i]);
-    // }
-    while (node.hasChildNodes()) {
-        node.removeChild(node.lastChild);
+// ---ROW-----------------------------------------------------------------------
+function toTreeRow(item, parent, value, icon, data_parent=true) {
+    var row = document.createElement('tr');
+    var name = '';
+    if (data_parent) {
+        row.setAttribute('data-parent', '#' + parent);
+        name = item['name'];
+        row.id = parent + '-' + name;
+    } else {
+        row.id = parent;
+        name = parent;
     };
+
+    var key = document.createElement('td');
+    key.classList.add('treegrid-node');
+    key.id = 'sidebar-key';
+
+    var span = document.createElement('span');
+    span.classList.add('treegrid-node');
+    span.classList.add('icon');
+    span.classList.add('node-icon');
+    span.classList.add('fa');
+    span.classList.add(icon);
+
+    key.appendChild(span);
+
+    var text = document.createElement('span');
+    text.textContent = name;
+    key.appendChild(text);
+
+    var val = document.createElement('td');
+    val.id = 'sidebar-value';
+    val.textContent = value;
+
+    row.appendChild(key);
+    row.appendChild(val);
+
+    return row;
 };
 
-function addChildren (element, children) {
-    for (var i = 0; i < children.length; i++) {
-        element.appendChild(children[i]);
+// ---FUNCTION------------------------------------------------------------------
+function toTreeFunction(func, parent, icon) {
+    undefinedError(parent);
+
+    var row = toTreeRow(func, parent, '', icon);
+    var output = [row];
+    parent = parent + '-' + func['name'];
+    // console.log('function: '+ parent);
+
+    if (dictContains('args', func)) {
+        for (i in func['args']) {
+            var arg = func['args'][i];
+            arg = toTreeRow(
+                arg, parent, arg['value'], 'fa-asterisk'
+            );
+            output.push(arg);
+        };
     };
+
+    if (dictContains('kwargs', func)) {
+        for (i in func['kwargs']) {
+            var kwarg = func['kwargs'][i];
+            kwarg = toTreeRow(
+                kwarg, parent, kwarg['default'], 'fa-check-square'
+            );
+            output.push(kwarg);
+        };
+    };
+    return output;
 };
 
-function contains(item, arr) {
-    var i = arr.length;
-    while (i--) {
-        if (arr[i] === item) return true;
-    };
-    return false;
-};
-// -----------------------------------------------------------------------------
+// ---CLASS---------------------------------------------------------------------
+function toTreeClass(cls, parent) {
+    var row = toTreeRow(cls, parent, '', 'fa-cogs');
+    var output = [row];
 
+    parent = parent + '-' + cls['name'];
+    // console.log('class: '+ parent);
+
+    if (dictContains('methods', cls)) {
+        for (i in cls['methods']) {
+            var method = cls['methods'][i];
+            var method = toTreeFunction(method, parent, 'fa-cog');
+            output = output.concat(method);
+        };
+    };
+
+    if (dictContains('attributes', cls)) {
+        for (i in cls['attributes']) {
+            var attribute = cls['attributes'][i];
+            var attribute = toTreeRow(
+                attribute, parent, attribute['value'], 'fa-flag-o'
+            );
+            output.push(attribute);
+        };
+    };
+    return output;
+};
+
+// ---MODULE--------------------------------------------------------------------
+function toTreeModule(module, parent) {
+    var row = toTreeRow(
+            module, parent, '', 'fa-file', data_parent=false
+    );
+    var output = [row];
+
+    if (dictContains('classes', module)) {
+        for (i in module['classes']) {
+            var cls = module['classes'][i];
+            cls = toTreeClass(cls, parent);
+            output = output.concat(cls);
+        };
+    };
+
+    if (dictContains('functions', module)) {
+        for (i in module['functions']) {
+            var func = module['functions'][i];
+            func = toTreeFunction(func, parent, 'fa-circle-thin');
+            output = output.concat(func);
+        };
+    };
+
+    if (dictContains('variables', module)) {
+        for (i in module['variables']) {
+            var variable = module['variables'][i];
+            variable = toTreeRow(variable, parent, variable['value'], 'fa-flag');
+            output.push(variable);
+        };
+    };
+    return output;
+};
+
+// ---SIDEBAR-------------------------------------------------------------------
 function toggleSidebar() {
     var right = $("#right")[0];
     var left = $("#left")[0];
@@ -76,6 +226,32 @@ function toggleSidebar() {
     }
 };
 
+function refreshSidebar(cursor, destination) {
+    if (destination != '') {
+        cursor = cursor + '.' + destination;
+    };
+
+    var lib = cursorToLibraryList(cursor);
+    var body = document.getElementById('sidebar-body');
+    clearChildren(body);
+
+    for (i in lib) {
+        var moduleName = lib[i];
+        // var parent = moduleName.split('.').slice(-1)[0];
+        var parent = moduleName.split('.').join('-');
+        if (moduleName != undefined) {
+            if ( dictContains(moduleName, LIBRARY) ) {
+                var module = toTreeModule(LIBRARY[moduleName], parent);
+                addChildren(body, module);
+            };
+        };
+    };
+
+    // Init treegrid
+    $('.table-treegrid').treegrid();
+};
+
+// ---SEARCHBAR-----------------------------------------------------------------
 function refreshSearchbar(cursor, destination) {
     if (destination != '') {
         cursor = cursor + '.' + destination;
@@ -101,6 +277,7 @@ function refreshSearchbar(cursor, destination) {
     searchbar.value = '';
 };
 
+// ---BREADCRUMB----------------------------------------------------------------
 function setBreadcrumbItemLink(e) {
     var cursor = e.srcElement.getAttribute('data-cursor');
     _refreshApp(cursor, '');
@@ -146,9 +323,11 @@ function refreshBreadcrumb(cursor, destination) {
     breadcrumb.setAttribute('data-cursor', cursor);
 };
 
+// ---APP-----------------------------------------------------------------------
 function _refreshApp(cursor, destination) {
     refreshBreadcrumb(cursor, destination);
     refreshSearchbar(cursor, destination);
+    refreshSidebar(cursor, destination);
 }
 
 function refreshApp(e) {
@@ -161,21 +340,22 @@ function refreshApp(e) {
         };
     };
 };
-// -----------------------------------------------------------------------------
 
+// ---MAIN----------------------------------------------------------------------
 $("#menu-toggle").click(function(e) {
   e.preventDefault();
   $("#wrapper").toggleClass("toggled");
 });
-
-// Init treegrid
-$('.table-treegrid').treegrid();
 // -----------------------------------------------------------------------------
 
-$(document).ready(function(){
+function main() {
     var breadcrumb = document.getElementById('breadcrumb-nav');
     var cursor = libraryToList(LIBRARY)[0];
     breadcrumb.setAttribute('data-cursor', cursor);
     _refreshApp(cursor, '');
+};
+
+$(document).ready(function(){
+    main();
 });
 </script>
