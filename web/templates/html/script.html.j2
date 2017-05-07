@@ -8,7 +8,7 @@
 
 <!-- Menu Toggle Script -->
 <script>
-var library = {{ library | tojson }};
+var LIBRARY = {{ library | tojson }};
 
 function libraryToList(lib) {
     items = [];
@@ -24,7 +24,8 @@ function libraryToList(lib) {
 };
 
 function cursorToLibraryList(cursor) {
-    var lib = libraryToList(library);
+    var lib = libraryToList(LIBRARY);
+    lib = lib.slice(1, lib.length)
     var output = [];
     for (i in lib) {
         var item = lib[i];
@@ -75,22 +76,36 @@ function toggleSidebar() {
     }
 };
 
-function refreshSearchbar(cursor) {
-    // clear searchbar
-    var searchbar = document.getElementById('searchbar');
-    searchbar.value = '';
-    clearChildren(searchbar);
+function refreshSearchbar(cursor, destination) {
+    if (destination != '') {
+        cursor = cursor + '.' + destination;
+    };
+
+    // clear searchbar's library items
+    var searchbarLib = document.getElementById('library');
+    searchbarLib.value = '';
+    clearChildren(searchbarLib);
 
     var lib = cursorToLibraryList(cursor);
-    for (name in lib) {
+
+    for (i in lib) {
         var option = document.createElement('option');
         option.id = "searchbar-item";
-        option.value = name;
-        searchbar.appendChild(option);
+        option.value = lib[i].replace(cursor + '.', '');
+        searchbarLib.appendChild(option);
     };
+
+    // clear input text and update placeholder
+    var searchbar = document.getElementById('searchbar');
+    searchbar.placeholder = 'search ' + cursor;
+    searchbar.value = '';
 };
 
-function refreshBreadcrumb(cursor) {
+function refreshBreadcrumb(cursor, destination) {
+    if (destination != '') {
+        cursor = cursor + '.' + destination;
+    };
+
     var breadcrumb = document.getElementById('breadcrumb-nav');
     clearChildren(breadcrumb);
 
@@ -117,19 +132,24 @@ function refreshBreadcrumb(cursor) {
     // ol cannot be empty for proper display
     var empty = document.createElement('li')
     breadcrumb.appendChild(empty);
+
+    // set new cursor
+    breadcrumb.setAttribute('data-cursor', cursor);
 };
 
-function _refreshApp(cursor) {
-    refreshBreadcrumb(cursor);
-    refreshSearchbar(cursor);
+function _refreshApp(cursor, destination) {
+    refreshBreadcrumb(cursor, destination);
+    refreshSearchbar(cursor, destination);
 }
 
 function refreshApp(e) {
     var keys = ['Enter']; //, '.'];
     if (contains(e.key, keys)) {
-        var cursor = document.getElementById('searchbar').value;
-        if ( contains(cursor, libraryToList(library)) ) {
-            _refreshApp(cursor);
+        var destination = document.getElementById('searchbar').value;
+        var cursor = document.getElementById('breadcrumb-nav').getAttribute('data-cursor');
+        console.log(cursor);
+        if ( contains(cursor, libraryToList(LIBRARY)) ) {
+            _refreshApp(cursor, destination);
         };
     };
 };
@@ -145,7 +165,9 @@ $('.table-treegrid').treegrid();
 // -----------------------------------------------------------------------------
 
 $(document).ready(function(){
-    var cursor = libraryToList(library)[0];
-    _refreshApp(cursor);
+    var breadcrumb = document.getElementById('breadcrumb-nav');
+    var cursor = libraryToList(LIBRARY)[0];
+    breadcrumb.setAttribute('data-cursor', cursor);
+    _refreshApp(cursor, '');
 });
 </script>

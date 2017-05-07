@@ -10,8 +10,5 @@
     spellcheck="false"
     onkeypress="refreshApp(event)">
    <datalist id="library">
-    {% for item in library_to_list(library) %}
-      <option id="searchbar-item" value="{{ item }}">
-    {% endfor %}
   </datalist>
 </div>
