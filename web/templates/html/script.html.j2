@@ -6,7 +6,6 @@
 <script src="{{ bower('patternfly/dist/js/patternfly.min.js') }}"></script>
 <script src="{{ bower('plotly.js/dist/plotly.min.js') }}"></script>
 
-<!-- Menu Toggle Script -->
 <script>
 var LIBRARY = {{ library | tojson }};
 
@@ -102,6 +101,11 @@ function refreshSearchbar(cursor, destination) {
     searchbar.value = '';
 };
 
+function setBreadcrumbItemLink(e) {
+    var cursor = e.srcElement.getAttribute('data-cursor');
+    _refreshApp(cursor, '');
+};
+
 function refreshBreadcrumb(cursor, destination) {
     if (destination != '') {
         cursor = cursor + '.' + destination;
@@ -124,8 +128,9 @@ function refreshBreadcrumb(cursor, destination) {
         };
 
         var a = document.createElement('a');
-        a.href = '#';
         a.textContent = item;
+        a.setAttribute( 'data-cursor', items.slice(0, i+1).join('.') );
+        a.setAttribute('onclick', 'setBreadcrumbItemLink(event)');
         element.appendChild(a);
         breadcrumb.appendChild(element);
     };
