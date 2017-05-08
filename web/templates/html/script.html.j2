@@ -7,20 +7,41 @@
 <script src="{{ bower('plotly.js/dist/plotly.min.js') }}"></script>
 
 <script>
+
 // ---UTILS---------------------------------------------------------------------
 function clearChildren (node) {
+    /**
+        Removes all children of given node
+        @function
+        @param {element} node - element with removeChild function
+        @return {undefined}
+    **/
     while (node.hasChildNodes()) {
         node.removeChild(node.lastChild);
     };
 };
 
 function addChildren (node, children) {
+    /**
+        Adds children to given nodes' children
+        @function
+        @param {element} node - element with appendChild function
+        @param {Array} children - array of child elements
+        @return {undefined}
+    **/
     for (var i=0; i < children.length; i++) {
         node.appendChild(children[i]);
     };
 };
 
 function contains(item, arr) {
+    /**
+        Determines a given array contains a given item
+        @function
+        @param {Object} item - item to look for
+        @param {Array} arr - array to look in
+        @return {boolean}
+    **/
     undefinedError(item);
 
     for (i in arr) {
@@ -30,6 +51,13 @@ function contains(item, arr) {
 };
 
 function dictContains(item, dict) {
+    /**
+        Determines a given dictionary keys contain a given item
+        @function
+        @param {} item - item to look for
+        @param {Object} dict - object to be called with Object.keys
+        @return {boolean}
+    **/
     undefinedError(item);
 
     var keys = Object.keys(dict);
@@ -40,16 +68,32 @@ function dictContains(item, dict) {
 };
 
 function undefinedError(item) {
+    /**
+        Throws a error if given item is undefined
+        @function
+        @param {Object} item - item to be checked
+        @throws undefined value
+    **/
     if (item == undefined) {
         throw 'undefined value';
     };
 };
 
-function testFunc(a, b="banana") {
-    var output = [a,b];
-    return output;
+function toKwarg(parameter, default_) {
+    /**
+        Returns default value if parameter is undefined
+        @function
+        @param {} parameter - item to be checked
+        @param {} default_ - default value to be returned
+        @return {} parameter or default_
+    **/
+    if (parameter == undefined) {
+        return default_;
+    };
+    return parameter;
 };
 
+/** Dictionary of python object: fa icon pairs used by Tree functions **/
 var ICONS = {
     // 'module': 'fa-file',
     // 'class': 'fa-cogs',
@@ -62,11 +106,25 @@ var ICONS = {
 };
 
 // ---LIBRARY-------------------------------------------------------------------
+/** Dict of all module of a library exposed by aspect **/
 var LIBRARY = {{ library | tojson }};
 
 function libraryToList(lib, modules=true, classes=false) {
+    /**
+        Converts a library dictionary to an array of full module names (ie lib.pkg.pkg.module)
+        @function
+        @param {Object} lib - library dictionary
+        @param {boolean, opt} modules - include library module
+        @param {boolean, opt} classes - include library classes
+        @return {Array} - list of fullpaths to library modules and/or classes
+    **/
+    modules = toKwarg(modules, true);
+    classes = toKwarg(classes, false);
+    // -------------------------------------------------------------------------
+
     items = [];
     for (key in lib) {
+        // include modules
         if (modules) {
             var temp = key.split('.');
             for (var i=0; i < temp.length; i++) {
@@ -74,6 +132,7 @@ function libraryToList(lib, modules=true, classes=false) {
             };
         };
 
+        // include classes
         if (classes) {
             if (dictContains('classes', lib[key]) ) {
                 var cls = lib[key]['classes'];
@@ -84,18 +143,25 @@ function libraryToList(lib, modules=true, classes=false) {
         };
     };
 
+    // make unique and sort alphabetically
     items = [...new Set(items)];
     items.sort();
     return items;
 };
 
 function cursorToLibraryList(cursor) {
+    /**
+        Returns a list of library fullpath modules that reside under cursor location
+        @function
+        @param {string} cursor - library item fullpath (ie lib.pkg.module)
+        @return {} parameter or default
+    **/
     var lib = libraryToList(LIBRARY);
     var output = [];
     for (i in lib) {
         var item = lib[i];
         if (item.includes(cursor)) {
-            // dictContains will include modules
+            // calling LIBRARY directly excludes classes
             if (item != cursor || dictContains(item, LIBRARY) ) {
                 output.push(item);
             };
@@ -105,10 +171,26 @@ function cursorToLibraryList(cursor) {
 };
 
 // ---ROW-----------------------------------------------------------------------
-function toTreeRow(item, parent, value, icon, data_parent=true, iconType='') {
+function toTreeRow(item, parent, value, icon, dataParent=true, iconType='') {
+    /**
+        Returns a table row object formated for Patternfly's TreeGrid library
+        @function
+        @param {Object} item - dictionary of row attributes (name, etc)
+        @param {string} parent - id of parent TreeGrid element
+        @param {} value - value of item
+        @param {string} icon - name of fa icon to use (ie fa-asterisk)
+        @param {boolean} dataParent - whether row item has a TreeGrid parent element
+        @param {string} iconType - the python item type (ie module, class, function, etc)
+        @return {} parameter or default
+    **/
+    dataParent = toKwarg(dataParent, true);
+    iconType = toKwarg(iconType, null);
+    // -------------------------------------------------------------------------
+
     var row = document.createElement('tr');
     var name = '';
-    if (data_parent) {
+
+    if (dataParent) {
         row.setAttribute('data-parent', '#' + parent);
         name = item['name'];
         row.id = parent + '-' + name;
@@ -117,13 +199,17 @@ function toTreeRow(item, parent, value, icon, data_parent=true, iconType='') {
         name = parent.split('-').slice(-1)[0];
     };
 
+    // key cell (left side)
     var key = document.createElement('td');
     key.classList.add('treegrid-node');
     key.id = 'sidebar-key';
 
+    // key cell icon
     var span = document.createElement('span');
     span.classList.add('treegrid-node');
-    if (icon != undefined) {
+
+    // add icon
+    if (icon != null) {
         span.classList.add('icon');
         span.classList.add('node-icon');
         span.classList.add('fa');
@@ -133,14 +219,17 @@ function toTreeRow(item, parent, value, icon, data_parent=true, iconType='') {
 
     key.appendChild(span);
 
+    // key cell text
     var text = document.createElement('span');
     text.textContent = name;
     key.appendChild(text);
 
+    // value cell (right side)
     var val = document.createElement('td');
     val.id = 'sidebar-value';
     val.textContent = value;
 
+    // full TreeGrid row
     row.appendChild(key);
     row.appendChild(val);
 
@@ -149,8 +238,18 @@ function toTreeRow(item, parent, value, icon, data_parent=true, iconType='') {
 
 // ---FUNCTION------------------------------------------------------------------
 function toTreeFunction(func, parent, icon) {
+    /**
+        Returns a list of TreeGrid rows representins a python function (awgs, kwargs)
+        @function
+        @param {Object} func - python function dictionary
+        @param {string} parent - id of parent TreeGrid element
+        @param {string} icon - type of fa icon (ie fa-asterisk)
+        @return {Array} - list of row elements
+    **/
     undefinedError(parent);
+    // -------------------------------------------------------------------------
 
+    // function row
     var row = toTreeRow(
         func,
         parent,
@@ -160,9 +259,11 @@ function toTreeFunction(func, parent, icon) {
         iconType='function'
     );
 
+    // function row's id
     var output = [row];
     parent = parent + '-' + func['name'];
 
+    // add arg rows
     if (dictContains('args', func)) {
         for (i in func['args']) {
             var arg = func['args'][i];
@@ -180,6 +281,7 @@ function toTreeFunction(func, parent, icon) {
         };
     };
 
+    // add kwarg rows
     if (dictContains('kwargs', func)) {
         for (i in func['kwargs']) {
             var kwarg = func['kwargs'][i];
@@ -201,7 +303,16 @@ function toTreeFunction(func, parent, icon) {
 
 // ---CLASS---------------------------------------------------------------------
 function toTreeClass(cls, parent) {
-    var row = toTreeRow(cls,
+    /**
+        Returns a list of TreeGrid rows representins a python class (methods, attributes)
+        @function
+        @param {Object} cls - python class dictionary
+        @param {string} parent - id of parent TreeGrid element
+        @return {Array} - list of row elements
+    **/
+    // class row
+    var row = toTreeRow(
+        cls,
         parent,
         '',
         ICONS['class'],
@@ -209,22 +320,25 @@ function toTreeClass(cls, parent) {
         iconType='class'
     );
 
+    // class row's id
     var output = [row];
-
     parent = parent + '-' + cls['name'];
 
+    // add method rows
     if (dictContains('methods', cls)) {
         for (i in cls['methods']) {
             var method = cls['methods'][i];
+
+            // same as function with different icon
             var method = toTreeFunction(method, parent, ICONS['method']);
             output = output.concat(method);
         };
     };
 
+    // add attribute rows
     if (dictContains('attributes', cls)) {
         for (i in cls['attributes']) {
             var attribute = cls['attributes'][i];
-
             var attribute = toTreeRow(
                 attribute,
                 parent,
@@ -242,17 +356,25 @@ function toTreeClass(cls, parent) {
 
 // ---MODULE--------------------------------------------------------------------
 function toTreeModule(module, parent) {
+    /**
+        Returns a list of TreeGrid rows representins a python module (class, variables)
+        @function
+        @param {Object} cls - python class dictionary
+        @param {string} parent - id of parent TreeGrid element
+        @return {Array} - list of row elements
+    **/
+    // module row
     var row = toTreeRow(
         module,
         parent,
         '',
         ICONS['module'],
-        data_parent=false,
+        dataParent=false,
         iconType='module'
     );
-
     var output = [row];
 
+    // class rows
     if (dictContains('classes', module)) {
         for (i in module['classes']) {
             var cls = module['classes'][i];
@@ -261,6 +383,7 @@ function toTreeModule(module, parent) {
         };
     };
 
+    // function rows
     if (dictContains('functions', module)) {
         for (i in module['functions']) {
             var func = module['functions'][i];
@@ -269,6 +392,7 @@ function toTreeModule(module, parent) {
         };
     };
 
+    // variable rows
     if (dictContains('variables', module)) {
         for (i in module['variables']) {
             var variable = module['variables'][i];
@@ -290,13 +414,22 @@ function toTreeModule(module, parent) {
 
 // ---SIDEBAR-------------------------------------------------------------------
 function toggleSidebar() {
+    /**
+        Toggles right side bar display and #left ad #rigtht widths
+        @function
+        @return {undefined}
+    **/
     var right = $("#right")[0];
     var left = $("#left")[0];
     var sidebarIcon = $("#sidebar-icon")[0];
+
+    // display right sidebar
     if (right.style.display === 'none') {
         right.style.display = 'block';
         left.style.width = "70%";
         sidebarIcon.className = "fa fa-caret-right fa-2x"
+
+    // hide right sidebar
     } else {
         right.style.display = 'none';
         left.style.width = "100%";
@@ -305,18 +438,33 @@ function toggleSidebar() {
 };
 
 function refreshSidebar(cursor, destination) {
+    /**
+        Refreshes sidebar TreeGrid table
+        @function
+        @param {string} cursor - fullpath to a key in LIBRARY (ie lib.pkg.module)
+        @param {string} destination - partial path to python modules in LIBRARY
+                                      given cursor position (ie pkg.module)
+        @return {undefined}
+    **/
+    // append destination to cursor
     if (destination != '') {
         cursor = cursor + '.' + destination;
     };
 
+    // get new list of modules given new cursor
     var lib = cursorToLibraryList(cursor);
+
+    // clear current TreeGrid
     var body = document.getElementById('sidebar-body');
     clearChildren(body);
 
+    // append new modules to TreeGrid
     for (i in lib) {
         var moduleName = lib[i];
         var parent = moduleName.split('.').join('-');
         if (moduleName != undefined) {
+
+            // don't include module paths not in LIBRARY
             if ( dictContains(moduleName, LIBRARY) ) {
                 var module = toTreeModule(LIBRARY[moduleName], parent);
                 addChildren(body, module);
@@ -330,6 +478,15 @@ function refreshSidebar(cursor, destination) {
 
 // ---SEARCHBAR-----------------------------------------------------------------
 function refreshSearchbar(cursor, destination) {
+    /**
+        Clears searchbar, updates placeholder and library items
+        @function
+        @param {string} cursor - fullpath to a key in LIBRARY (ie lib.pkg.module)
+        @param {string} destination - partial path to python modules in LIBRARY
+                                      given cursor position (ie pkg.module)
+        @return {undefined}
+    **/
+    // append destination to cursor
     if (destination != '') {
         cursor = cursor + '.' + destination;
     };
@@ -339,6 +496,7 @@ function refreshSearchbar(cursor, destination) {
     searchbarLib.value = '';
     clearChildren(searchbarLib);
 
+    // get new library items given new cursor
     var lib = cursorToLibraryList(cursor);
 
     // skips if cursor is at module level
@@ -346,6 +504,8 @@ function refreshSearchbar(cursor, destination) {
         for (i in lib) {
             var option = document.createElement('option');
             option.id = "searchbar-item";
+
+            // make path relative to new cursor
             option.value = lib[i].replace(cursor + '.', '');
             searchbarLib.appendChild(option);
         };
@@ -359,11 +519,25 @@ function refreshSearchbar(cursor, destination) {
 
 // ---BREADCRUMB----------------------------------------------------------------
 function setBreadcrumbItemLink(e) {
+    /**
+        Event listener for breadcrumb links, calls _refreshApp with new cursor
+        @function
+        @param {event} e - event object used to derive new cursor
+        @return {Array} - list of row elements
+    **/
     var cursor = e.srcElement.getAttribute('data-cursor');
     _refreshApp(cursor, '');
 };
 
 function refreshBreadcrumb(cursor, destination) {
+    /**
+        Clears the breadcrumb and then populates with new library location
+        @function
+        @param {string} cursor - fullpath to a key in LIBRARY (ie lib.pkg.module)
+        @param {string} destination - partial path to python modules in LIBRARY
+                                      given cursor position (ie pkg.module)
+        @return {Array} - list of row elements
+    **/
     if (destination != '') {
         cursor = cursor + '.' + destination;
     };
@@ -405,31 +579,49 @@ function refreshBreadcrumb(cursor, destination) {
 
 // ---APP-----------------------------------------------------------------------
 function _refreshApp(cursor, destination) {
+    /**
+        Clears all interactive elements relevant to library navigation
+          - breadcrumb
+          - searchbar
+          - sidebar
+        @function
+        @param {string} cursor - fullpath to a key in LIBRARY (ie lib.pkg.module)
+        @param {string} destination - partial path to python modules in LIBRARY
+                                      given cursor position (ie pkg.module)
+        @return {undefined}
+    **/
     refreshBreadcrumb(cursor, destination);
     refreshSearchbar(cursor, destination);
     refreshSidebar(cursor, destination);
 }
 
 function refreshApp(e) {
+    /**
+        Event listener that calls _refreshApp upon enter key and valid cursor
+        @function
+        @param {event} e - event object used to signal a call attempt
+        @return {undefined}
+    **/
     var keys = ['Enter']; //, '.'];
     if (contains(e.key, keys)) {
         var destination = document.getElementById('searchbar').value;
         var cursor = document.getElementById('breadcrumb-nav').getAttribute('data-cursor');
-        var temp = cursor + '.' + destination;
-        if ( contains(temp, libraryToList(LIBRARY)) ) {
+        var newCursor = cursor + '.' + destination;
+
+        // if new cursor is a valid path in python library
+        if ( contains(newCursor, libraryToList(LIBRARY)) ) {
             _refreshApp(cursor, destination);
         };
     };
 };
 
 // ---MAIN----------------------------------------------------------------------
-$("#menu-toggle").click(function(e) {
-  e.preventDefault();
-  $("#wrapper").toggleClass("toggled");
-});
-// -----------------------------------------------------------------------------
-
 function main() {
+    /**
+        Calls _refreshApp when page is loaded
+        @function
+        @return {undefined}
+    **/
     var breadcrumb = document.getElementById('breadcrumb-nav');
     var cursor = libraryToList(LIBRARY)[0];
     breadcrumb.setAttribute('data-cursor', cursor);

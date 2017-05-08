@@ -46,10 +46,39 @@ td {
   overflow-y: auto !important;
 }
 
+#execute-action-button,
+#execute-action-button:before,
+#execute-action-button:after,
+#execute-action-button:hover {
+  display: flex !important;
+  justify-content: center;
+  overflow-y: none !important;
+  top: -50px;
+  text-align: center;
+  align-items: center;
+  width: 100%;
+  font-size: 20px;
+  font-family: Verdana, Geneva, sans-serif;
+  border-bottom: 5px solid #000000;
+  /*border-left: px solid #000000;*/
+  background: #444444;
+  color: #A4A4A4;
+}
+
+#execute-action-button:hover {
+  background: #F77E70;
+  color: #444444;
+}
+
+#execute-action-button:after {
+  background: #F4F4F4;
+  color: #444444;
+}
+
 .table-responsive {
   background: #242424 !important;
-  border: 0px !important;
   overflow-y: auto !important;
+  /*border-top: 5px solid #000000;*/
 }
 
 .treegrid-node {
