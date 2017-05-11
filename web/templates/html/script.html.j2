@@ -1,11 +1,15 @@
 {% macro bower(filepath) -%}
 {##}{{ url_for('static', filename='bower_components/' + filepath) }}
 {%- endmacro %}
+{% macro node(filepath) -%}
+{##}{{ url_for('static', filename='node_modules/' + filepath) }}
+{%- endmacro %}
+<script src="{{ node('lodash/lodash.min.js') }}"></script>
 <script src="{{ bower('jquery/dist/jquery.min.js') }}"></script>
 <script src="{{ bower('bootstrap/dist/js/bootstrap.min.js') }}"></script>
 <script src="{{ bower('patternfly/dist/js/patternfly.min.js') }}"></script>
 <script src="{{ bower('plotly.js/dist/plotly.min.js') }}"></script>
-
+<script src="{{ bower('seiyria-bootstrap-slider/dist/bootstrap-slider.min.js') }}"></script>
 <script>
 /**
 The Aspect.js module is responsible for handling the client display and
@@ -110,6 +114,62 @@ var ICONS = {
     'variable': 'fa-flag'
 };
 
+// ---WIDGETS-------------------------------------------------------------------
+var WIDGETS = [];
+
+function getSliderWidget(id, value, min=0, max=10, step=1) {
+    min = toKwarg(min, 0);
+    max = toKwarg(max, 10);
+    step = toKwarg(step, 1);
+    value = toKwarg(value, 5);
+    function func() {
+        new Slider('#' + id,
+            {
+                id: id,
+                value: value
+                // ticks: _.range(min, max, step),
+                // min: min,
+                // max: max,
+                // handle: 'triangle'
+            }
+        );
+    };
+    WIDGETS.push(func);
+
+    var input = document.createElement('input');
+    input.setAttribute('id', id);
+    return input;
+};
+
+function getTextArea(id, value) {
+    value = toKwarg(value, '');
+    var widget = document.createElement('textarea');
+    widget.setAttribute('id', id);
+    widget.classList.add('form-control');
+    widget.setAttribute('rows', '1');
+    widget.value = value;
+    return widget;
+};
+
+function getInput(id, value) {
+    value = toKwarg(value, '');
+    var widget = document.createElement('input');
+    widget.setAttribute('id', id);
+    // widget.classList.add('form-control');
+    widget.value = value;
+    return widget;
+};
+
+function getWidget(value, name) {
+    var id = name + '-widget';
+    if (typeof value == 'number') {
+        return getSliderWidget(id, value);
+    } else if (typeof value == 'string') {
+        return getInput(id, value);
+    };
+    return null;
+};
+
 // ---LIBRARY-------------------------------------------------------------------
 /** Dict of all module of a library exposed by aspect **/
 var LIBRARY = {{ library | tojson }};
@@ -190,6 +250,7 @@ function toTreeRow(item, parent, value, icon, dataParent=true, iconType='') {
     **/
     dataParent = toKwarg(dataParent, true);
     iconType = toKwarg(iconType, null);
+    value = toKwarg(value, null);
     // -------------------------------------------------------------------------
 
     var row = document.createElement('tr');
@@ -232,7 +293,12 @@ function toTreeRow(item, parent, value, icon, dataParent=true, iconType='') {
     // value cell (right side)
     var val = document.createElement('td');
     val.id = 'sidebar-value';
-    val.textContent = value;
+    // val.textContent = value;
+
+    var widget = getWidget(value, name);
+    if (widget != null) {
+        val.appendChild(widget);
+    };
 
     // full TreeGrid row
     row.appendChild(key);
@@ -258,7 +324,7 @@ function toTreeFunction(func, parent, icon) {
     var row = toTreeRow(
         func,
         parent,
-        '',
+        null,
         icon,
         dataParent=true,
         iconType='function'
@@ -319,7 +385,7 @@ function toTreeClass(cls, parent) {
     var row = toTreeRow(
         cls,
         parent,
-        '',
+        null,
         ICONS['class'],
         dataParent=true,
         iconType='class'
@@ -372,7 +438,7 @@ function toTreeModule(module, parent) {
     var row = toTreeRow(
         module,
         parent,
-        '',
+        null,
         ICONS['module'],
         dataParent=false,
         iconType='module'
@@ -631,6 +697,9 @@ function main() {
     var cursor = libraryToList(LIBRARY)[0];
     breadcrumb.setAttribute('data-cursor', cursor);
     _refreshApp(cursor, '');
+    for (i in WIDGETS) {
+        WIDGETS[i]();
+    };
 };
 
 $(document).ready(function(){
