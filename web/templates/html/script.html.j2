@@ -155,7 +155,7 @@ function getInput(id, value) {
     value = toKwarg(value, '');
     var widget = document.createElement('input');
     widget.setAttribute('id', id);
-    // widget.classList.add('form-control');
+    widget.classList.add('sidebar-val-input');
     widget.value = value;
     return widget;
 };
