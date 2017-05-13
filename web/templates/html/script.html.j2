@@ -7,9 +7,9 @@
 <script src="{{ node('lodash/lodash.min.js') }}"></script>
 <script src="{{ bower('jquery/dist/jquery.min.js') }}"></script>
 <script src="{{ bower('bootstrap/dist/js/bootstrap.min.js') }}"></script>
+<script src="{{ bower('seiyria-bootstrap-slider/dist/bootstrap-slider.min.js') }}" id="bootstrap-slider-src"></script>
 <script src="{{ bower('patternfly/dist/js/patternfly.min.js') }}"></script>
 <script src="{{ bower('plotly.js/dist/plotly.min.js') }}"></script>
-<script src="{{ bower('seiyria-bootstrap-slider/dist/bootstrap-slider.min.js') }}"></script>
 <script>
 /**
 The Aspect.js module is responsible for handling the client display and
@@ -115,34 +115,28 @@ var ICONS = {
 };
 
 // ---WIDGETS-------------------------------------------------------------------
-var WIDGETS = [];
+var WIDGETS = {};
 
-function getFloatWidget(id, value, min=0, max=10, step=0.1) {
+function createFloatWidget(id, value, min=0, max=10, step=0.1) {
     min = toKwarg(min, 0);
     max = toKwarg(max, 10);
     step = toKwarg(step, 1);
     value = toKwarg(value, 5);
-    function func() {
-        var labels = _.range(min, max, step).map(x => String(x));
-        new Slider('#' + id,
-            {
-                id: id,
-                value: value,
-                step: step,
-                min: min,
-                max: max,
-                handle: 'custom'
-            }
-        );
-    }
-    WIDGETS.push(func);
 
-    var input = document.createElement('input');
-    input.setAttribute('id', id);
-    return input;
+    var widget = document.createElement('input');
+    widget.id = id;
+    widget.value = value;
+    widget.setAttribute('data-provide', 'slider');
+    widget.setAttribute('data-slider-id', '#' + id);
+    widget.setAttribute('data-slider-handle', 'custom');
+    widget.setAttribute('data-slider-min', String(min));
+    widget.setAttribute('data-slider-max', String(max));
+    widget.setAttribute('data-slider-step', String(step));
+
+    return widget;
 }
 
-function getTextArea(id, value) {
+function createTextArea(id, value) {
     value = toKwarg(value, '');
     var widget = document.createElement('textarea');
     widget.id = id;
@@ -152,7 +146,7 @@ function getTextArea(id, value) {
     return widget;
 }
 
-function getStringWidget(id, value) {
+function createStringWidget(id, value) {
     value = toKwarg(value, '');
     var widget = document.createElement('input');
     widget.id = id;
@@ -161,11 +155,11 @@ function getStringWidget(id, value) {
     return widget;
 }
 
-function getListWidget(id, value) {
+function createListWidget(id, value) {
 
 }
 
-function getBoolWidget(id, value) {
+function createBoolWidget(id, value) {
     var widget = document.createElement('input');
     widget.id = id;
     widget.type = 'checkbox';
@@ -173,16 +167,18 @@ function getBoolWidget(id, value) {
     return widget;
 }
 
-function getWidget(value, name) {
+function registerWidget(value, name) {
     var id = name + '-widget';
-    if (typeof value == 'boolean') {
-        return getBoolWidget(id, value);
-    } else if (typeof value == 'number') {
-        return getFloatWidget(id, value);
-    } else if (typeof value == 'string') {
-        return getStringWidget(id, value);
-    }
-    return null;
+    if (!contains(id, WIDGETS)) {
+        if (typeof value == 'boolean') {
+            WIDGETS[id] = createBoolWidget(id, value);
+        } else if (typeof value == 'number') {
+            WIDGETS[id] = createFloatWidget(id, value);
+        } else if (typeof value == 'string') {
+            WIDGETS[id] = createStringWidget(id, value);
+        };
+    };
+    return id;
 }
 
 // ---LIBRARY-------------------------------------------------------------------
@@ -312,8 +308,9 @@ function toTreeRow(item, parent, value, icon, dataParent=true, iconType='') {
     val.id = 'sidebar-value';
     // val.textContent = value;
 
-    var widget = getWidget(value, fullname);
-    if (widget != null) {
+    var id = registerWidget(value, fullname);
+    var widget = WIDGETS[id];
+    if (widget != undefined) {
         val.appendChild(widget);
     }
 
@@ -363,7 +360,7 @@ function toTreeFunction(func, parent, icon) {
                 ICONS['arg'],
                 dataParent=true,
                 iconType='arg'
-            );
+            )
 
             output.push(arg);
         }
@@ -381,7 +378,7 @@ function toTreeFunction(func, parent, icon) {
                 ICONS['kwarg'],
                 dataParent=true,
                 iconType='kwarg'
-            );
+            )
 
             output.push(kwarg);
         }
@@ -434,7 +431,7 @@ function toTreeClass(cls, parent) {
                 ICONS['attribute'],
                 dataParent=true,
                 iconType='attribute'
-            );
+            )
 
             output.push(attribute);
         }
@@ -507,9 +504,9 @@ function toggleSidebar() {
         @function
         @return {undefined}
     **/
-    var right = $("#right")[0];
-    var left = $("#left")[0];
-    var sidebarIcon = $("#sidebar-icon")[0];
+    var right = document.getElementById("right");
+    var left = document.getElementById("left");
+    var sidebarIcon = document.getElementById("sidebar-icon");
 
     // display right sidebar
     if (right.style.display === 'none') {
@@ -522,6 +519,15 @@ function toggleSidebar() {
         right.style.display = 'none';
         left.style.width = "100%";
         sidebarIcon.className = "fa fa-caret-left fa-2x"
+    }
+}
+
+function refreshSliders() {
+    for (id in WIDGETS) {
+        var widget = WIDGETS[id];
+        if (widget.getAttribute('data-provide') == 'slider') {
+            $('#' + id).slider();
+        }
     }
 }
 
@@ -560,16 +566,11 @@ function refreshSidebar(cursor, destination) {
         }
     }
 
-    // refresh widget funcs
-    for (i in WIDGETS) {
-        var item = WIDGETS[i];
-        if (typeof item != 'null') {
-            item();
-        }
-    }
-
     // initialize treegrid
     $('.table-treegrid').treegrid();
+
+    // reinitialize sliders
+    refreshSliders();
 }
 
 // ---SEARCHBAR-----------------------------------------------------------------
@@ -722,9 +723,6 @@ function main() {
     var cursor = libraryToList(LIBRARY)[0];
     breadcrumb.setAttribute('data-cursor', cursor);
     _refreshApp(cursor, '');
-    for (i in WIDGETS) {
-        WIDGETS[i]();
-    }
 }
 
 $(document).ready(function(){
