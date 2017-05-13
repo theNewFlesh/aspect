@@ -117,6 +117,9 @@ var ICONS = {
 // ---WIDGETS-------------------------------------------------------------------
 var WIDGETS = [];
 
+function voidFunc() {
+};
+
 function getFloatWidget(id, value, min=0, max=10, step=0.1) {
     min = toKwarg(min, 0);
     max = toKwarg(max, 10);
@@ -145,7 +148,7 @@ function getFloatWidget(id, value, min=0, max=10, step=0.1) {
 function getTextArea(id, value) {
     value = toKwarg(value, '');
     var widget = document.createElement('textarea');
-    widget.setAttribute('id', id);
+    widget.id = id;
     widget.classList.add('form-control');
     widget.setAttribute('rows', '1');
     widget.value = value;
@@ -155,7 +158,7 @@ function getTextArea(id, value) {
 function getStringWidget(id, value) {
     value = toKwarg(value, '');
     var widget = document.createElement('input');
-    widget.setAttribute('id', id);
+    widget.id = id;
     widget.classList.add('sidebar-val-input');
     widget.value = value;
     return widget;
@@ -165,9 +168,19 @@ function getListWidget(id, value) {
 
 };
 
+function getBoolWidget(id, value) {
+    var widget = document.createElement('input');
+    widget.id = id;
+    widget.type = 'checkbox';
+    widget.checked = value;
+    return widget;
+};
+
 function getWidget(value, name) {
     var id = name + '-widget';
-    if (typeof value == 'number') {
+    if (typeof value == 'boolean') {
+        return getBoolWidget(id, value);
+    } else if (typeof value == 'number') {
         return getFloatWidget(id, value);
     } else if (typeof value == 'string') {
         return getStringWidget(id, value);
@@ -546,6 +559,11 @@ function refreshSidebar(cursor, destination) {
                 addChildren(body, module);
             };
         };
+    };
+
+    // refresh widget funcs
+    for (i in WIDGETS) {
+        WIDGETS[i]();
     };
 
     // initialize treegrid

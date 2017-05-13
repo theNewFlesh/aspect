@@ -61,12 +61,12 @@ library:
           - name: method1
             args:
               - name: arg1
-                value: 50
+                value: false
               - name: arg2
-                value: 40
+                value: true
             kwargs:
               - name: kwarg1
-                default: 0
+                default: false
               - name: kwarg2
                 default: 1
       - name: ClassBar
