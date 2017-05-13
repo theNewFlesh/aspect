@@ -58,54 +58,73 @@ a:active {
   /*top: 50px;*/
 }
 
-#navbar-container {
-}
-
 #navbar {
   top: -5px;
   background: #242424;
   border-bottom: 5px solid #000;
   height: 45px;
+  margin-bottom: 0px !important;
+}
+
+#navbar-container {
+  height: inherit;
+  margin-bottom: inherit;
 }
 
 #navbar-header-container {
+  height: inherit;
+  margin-bottom: inherit;
   padding: 0px 15px 0px 15px !important;
 }
 
 #logo {
   padding-top: 18px;
   color: #B6ECF3;
+  height: inherit;
+  margin-bottom: inherit;
 }
 
 .breadcrumb {
   margin-top: -22px;
+  height: inherit;
+  margin-bottom: inherit;
 }
 
 .breadcrumb > li + li:before {
-    color: #B6ECF3;
-    content: ".";
-    margin: 0px -5px 0px -5px;
-    font-size: 40px;
+  color: #B6ECF3;
+  content: ".";
+  margin: 0px -5px 0px -5px;
+  font-size: 40px;
+  height: inherit;
+  margin-bottom: inherit;
 }
 
 .breadcrumb-item:hover a {
   color: #FFFFFF;
+  height: inherit;
+  margin-bottom: inherit;
 }
 
 .breadcrumb-item,
 .breadcrumb-item a {
-    color: #A4A4A4;
-    font-size: 20px;
+  color: #A4A4A4;
+  font-size: 20px;
+  height: inherit;
+  margin-bottom: inherit;
 }
 
 .breadcrumb-item.active a {
-    color: #F4F4F4;
-    font-size: 20px;
+  color: #F4F4F4;
+  font-size: 20px;
+  height: inherit;
+  margin-bottom: inherit;
 }
 
 #breadcrumb-last-dot:before {
   content: '';
   margin: 0px -10px 0px -10px;
+  height: inherit;
+  margin-bottom: inherit;
 }
 
 #search-container {
@@ -114,21 +133,28 @@ a:active {
   -webkit-justify-content: flex-start;
   justify-content: flex-start;
   align-items: center;
+  height: inherit;
+  margin-bottom: inherit;
 }
 
-#search {
+#search, #searchbar:hover {
   display: flex !important;
   flex: 1 0 50px !important;
   -webkit-justify-content: flex-start;
   justify-content: flex-start;
+  height: inherit;
+  margin-bottom: inherit;
+  border: 0px solid #242424;
 }
 
 #searchbar, #searchbar:focus, #searchbar:hover {
-    width: 100% !important;
-    background: #444444;
-    color: #A4A4A4;
-    border: 2px solid #444444;
-    border-radius: 3px;
+  width: 100% !important;
+  background: #444444;
+  color: #A4A4A4;
+  border: 2px solid #444444 !important;
+  border-radius: 3px !important;
+  height: inherit;
+  margin-bottom: inherit;
 }
 
 #sidebar-btn,
@@ -143,6 +169,7 @@ a:active {
   width: 35px;
   margin: 10px 0px 10px 10px !important;
   padding-left: 13px;
+  border-radius: 3px;
 }
 
 #sidebar-btn:hover {
@@ -157,6 +184,12 @@ a:active {
 #library {
   background: #242424 !important;
   color: #A4A4A4 !important;
+}
+
+#hamburger {
+  height: 30px !important;
+  padding-top: 10px;
+  margin-bottom: inherit !important;
 }
 
 #dashboard-container {
