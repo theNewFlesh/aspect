@@ -116,12 +116,23 @@ var ICONS = {
 };
 
 // ---WIDGETS-------------------------------------------------------------------
+/** Dictionary of of widget elements: element id, element **/
 var WIDGETS = {};
 
 function createFloatWidget(id, value, min=0, max=10, step=0.1) {
+    /**
+        Creates a bootstrap-slider widget
+        @function
+        @param {string} id - id of widget
+        @param {number} value - default value
+        @param {number, opt} min - minimum value for slider
+        @param {number, opt} max - maximum value for slider
+        @param {step, opt} min - step value for slider
+        @return {input} - slider element
+    **/
     min = toKwarg(min, 0);
     max = toKwarg(max, 10);
-    step = toKwarg(step, 1);
+    step = toKwarg(step, 0.1);
     value = toKwarg(value, 5);
 
     var widget = document.createElement('input');
@@ -139,6 +150,13 @@ function createFloatWidget(id, value, min=0, max=10, step=0.1) {
 }
 
 function createTextArea(id, value) {
+    /**
+        Creates a text area widget
+        @function
+        @param {string} id - id of widget
+        @param {string} value - default value
+        @return {textarea} - textarea element
+    **/
     value = toKwarg(value, '');
     var widget = document.createElement('textarea');
     widget.id = id;
@@ -149,6 +167,13 @@ function createTextArea(id, value) {
 }
 
 function createStringWidget(id, value) {
+    /**
+        Creates a string editor widget
+        @function
+        @param {string} id - id of widget
+        @param {string} value - default value
+        @return {input} - input element
+    **/
     value = toKwarg(value, '');
     var widget = document.createElement('input');
     widget.id = id;
@@ -162,6 +187,13 @@ function createListWidget(id, value) {
 }
 
 function createBoolWidget(id, value) {
+    /**
+        Creates a bootstrap-switch widget
+        @function
+        @param {string} id - id of widget
+        @param {string} value - default value
+        @return {input} - switch element
+    **/
     var widget = document.createElement('input');
     widget.classList.add('bootstrap-switch');
     widget.id = id;
@@ -172,8 +204,15 @@ function createBoolWidget(id, value) {
     return widget;
 }
 
-function registerWidget(value, name) {
-    var id = name + '-widget';
+function registerWidget(parent, value) {
+    /**
+        Registers a widget with WIDGETS.  Creates one if it key doesnt exist.
+        @function
+        @param {string} parent - name of parent element
+        @param {} value - default value of widget
+        @return {string} - id of widget (key in WIDGETS)
+    **/
+    var id = parent + '-widget';
     if (!contains(id, WIDGETS)) {
         if (typeof value == 'boolean') {
             WIDGETS[id] = createBoolWidget(id, value);
@@ -313,7 +352,7 @@ function toTreeRow(item, parent, value, icon, dataParent=true, iconType='') {
     val.id = 'sidebar-value';
     // val.textContent = value;
 
-    var id = registerWidget(value, fullname);
+    var id = registerWidget(fullname, value);
     var widget = WIDGETS[id];
     if (widget != undefined) {
         val.appendChild(widget);
