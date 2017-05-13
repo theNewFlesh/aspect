@@ -27,8 +27,8 @@ function clearChildren (node) {
     **/
     while (node.hasChildNodes()) {
         node.removeChild(node.lastChild);
-    };
-};
+    }
+}
 
 function addChildren (node, children) {
     /**
@@ -40,8 +40,8 @@ function addChildren (node, children) {
     **/
     for (var i=0; i < children.length; i++) {
         node.appendChild(children[i]);
-    };
-};
+    }
+}
 
 function contains(item, arr) {
     /**
@@ -55,9 +55,9 @@ function contains(item, arr) {
 
     for (i in arr) {
         if (arr[i] == item) return true;
-    };
+    }
     return false;
-};
+}
 
 function dictContains(item, dict) {
     /**
@@ -72,9 +72,9 @@ function dictContains(item, dict) {
     var keys = Object.keys(dict);
     for (i in keys) {
         if (keys[i] == item) return true;
-    };
+    }
     return false;
-};
+}
 
 function undefinedError(item) {
     /**
@@ -85,8 +85,8 @@ function undefinedError(item) {
     **/
     if (item == undefined) {
         throw 'undefined value';
-    };
-};
+    }
+}
 
 function toKwarg(parameter, default_) {
     /**
@@ -98,9 +98,9 @@ function toKwarg(parameter, default_) {
     **/
     if (parameter == undefined) {
         return default_;
-    };
+    }
     return parameter;
-};
+}
 
 /** Dictionary of python object: fa icon pairs used by Tree functions **/
 var ICONS = {
@@ -116,9 +116,6 @@ var ICONS = {
 
 // ---WIDGETS-------------------------------------------------------------------
 var WIDGETS = [];
-
-function voidFunc() {
-};
 
 function getFloatWidget(id, value, min=0, max=10, step=0.1) {
     min = toKwarg(min, 0);
@@ -137,13 +134,13 @@ function getFloatWidget(id, value, min=0, max=10, step=0.1) {
                 handle: 'custom'
             }
         );
-    };
+    }
     WIDGETS.push(func);
 
     var input = document.createElement('input');
     input.setAttribute('id', id);
     return input;
-};
+}
 
 function getTextArea(id, value) {
     value = toKwarg(value, '');
@@ -153,7 +150,7 @@ function getTextArea(id, value) {
     widget.setAttribute('rows', '1');
     widget.value = value;
     return widget;
-};
+}
 
 function getStringWidget(id, value) {
     value = toKwarg(value, '');
@@ -162,11 +159,11 @@ function getStringWidget(id, value) {
     widget.classList.add('sidebar-val-input');
     widget.value = value;
     return widget;
-};
+}
 
 function getListWidget(id, value) {
 
-};
+}
 
 function getBoolWidget(id, value) {
     var widget = document.createElement('input');
@@ -174,7 +171,7 @@ function getBoolWidget(id, value) {
     widget.type = 'checkbox';
     widget.checked = value;
     return widget;
-};
+}
 
 function getWidget(value, name) {
     var id = name + '-widget';
@@ -184,13 +181,13 @@ function getWidget(value, name) {
         return getFloatWidget(id, value);
     } else if (typeof value == 'string') {
         return getStringWidget(id, value);
-    };
+    }
     return null;
-};
+}
 
 // ---LIBRARY-------------------------------------------------------------------
 /** Dict of all module of a library exposed by aspect **/
-var LIBRARY = {{ library | tojson }};
+var LIBRARY = {{ library | tojson }}
 
 function libraryToList(lib, modules=true, classes=false) {
     /**
@@ -212,8 +209,8 @@ function libraryToList(lib, modules=true, classes=false) {
             var temp = key.split('.');
             for (var i=0; i < temp.length; i++) {
                 items.push( temp.slice(0, i+1).join('.') );
-            };
-        };
+            }
+        }
 
         // include classes
         if (classes) {
@@ -221,16 +218,16 @@ function libraryToList(lib, modules=true, classes=false) {
                 var cls = lib[key]['classes'];
                 for (i in cls) {
                     items.push(key + '.' + cls[i]['name']);
-                };
-            };
-        };
-    };
+                }
+            }
+        }
+    }
 
     // make unique and sort alphabetically
     items = [...new Set(items)];
     items.sort();
     return items;
-};
+}
 
 function cursorToLibraryList(cursor) {
     /**
@@ -247,11 +244,11 @@ function cursorToLibraryList(cursor) {
             // calling LIBRARY directly excludes classes
             if (item != cursor || dictContains(item, LIBRARY) ) {
                 output.push(item);
-            };
-        };
-    };
+            }
+        }
+    }
     return output;
-};
+}
 
 // ---ROW-----------------------------------------------------------------------
 function toTreeRow(item, parent, value, icon, dataParent=true, iconType='') {
@@ -273,7 +270,7 @@ function toTreeRow(item, parent, value, icon, dataParent=true, iconType='') {
 
     var row = document.createElement('tr');
     var name = '';
-
+    var fullname = parent + '-' + name;
     if (dataParent) {
         row.setAttribute('data-parent', '#' + parent);
         name = item['name'];
@@ -281,7 +278,9 @@ function toTreeRow(item, parent, value, icon, dataParent=true, iconType='') {
     } else {
         row.id = parent;
         name = parent.split('-').slice(-1)[0];
-    };
+    }
+
+    fullname = fullname + name;
 
     // key cell (left side)
     var key = document.createElement('td');
@@ -298,7 +297,7 @@ function toTreeRow(item, parent, value, icon, dataParent=true, iconType='') {
         span.classList.add('node-icon');
         span.classList.add('fa');
         span.classList.add(icon);
-    };
+    }
     span.setAttribute('data-icon-type', iconType);
 
     key.appendChild(span);
@@ -313,17 +312,17 @@ function toTreeRow(item, parent, value, icon, dataParent=true, iconType='') {
     val.id = 'sidebar-value';
     // val.textContent = value;
 
-    var widget = getWidget(value, name);
+    var widget = getWidget(value, fullname);
     if (widget != null) {
         val.appendChild(widget);
-    };
+    }
 
     // full TreeGrid row
     row.appendChild(key);
     row.appendChild(val);
 
     return row;
-};
+}
 
 // ---FUNCTION------------------------------------------------------------------
 function toTreeFunction(func, parent, icon) {
@@ -367,8 +366,8 @@ function toTreeFunction(func, parent, icon) {
             );
 
             output.push(arg);
-        };
-    };
+        }
+    }
 
     // add kwarg rows
     if (dictContains('kwargs', func)) {
@@ -385,10 +384,10 @@ function toTreeFunction(func, parent, icon) {
             );
 
             output.push(kwarg);
-        };
-    };
+        }
+    }
     return output;
-};
+}
 
 // ---CLASS---------------------------------------------------------------------
 function toTreeClass(cls, parent) {
@@ -421,8 +420,8 @@ function toTreeClass(cls, parent) {
             // same as function with different icon
             var method = toTreeFunction(method, parent, ICONS['method']);
             output = output.concat(method);
-        };
-    };
+        }
+    }
 
     // add attribute rows
     if (dictContains('attributes', cls)) {
@@ -438,10 +437,10 @@ function toTreeClass(cls, parent) {
             );
 
             output.push(attribute);
-        };
-    };
+        }
+    }
     return output;
-};
+}
 
 // ---MODULE--------------------------------------------------------------------
 function toTreeModule(module, parent) {
@@ -469,8 +468,8 @@ function toTreeModule(module, parent) {
             var cls = module['classes'][i];
             cls = toTreeClass(cls, parent);
             output = output.concat(cls);
-        };
-    };
+        }
+    }
 
     // function rows
     if (dictContains('functions', module)) {
@@ -478,8 +477,8 @@ function toTreeModule(module, parent) {
             var func = module['functions'][i];
             func = toTreeFunction(func, parent, ICONS['function']);
             output = output.concat(func);
-        };
-    };
+        }
+    }
 
     // variable rows
     if (dictContains('variables', module)) {
@@ -496,10 +495,10 @@ function toTreeModule(module, parent) {
             );
 
             output.push(variable);
-        };
-    };
+        }
+    }
     return output;
-};
+}
 
 // ---SIDEBAR-------------------------------------------------------------------
 function toggleSidebar() {
@@ -524,7 +523,7 @@ function toggleSidebar() {
         left.style.width = "100%";
         sidebarIcon.className = "fa fa-caret-left fa-2x"
     }
-};
+}
 
 function refreshSidebar(cursor, destination) {
     /**
@@ -538,7 +537,7 @@ function refreshSidebar(cursor, destination) {
     // append destination to cursor
     if (destination != '') {
         cursor = cursor + '.' + destination;
-    };
+    }
 
     // get new list of modules given new cursor
     var lib = cursorToLibraryList(cursor);
@@ -557,18 +556,21 @@ function refreshSidebar(cursor, destination) {
             if ( dictContains(moduleName, LIBRARY) ) {
                 var module = toTreeModule(LIBRARY[moduleName], parent);
                 addChildren(body, module);
-            };
-        };
-    };
+            }
+        }
+    }
 
     // refresh widget funcs
     for (i in WIDGETS) {
-        WIDGETS[i]();
-    };
+        var item = WIDGETS[i];
+        if (typeof item != 'null') {
+            item();
+        }
+    }
 
     // initialize treegrid
     $('.table-treegrid').treegrid();
-};
+}
 
 // ---SEARCHBAR-----------------------------------------------------------------
 function refreshSearchbar(cursor, destination) {
@@ -583,7 +585,7 @@ function refreshSearchbar(cursor, destination) {
     // append destination to cursor
     if (destination != '') {
         cursor = cursor + '.' + destination;
-    };
+    }
 
     // clear searchbar's library items
     var searchbarLib = document.getElementById('library');
@@ -602,14 +604,14 @@ function refreshSearchbar(cursor, destination) {
             // make path relative to new cursor
             option.value = lib[i].replace(cursor + '.', '');
             searchbarLib.appendChild(option);
-        };
-    };
+        }
+    }
 
     // clear input text and update placeholder
     var searchbar = document.getElementById('searchbar');
     searchbar.placeholder = 'search ' + cursor.split('.').slice(-1)[0];
     searchbar.value = '';
-};
+}
 
 // ---BREADCRUMB----------------------------------------------------------------
 function setBreadcrumbItemLink(e) {
@@ -621,7 +623,7 @@ function setBreadcrumbItemLink(e) {
     **/
     var cursor = e.srcElement.getAttribute('data-cursor');
     _refreshApp(cursor, '');
-};
+}
 
 function refreshBreadcrumb(cursor, destination) {
     /**
@@ -634,7 +636,7 @@ function refreshBreadcrumb(cursor, destination) {
     **/
     if (destination != '') {
         cursor = cursor + '.' + destination;
-    };
+    }
 
     var breadcrumb = document.getElementById('breadcrumb-nav');
     clearChildren(breadcrumb);
@@ -642,7 +644,7 @@ function refreshBreadcrumb(cursor, destination) {
     var items = [];
     if (cursor != '') {
         items = cursor.split('.');
-    };
+    }
 
     for (var i = 0; i < items.length; i++) {
         var item = items[i];
@@ -659,8 +661,8 @@ function refreshBreadcrumb(cursor, destination) {
         if (i == items.length - 1) {
             element.classList.add('active');
             a.removeAttribute('onclick');
-        };
-    };
+        }
+    }
 
     // ol cannot be empty for proper display
     var empty = document.createElement('li')
@@ -669,7 +671,7 @@ function refreshBreadcrumb(cursor, destination) {
 
     // set new cursor
     breadcrumb.setAttribute('data-cursor', cursor);
-};
+}
 
 // ---APP-----------------------------------------------------------------------
 function _refreshApp(cursor, destination) {
@@ -705,9 +707,9 @@ function refreshApp(e) {
         // if new cursor is a valid path in python library
         if ( contains(newCursor, libraryToList(LIBRARY)) ) {
             _refreshApp(cursor, destination);
-        };
-    };
-};
+        }
+    }
+}
 
 // ---MAIN----------------------------------------------------------------------
 function main() {
@@ -722,8 +724,8 @@ function main() {
     _refreshApp(cursor, '');
     for (i in WIDGETS) {
         WIDGETS[i]();
-    };
-};
+    }
+}
 
 $(document).ready(function(){
     main();
