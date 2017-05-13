@@ -380,14 +380,10 @@ td {
     font-family: Verdana, Geneva, sans-serif;
     margin-left: -5px;
     width: 100%;
-    -moz-box-shadow: 0 0 0px;
-    -webkit-box-shadow: 0 0 0px;
 }
 
 .sidebar-val-input:active, .sidebar-val-input:hover, .sidebar-val-input:after {
     outline: 1px solid #A4A4A4;
-    -moz-box-shadow: 0 0 0px;
-    -webkit-box-shadow: 0 0 0px;
 }
 
 .slider-track {
@@ -402,9 +398,18 @@ td {
     background: #444444;
 }
 
-.slider-handle {
-    background: #A4A4A4;
-    height: 15px;
-    width: 15px;
+.slider-handle.custom {
+    width: 0px;
+    top: -4px !important;
+}
+
+.slider-handle.custom::before {/
+    line-height: 15px;
+    font-size: 15px;
+    color: #B6ECF3;
+    content: "\25bc";
+    background: transparent;;
+    top: inherit;
+    margin-left: 3px;
 }
 

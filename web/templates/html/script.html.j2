@@ -117,20 +117,21 @@ var ICONS = {
 // ---WIDGETS-------------------------------------------------------------------
 var WIDGETS = [];
 
-function getSliderWidget(id, value, min=0, max=10, step=1) {
+function getFloatWidget(id, value, min=0, max=10, step=0.1) {
     min = toKwarg(min, 0);
     max = toKwarg(max, 10);
     step = toKwarg(step, 1);
     value = toKwarg(value, 5);
     function func() {
+        var labels = _.range(min, max, step).map(x => String(x));
         new Slider('#' + id,
             {
                 id: id,
-                value: value
-                // ticks: _.range(min, max, step),
-                // min: min,
-                // max: max,
-                // handle: 'triangle'
+                value: value,
+                step: step,
+                min: min,
+                max: max,
+                handle: 'custom'
             }
         );
     };
@@ -151,7 +152,7 @@ function getTextArea(id, value) {
     return widget;
 };
 
-function getInput(id, value) {
+function getStringWidget(id, value) {
     value = toKwarg(value, '');
     var widget = document.createElement('input');
     widget.setAttribute('id', id);
@@ -160,12 +161,16 @@ function getInput(id, value) {
     return widget;
 };
 
+function getListWidget(id, value) {
+
+};
+
 function getWidget(value, name) {
     var id = name + '-widget';
     if (typeof value == 'number') {
-        return getSliderWidget(id, value);
+        return getFloatWidget(id, value);
     } else if (typeof value == 'string') {
-        return getInput(id, value);
+        return getStringWidget(id, value);
     };
     return null;
 };

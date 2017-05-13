@@ -24,8 +24,17 @@
     background: #444444;
 }
 
-.slider-handle {
-    background: #A4A4A4;
-    height: 15px;
-    width: 15px;
+.slider-handle.custom {
+    width: 0px;
+    top: -4px !important;
+}
+
+.slider-handle.custom::before {/
+    line-height: 15px;
+    font-size: 15px;
+    color: #B6ECF3;
+    content: "\25bc";
+    background: transparent;;
+    top: inherit;
+    margin-left: 3px;
 }
