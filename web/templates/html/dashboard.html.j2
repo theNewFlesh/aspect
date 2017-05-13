@@ -1,8 +1,8 @@
   <div class="grid-cell" id="dashboard-container">
     <div class="grid" id="dashboard">
 {##}{% for card in dashboard %}
-      <div class="grid-cell" id="card-container-{{ card.id }}">
-        <h3>{{ card.title }}</h3>
+      <div class="grid-cell card-container" id="card-container-{{ card.id }}">
+        <h3 class="card-title" id="card-title-{{ card.id }}">{{ card.title }}</h3>
         <div id="card">
           {{ card.html }}
         </div>

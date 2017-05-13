@@ -21,6 +21,17 @@
   padding: 0;
 }
 
+.card-container {
+  padding: 10px 10px 10px 10px !important;
+}
+
+.card-title {
+  background: #444444;
+  color: #A4A4A4;
+  margin: -10px -10px 0px -10px;
+  border: 5px solid #444444;
+}
+
 {% for card in dashboard %}
 #card-container-{{ card.id }} {
   flex-grow: {{ card.flex_grow }} !important;
