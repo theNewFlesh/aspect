@@ -167,6 +167,8 @@ function createBoolWidget(id, value) {
     widget.id = id;
     widget.type = 'checkbox';
     widget.checked = value;
+    widget.setAttribute('data-on-text', 'TRUE');
+    widget.setAttribute('data-off-text', 'FALSE');
     return widget;
 }
 
