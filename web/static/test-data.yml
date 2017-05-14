@@ -52,19 +52,19 @@ library:
           - name: method1
             args:
               - name: arg1
-                value: false
+                value: ['a', 'b', 'c']
               - name: arg2
                 value: true
             kwargs:
               - name: kwarg1
-                default: false
+                default: [1,2,3]
               - name: kwarg2
                 default: 1
       - name: ClassBar
         methods:
           - name: method2
             args:
-              - name: very_long_argument_name
+              - name: sfdfewsda
                 value: 50
         attributes:
           - name: name
@@ -117,7 +117,7 @@ library:
         methods:
           - name: method6
             args:
-              - name: very_long_argument_name
+              - name: sfdfewsda
                 value: 50
         attributes:
           - name: name
