@@ -1,28 +1,37 @@
-<nav class="navbar navbar-inverse navbar-fixed-top" role="navigation" id="navbar">
-  <div class="container-fluid" id="navbar-header-container">
-    <!-- Brand and toggle get grouped for better mobile display -->
-    <div class="navbar-header">
-      <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#hamburger">
-        <span class="sr-only">Toggle navigation</span>
-        <span class="icon-bar"></span>
-        <span class="icon-bar"></span>
-        <span class="icon-bar"></span>
-      </button>
-      <a class="navbar-brand icon node-icon fa fa-first-order fa-lg align-middle" href="#" id="logo"></a>
-      <ol class="breadcrumb navbar-left" id="breadcrumb-nav" data-cursor=""></ol>
-    </div>
+    <!-- navbar -->
+    <nav class="navbar navbar-inverse navbar-fixed-top" role="navigation" id="navbar">
+      <div class="container-fluid" id="navbar-header-container">
+        <div class="navbar-header">
 
-    <!-- Collect the nav links, forms, and other content for toggling -->
-    <div class="collapse navbar-collapse" id="hamburger">
-      <div class="grid" id="search-container">
-        {% include 'html/searchbar.html.j2' %}
-        <div class="grid-cell" id="sidebar-toggle">
-          <button class="btn" type="button" id="sidebar-btn" onclick="toggleSidebar()">
-            <i class="fa fa-caret-right fa-2x" id="sidebar-icon"></i>
+          <!-- hamburger -->
+          <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#hamburger">
+            <span class="sr-only">Toggle navigation</span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
           </button>
+
+          <!-- logo -->
+          <a class="navbar-brand icon node-icon fa fa-first-order fa-lg align-middle" href="#" id="logo"></a>
+
+          <!-- breadcrumb-nav -->
+          <ol class="breadcrumb navbar-left" id="breadcrumb-nav" data-cursor=""></ol>
         </div>
 
-      </div><!-- /.navbar-collapse -->
-    </div><!-- /.container-fluid -->
-  </div>
-</nav>
+        <!-- more hamburger -->
+        <div class="collapse navbar-collapse" id="hamburger">
+          <div class="grid" id="search-container">
+
+{#        #}{% include 'html/searchbar.html.j2' %}
+
+            <!-- sidebar-toggle -->
+            <div class="grid-cell" id="sidebar-toggle">
+              <button class="btn" type="button" id="sidebar-btn" onclick="toggleSidebar()">
+                <i class="fa fa-caret-right fa-2x" id="sidebar-icon"></i>
+              </button>
+            </div>
+
+          </div><!-- /.navbar-collapse -->
+        </div><!-- /.container-fluid -->
+      </div>
+    </nav>

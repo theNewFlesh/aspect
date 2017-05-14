@@ -1,15 +1,20 @@
 <!DOCTYPE html>
 <html lang="en">
-  {% include 'html/head.html.j2' %}
+{% include 'html/head.html.j2' %}
+
   <body>
-    {% include 'html/navbar.html.j2' %}
+{##}{% include 'html/navbar.html.j2' %}
+
+    <!-- left -->
     <div id="left">
-    {% include 'html/dashboard.html.j2' %}
+{#  #}{% include 'html/dashboard.html.j2' %}
     </div>
 
+    <!-- right -->
     <div id="right">
-      {% include 'html/sidebar.html.j2' %}
+{#  #}{% include 'html/sidebar.html.j2' %}
     </div>
-    {% include 'html/script.html.j2' %}
+
+{##}{% include 'html/script.html.j2' %}
   </body>
 </html>
