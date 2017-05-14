@@ -668,8 +668,10 @@ function refreshWidgets() {
     for (i in containers) {
         var container = containers[i];
         var value = container.value;
-        console.log(container);
-        var editor = new JSONEditor(container, {'mode': 'code'});
+        var editor = new JSONEditor(container, {
+            'mode': 'code',
+            'height': '30px'
+        });
         editor.set(value);
     }
 }

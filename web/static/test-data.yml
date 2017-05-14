@@ -59,7 +59,7 @@ library:
               - name: kwarg1
                 default: [1,2,3]
               - name: kwarg2
-                default: {'a': 1, 'b': 2}
+                default: {'a': 1, 'b': 2, 'c': [1, "a", 2 ]}
       - name: ClassBar
         methods:
           - name: method2
