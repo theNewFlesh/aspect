@@ -23,6 +23,7 @@
     "patternfly": "^3.23.3",
     "font-awesome": "^4.7.0",
     "jsoneditor": "^5.6.0",
-    "seiyria-bootstrap-slider": "^9.8.0"
+    "seiyria-bootstrap-slider": "^9.8.0",
+    "jquery-resizable": "^0.20.0"
   }
 }

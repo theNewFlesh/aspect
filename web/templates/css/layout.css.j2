@@ -1,4 +1,4 @@
-@media (min-width: 500px){
+{# @media (min-width: 500px){
   #left {
     position: absolute;
     bottom: 0;
@@ -18,7 +18,7 @@
     width: 30%;
     /*border-left: 5px solid #040404;*/
   }
-}
+} #}
 
 *{
   box-sizing : border-box;
@@ -26,7 +26,7 @@
   -moz-osx-font-smoothing: grayscale;
 }
 
-#left {
+{# #left {
   height: 100%;
   top: 40px;
   margin-left: -5px;
@@ -36,4 +36,53 @@
   height: 100%;
   top: 45px;
   /*top: 50px;*/
+} #}
+
+.panel-buffer {
+  position: absolute;
+  top: 45px;
+  height: 100%;
+  overflow-y: scroll;
+  overflow-x: hidden;
 }
+
+.panel-container {
+  display: flex;
+  flex-direction: row;
+  overflow-y: scroll;
+  overflow-x: hidden;
+  /* avoid browser level touch actions */
+  xtouch-action: none;
+  width: 100vw;
+  height: 100%;
+}
+
+.panel-left {
+  flex: 100 0 auto;
+  width: 65%;
+  white-space: nowrap;
+  padding-right: 0px;
+  margin-top: -5px;
+  overflow-y: scroll;
+  overflow-x: hidden;
+}
+
+.splitter {
+  flex: 0 0 auto;
+  width: 5px;
+  background: #040404;
+  cursor: col-resize;
+  overflow-y: scroll;
+  overflow-x: hidden;
+}
+
+.panel-right {
+  flex: 0 1 auto;
+  padding-left: 0px;
+  width: 100%;
+  background: #242424;
+  min-width: 400px;
+  overflow-y: scroll;
+  overflow-x: hidden;
+}
+

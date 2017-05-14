@@ -9,6 +9,7 @@
 <!-- dependencies -->
 <script src="{{ node('lodash/lodash.min.js') }}"></script>
 <script src="{{ bower('jquery/dist/jquery.min.js') }}"></script>
+<script src="{{ bower('jquery-resizable/dist/jquery-resizable.min.js') }}"></script>
 <script src="{{ bower('bootstrap/dist/js/bootstrap.min.js') }}"></script>
 <script src="{{ bower('bootstrap-switch/dist/js/bootstrap-switch.min.js') }}"></script>
 <script src="{{ bower('seiyria-bootstrap-slider/dist/bootstrap-slider.min.js') }}"></script>
@@ -720,6 +721,14 @@ function refreshBreadcrumb(cursor, destination) {
 }
 
 // ---APP-----------------------------------------------------------------------
+function refreshLayout() {
+    $(".panel-left").resizable({
+        handleSelector: ".splitter",
+        resizeHeight: false,
+        resixeWidthFrom: 'right'
+    });
+}
+
 function _refreshApp(cursor, destination) {
     /**
         Clears all interactive elements relevant to library navigation
@@ -732,6 +741,7 @@ function _refreshApp(cursor, destination) {
                                       given cursor position (ie pkg.module)
         @return {undefined}
     **/
+    refreshLayout();
     refreshBreadcrumb(cursor, destination);
     refreshSearchbar(cursor, destination);
     refreshSidebar(cursor, destination);
