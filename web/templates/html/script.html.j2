@@ -16,6 +16,7 @@
 <script src="{{ bower('seiyria-bootstrap-slider/dist/bootstrap-slider.min.js') }}"></script>
 <script src="{{ bower('patternfly/dist/js/patternfly.min.js') }}"></script>
 <script src="{{ bower('patternfly-bootstrap-combobox/js/bootstrap-combobox.js') }}"></script>
+<script src="{{ bower('jsoneditor/dist/jsoneditor.min.js') }}"></script>
 <script src="{{ bower('plotly.js/dist/plotly.min.js') }}"></script>
 {% endblock %}
 
@@ -125,10 +126,13 @@ var ICONS = {
     'variable': 'fa-flag'
 };
 
-// ---WIDGETS-------------------------------------------------------------------
 /** Dictionary of of widget elements: element id, element **/
 var WIDGETS = {};
 
+/** Dict of all module of a library exposed by aspect **/
+var LIBRARY = {{ library | tojson }}
+
+// ---WIDGETS-------------------------------------------------------------------
 function createFloatWidget(id, value, min=0, max=10, step=0.1) {
     /**
         Creates a bootstrap-slider widget
@@ -257,6 +261,21 @@ function createBoolWidget(id, value) {
     return widget;
 }
 
+function createDictWidget(id, value) {
+    /**
+        Creates a jsoneditor widget
+        @function
+        @param {string} id - id of widget
+        @param {object} value - default value
+        @return {input} - switch element
+    **/
+    var widget = document.createElement('div');
+    widget.classList.add('jsoneditor-container');
+    widget.id = id;
+    widget.value = value;
+    return widget;
+}
+
 function registerWidget(parent, value) {
     /**
         Registers a widget with WIDGETS.  Creates one if it key doesnt exist.
@@ -267,24 +286,27 @@ function registerWidget(parent, value) {
     **/
     var id = parent + '-widget';
     if (!contains(id, WIDGETS)) {
-        console.log(value);
-        if (typeof value == 'boolean') {
+        if (_.isBoolean(value)) {
             WIDGETS[id] = createBoolWidget(id, value);
-        } else if (typeof value == 'number') {
+
+        } else if (_.isNumber(value)) {
             WIDGETS[id] = createFloatWidget(id, value);
-        } else if (typeof value == 'string') {
+
+        } else if (_.isString(value)) {
             WIDGETS[id] = createStringWidget(id, value);
-        } else if (Array.isArray(value)) {
+
+        } else if (_.isArray(value)) {
             WIDGETS[id] = createListWidget(id, value);
-        };
-    };
+
+        } else if (_.isObject(value)) {
+         // && value.hasOwnProperty('keys')) {
+            WIDGETS[id] = createDictWidget(id, value);
+        }
+    }
     return id;
 }
 
 // ---LIBRARY-------------------------------------------------------------------
-/** Dict of all module of a library exposed by aspect **/
-var LIBRARY = {{ library | tojson }}
-
 function libraryToList(lib, modules=true, classes=false) {
     /**
         Converts a library dictionary to an array of full module names (ie lib.pkg.pkg.module)
@@ -622,6 +644,43 @@ function toggleSidebar() {
     }
 }
 
+function refreshWidgets() {
+    // refresh treegrid
+    $('.table-treegrid').treegrid();
+
+    // refresh sliders
+    $('.bootstrap-slider').slider();
+
+    // refresh switches
+    $('.bootstrap-switch').bootstrapSwitch();
+
+    // refresh select widgets
+    _.attempt( function func() {
+        $('.selectpicker').multiselect();
+    });
+
+    // refresh combobox widgets
+    // $('.combobox').combobox();
+
+    // refresh jsoneditor widgets
+    var containers = $('.jsoneditor-container').toArray();
+    // var containers = document.getElementsByClassName('jsoneditor');
+    for (i in containers) {
+        var container = containers[i];
+        var value = container.value;
+        console.log(container);
+        var editor = new JSONEditor(container, {'mode': 'code'});
+        editor.setOptions({
+            useWrapMode: true,
+            highlightActiveLine: true,
+            showPrintMargin: false,
+            theme: 'ace/theme/pastels_on_dark',
+            mode: 'ace/mode/json'
+        });
+        editor.set(value);
+    }
+}
+
 function refreshSidebar(cursor, destination) {
     /**
         Refreshes sidebar TreeGrid table
@@ -657,20 +716,7 @@ function refreshSidebar(cursor, destination) {
         }
     }
 
-    // refresh treegrid
-    $('.table-treegrid').treegrid();
-
-    // refresh sliders
-    $('.bootstrap-slider').slider();
-
-    // refresh switches
-    $('.bootstrap-switch').bootstrapSwitch();
-
-    // refresh select widgets
-    $('.selectpicker').multiselect();
-
-    // refresh combobox widgets
-    $('.combobox').combobox();
+    refreshWidgets();
 }
 
 // ---SEARCHBAR-----------------------------------------------------------------

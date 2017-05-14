@@ -59,13 +59,13 @@ library:
               - name: kwarg1
                 default: [1,2,3]
               - name: kwarg2
-                default: 1
+                default: {'a': 1, 'b': 2}
       - name: ClassBar
         methods:
           - name: method2
             args:
               - name: sfdfewsda
-                value: 50
+                value: {'a': 1, 'b': [1,2,3], 'c': 'sda'}
         attributes:
           - name: name
             value: "ClassBar's name"
