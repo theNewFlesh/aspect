@@ -670,13 +670,6 @@ function refreshWidgets() {
         var value = container.value;
         console.log(container);
         var editor = new JSONEditor(container, {'mode': 'code'});
-        editor.setOptions({
-            useWrapMode: true,
-            highlightActiveLine: true,
-            showPrintMargin: false,
-            theme: 'ace/theme/pastels_on_dark',
-            mode: 'ace/mode/json'
-        });
         editor.set(value);
     }
 }
