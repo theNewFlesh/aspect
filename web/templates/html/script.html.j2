@@ -193,6 +193,13 @@ function createStringWidget(id, value) {
 }
 
 function createListWidget(id, value) {
+    /**
+        Creates a patternfly multiple select dropdown widget
+        @function
+        @param {string} id - id of widget
+        @param {Array} value - default values
+        @return {input} - input element
+    **/
     value = toKwarg(value, [1,2,3]);
     var widget = document.createElement('select');
     widget.classList.add('selectpicker');
@@ -210,6 +217,13 @@ function createListWidget(id, value) {
 }
 
 function createComboBoxWidget(id, value) {
+    /**
+        Creates a bootstrap combobox dropdown widget
+        @function
+        @param {string} id - id of widget
+        @param {Array} value - default values
+        @return {input} - input element
+    **/
     value = toKwarg(value, [1,2,3]);
     var widget = document.createElement('select');
     widget.classList.add('combobox');
