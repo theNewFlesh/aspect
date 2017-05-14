@@ -131,3 +131,57 @@ input[type=text]:focus, textarea:focus {
     /*height: 20px;*/
     /*padding-bottom: 4px;*/
 }
+
+.bootstrap-select:not([class*=col-]):not([class*=form-control]):not(.input-group-btn) {
+    width: 100%;
+}
+
+.bootstrap-select.btn-group .btn,
+.bootstrap-select.btn-group .btn:hover,
+.bootstrap-select.btn-group .btn:active,
+.bootstrap-select.btn-group .btn:focus {
+    background: #444444;
+    color: #A4A4A4;
+    border: 0px solid #343434;
+}
+
+.dropdown-menu.open,
+.dropdown-menu.inner {
+    background: #343434;
+    border: 0px solid #343434;
+    padding-top: 0px;
+    padding-bottom: 0px;
+}
+
+.dropdown-menu>li>a:focus {
+    background: #343434;
+}
+
+.dropdown-menu>li>a:hover {
+    background: #444444;
+    border: 1px solid #343434 !important;
+}
+
+.dropdown-menu>li>a>span {
+    color: #A4A4A4;
+}
+
+.dropdown-menu>li>a>span:active {
+    color: #B6ECF3;
+}
+
+.bootstrap-select.btn-group .dropdown-menu>.selected>a,
+.bootstrap-select.btn-group .dropdown-menu>.selected>a:focus,
+.bootstrap-select.btn-group .dropdown-menu>.selected>a:active {
+    background: #343434 !important;
+    background-color: #343434;
+    border: 1px solid #A4A4A4 !important;
+    box-shadow: none !important;
+    outline: none !important;
+}
+
+.bootstrap-select.btn-group .btn:focus,
+.bootstrap-select.btn-group .btn:active {
+    box-shadow: none !important;
+    outline: none !important;
+}

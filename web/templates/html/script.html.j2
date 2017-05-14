@@ -12,6 +12,7 @@
 <script src="{{ bower('jquery-resizable/dist/jquery-resizable.min.js') }}"></script>
 <script src="{{ bower('bootstrap/dist/js/bootstrap.min.js') }}"></script>
 <script src="{{ bower('bootstrap-switch/dist/js/bootstrap-switch.min.js') }}"></script>
+<script src="{{ bower('bootstrap-select/dist/js/bootstrap-select.min.js') }}"></script>
 <script src="{{ bower('seiyria-bootstrap-slider/dist/bootstrap-slider.min.js') }}"></script>
 <script src="{{ bower('patternfly/dist/js/patternfly.min.js') }}"></script>
 <script src="{{ bower('plotly.js/dist/plotly.min.js') }}"></script>
@@ -191,7 +192,19 @@ function createStringWidget(id, value) {
 }
 
 function createListWidget(id, value) {
+    value = toKwarg(value, [1,2,3]);
+    var widget = document.createElement('select');
+    widget.classList.add('selectpicker');
+    widget.id = id;
+    widget.title = "-";
 
+    for (i in value) {
+        var option = document.createElement('option');
+        option.value = value[i];
+        option.text = String(value[i]);
+        widget.appendChild(option);
+    }
+    return widget;
 }
 
 function createBoolWidget(id, value) {
@@ -222,12 +235,15 @@ function registerWidget(parent, value) {
     **/
     var id = parent + '-widget';
     if (!contains(id, WIDGETS)) {
+        console.log(value);
         if (typeof value == 'boolean') {
             WIDGETS[id] = createBoolWidget(id, value);
         } else if (typeof value == 'number') {
             WIDGETS[id] = createFloatWidget(id, value);
         } else if (typeof value == 'string') {
             WIDGETS[id] = createStringWidget(id, value);
+        } else if (Array.isArray(value)) {
+            WIDGETS[id] = createListWidget(id, value);
         };
     };
     return id;
@@ -617,6 +633,9 @@ function refreshSidebar(cursor, destination) {
 
     // refresh switches
     $('.bootstrap-switch').bootstrapSwitch();
+
+    // refresh select widgets
+    $('.selectpicker').selectpicker();
 }
 
 // ---SEARCHBAR-----------------------------------------------------------------
