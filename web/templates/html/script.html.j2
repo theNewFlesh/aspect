@@ -701,8 +701,9 @@ function refreshWidgets() {
     $('.bootstrap-switch').bootstrapSwitch();
 
     // refresh select widgets
-    _.attempt( function func() {
-        $('.selectpicker').multiselect();
+    $('.selectpicker').selectpicker({
+        'width': 'auto',
+        'liveSearch': true
     });
 
     // refresh combobox widgets

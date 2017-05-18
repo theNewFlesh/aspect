@@ -1,3 +1,4 @@
+/* string */
 input[type=text], input[type=text]:focus,
 textarea, textarea:focus {
   -moz-box-shadow: 0 0 0px;
@@ -10,6 +11,7 @@ input[type=text]:focus, textarea:focus {
   outline: 1px solid #A4A4A4;
 }
 
+/* buttons */
 .btn.active.focus, .btn.active:focus, .btn.focus,
 .btn:active.focus, .btn:active:focus, .btn:focus {
   -moz-box-shadow: 0 0 0px;
@@ -17,6 +19,7 @@ input[type=text]:focus, textarea:focus {
   outline: none;
 }
 
+/* sidebar value */
 .sidebar-val-input,
 .sidebar-val-input:active,
 .sidebar-val-input:focus,
@@ -36,6 +39,7 @@ input[type=text]:focus, textarea:focus {
     box-shadow: none !important;
 }
 
+/* float and int */
 .slider.slider-horizontal {
     width: 100%;
 }
@@ -67,6 +71,7 @@ input[type=text]:focus, textarea:focus {
     margin-left: 3px;
 }
 
+/* boolean */
 .bootstrap-switch-wrapper {
     width: 160px;
 }
@@ -132,6 +137,7 @@ input[type=text]:focus, textarea:focus {
     /*padding-bottom: 4px;*/
 }
 
+/* list */
 .bootstrap-select:not([class*=col-]):not([class*=form-control]):not(.input-group-btn) {
     width: 100%;
 }
@@ -145,12 +151,17 @@ input[type=text]:focus, textarea:focus {
     border: 0px solid #343434;
 }
 
+.btn-group.bootstrap-select.show-tick {
+    width: 100% !important;
+}
+
 .dropdown-menu.open,
 .dropdown-menu.inner {
     background: #343434;
     border: 0px solid #343434;
     padding-top: 0px;
     padding-bottom: 0px;
+    width: 100% !important;
 }
 
 .dropdown-menu>li>a:focus {
@@ -170,6 +181,23 @@ input[type=text]:focus, textarea:focus {
     color: #B6ECF3;
 }
 
+.bs-searchbox input {
+    background: #444444;
+    color: #A4A4A4;
+    border: 0px solid #444444;
+    outline: none;
+}
+
+.bs-searchbox input:active,
+.bs-searchbox input:focus {
+    outline: 1px solid #A4A4A4;
+}
+
+.no-results {
+    background: #343434 !important;
+    color: #DE958E;
+}
+
 .bootstrap-select.btn-group .dropdown-menu>.selected>a,
 .bootstrap-select.btn-group .dropdown-menu>.selected>a:focus,
 .bootstrap-select.btn-group .dropdown-menu>.selected>a:active {
@@ -178,6 +206,7 @@ input[type=text]:focus, textarea:focus {
     border: 0px solid #A4A4A4 !important;
     box-shadow: none !important;
     outline: none !important;
+    width: 100% !important;
 }
 
 .bootstrap-select.btn-group .btn:focus,
@@ -186,6 +215,7 @@ input[type=text]:focus, textarea:focus {
     outline: none !important;
 }
 
+/* dict */
 .jsoneditor {
     resize: vertical;
     background: #343434 !important;
