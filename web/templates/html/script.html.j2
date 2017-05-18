@@ -644,6 +644,52 @@ function toggleSidebar() {
     }
 }
 
+function toggleJsonEditor(e) {
+    console.log(e.target);
+    var icon = e.target;
+    var btn = icon.parentElement;
+    var ace = btn.parentElement.parentElement.parentElement;
+    ace = ace.children[1].children[0];
+    console.log(ace.style.display);
+    if (ace.style.display == "inline-block") {
+        ace.style.display = "none";
+        icon.className = "jsoneditor-toggle-button-icon fa fa-caret-down fa-lg";
+    } else {
+        ace.style.display = "inline-block";
+        icon.className = "jsoneditor-toggle-button fa fa-caret-up fa-lg";
+    }
+}
+
+function refreshDictWidgets() {
+    // refresh jsoneditor widgets
+    var containers = $('.jsoneditor-container').toArray();
+    // var containers = document.getElementsByClassName('jsoneditor');
+    for (i in containers) {
+        var container = containers[i];
+        var value = container.value;
+        var editor = new JSONEditor(container, {
+            'mode': 'code'
+        });
+        editor.set(value);
+
+        var button = document.createElement('button');
+        button.classList.add('btn');
+        button.classList.add('jsoneditor-toggle-button');
+        button.setAttribute('onclick', 'toggleJsonEditor(event)');
+
+        var i = document.createElement('i');
+        i.className = "jsoneditor-toggle-button-icon fa fa-caret-down fa-lg";
+        button.appendChild(i);
+
+        var bcont = document.createElement('div');
+        bcont.classList.add("jsoneditor-toggle-container");
+        bcont.appendChild(button);
+
+        var menu = container.children[0].children[0];
+        menu.appendChild(bcont);
+    }
+}
+
 function refreshWidgets() {
     // refresh treegrid
     $('.table-treegrid').treegrid();
@@ -662,17 +708,7 @@ function refreshWidgets() {
     // refresh combobox widgets
     // $('.combobox').combobox();
 
-    // refresh jsoneditor widgets
-    var containers = $('.jsoneditor-container').toArray();
-    // var containers = document.getElementsByClassName('jsoneditor');
-    for (i in containers) {
-        var container = containers[i];
-        var value = container.value;
-        var editor = new JSONEditor(container, {
-            'mode': 'code'
-        });
-        editor.set(value);
-    }
+    refreshDictWidgets();
 }
 
 function refreshSidebar(cursor, destination) {
