@@ -57,9 +57,9 @@ library:
                 value: true
             kwargs:
               - name: kwarg1
-                default: [1,2,3]
+                value: [1,2,3]
               - name: kwarg2
-                default: {'a': 1, 'b': 2, 'c': [1, "a", 2 ]}
+                value: {'a': 1, 'b': 2, 'c': [1, "a", 2 ]}
       - name: ClassBar
         methods:
           - name: method2
@@ -78,7 +78,7 @@ library:
             value: lettuce
         kwargs:
           - name: meat
-            default: chicken
+            value: chicken
     variables:
       - name: var1
         value: boo
@@ -110,9 +110,9 @@ library:
                 value: 40
             kwargs:
               - name: kwarg1
-                default: true
+                value: true
               - name: kwarg2
-                default: 1
+                value: 1
       - name: ClassBar
         methods:
           - name: method6
@@ -131,7 +131,7 @@ library:
             value: lettuce
         kwargs:
           - name: meat
-            default: chicken
+            value: chicken
     variables:
       - name: var1
         value: boo
