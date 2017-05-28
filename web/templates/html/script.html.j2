@@ -55,39 +55,6 @@ function addChildren (node, children) {
     }
 }
 
-function contains(item, arr) {
-    /**
-        Determines a given array contains a given item
-        @function
-        @param {Object} item - item to look for
-        @param {Array} arr - array to look in
-        @return {boolean}
-    **/
-    undefinedError(item);
-
-    for (i in arr) {
-        if (arr[i] == item) return true;
-    }
-    return false;
-}
-
-function dictContains(item, dict) {
-    /**
-        Determines a given dictionary keys contain a given item
-        @function
-        @param {} item - item to look for
-        @param {Object} dict - object to be called with Object.keys
-        @return {boolean}
-    **/
-    undefinedError(item);
-
-    var keys = Object.keys(dict);
-    for (i in keys) {
-        if (keys[i] == item) return true;
-    }
-    return false;
-}
-
 function undefinedError(item) {
     /**
         Throws a error if given item is undefined
@@ -132,7 +99,36 @@ var WIDGETS = {};
 /** Dict of all module of a library exposed by aspect **/
 var LIBRARY = {{ library | tojson }}
 
+/** Dict of all widgets parameters: widget id: parameter dict **/
+var PARAMETERS = {};
+
 // ---WIDGETS-------------------------------------------------------------------
+function getParameter(widget) {
+    var paramType = widget['data-parameter-type'];
+
+    var temp = widget.id;
+    temp = _.replace(temp, '-widget', '');
+    temp = _.split(temp, '-');
+
+    var id = null;
+    for (i=temp.length; i > 0; i--) {
+        id = _.join(_.slice(temp, 0, i), '.');
+        if (_.has(LIBRARY, id)) {
+            break;
+        }
+    }
+
+    if (id == null) {
+        throw('LIBRARY id not found: ' + widget.id);
+    }
+
+    if (!_.has(PARAMETERS, id)) {
+        // copy library value
+        PARAMETERS[id] = Object.assign({}, LIBRARY[id]);
+    }
+    return PARAMETERS[id];
+}
+
 function createFloatWidget(id, value, min=0, max=10, step=0.1) {
     /**
         Creates a bootstrap-slider widget
@@ -243,6 +239,13 @@ function createComboBoxWidget(id, value) {
     return widget;
 }
 
+function boolEvent(e) {
+    var widget = e.target;
+    var state = $(widget).bootstrapSwitch('state');
+    var PARAMETERS = getParameter(widget);
+    console.log(PARAMETERS);
+}
+
 function createBoolWidget(id, value) {
     /**
         Creates a bootstrap-switch widget
@@ -258,6 +261,7 @@ function createBoolWidget(id, value) {
     widget.checked = value;
     widget.setAttribute('data-on-text', 'TRUE');
     widget.setAttribute('data-off-text', 'FALSE');
+    widget.setAttribute('onchange', 'boolEvent(event)');
     return widget;
 }
 
@@ -276,31 +280,39 @@ function createDictWidget(id, value) {
     return widget;
 }
 
-function registerWidget(parent, value) {
+function registerWidget(parent, value, paramType) {
     /**
         Registers a widget with WIDGETS.  Creates one if it key doesnt exist.
         @function
         @param {string} parent - name of parent element
         @param {} value - default value of widget
+        @param {string} paramType - parameter type
         @return {string} - id of widget (key in WIDGETS)
     **/
     var id = parent + '-widget';
-    if (!contains(id, WIDGETS)) {
+    if (!_.includes(WIDGETS, id)) {
+        var widget = null;
+
         if (_.isBoolean(value)) {
-            WIDGETS[id] = createBoolWidget(id, value);
+            widget = createBoolWidget(id, value);
 
         } else if (_.isNumber(value)) {
-            WIDGETS[id] = createFloatWidget(id, value);
+            widget = createFloatWidget(id, value);
 
         } else if (_.isString(value)) {
-            WIDGETS[id] = createStringWidget(id, value);
+            widget = createStringWidget(id, value);
 
         } else if (_.isArray(value)) {
-            WIDGETS[id] = createListWidget(id, value);
+            widget = createListWidget(id, value);
 
         } else if (_.isObject(value)) {
          // && value.hasOwnProperty('keys')) {
-            WIDGETS[id] = createDictWidget(id, value);
+            widget = createDictWidget(id, value);
+        }
+
+        if (widget != null) {
+            widget.setAttribute('data-parameter-type', paramType);
+            WIDGETS[id] = widget;
         }
     }
     return id;
@@ -332,7 +344,7 @@ function libraryToList(lib, modules=true, classes=false) {
 
         // include classes
         if (classes) {
-            if (dictContains('classes', lib[key]) ) {
+            if (_.has(lib[key], 'classes') ) {
                 var cls = lib[key]['classes'];
                 for (i in cls) {
                     items.push(key + '.' + cls[i]['name']);
@@ -360,7 +372,7 @@ function cursorToLibraryList(cursor) {
         var item = lib[i];
         if (item.includes(cursor)) {
             // calling LIBRARY directly excludes classes
-            if (item != cursor || dictContains(item, LIBRARY) ) {
+            if (item != cursor || _.has(LIBRARY, item) ) {
                 output.push(item);
             }
         }
@@ -369,7 +381,7 @@ function cursorToLibraryList(cursor) {
 }
 
 // ---ROW-----------------------------------------------------------------------
-function toTreeRow(item, parent, value, icon, dataParent=true, iconType='') {
+function toTreeRow(item, parent, value, icon, dataParent=true, paramType='') {
     /**
         Returns a table row object formated for Patternfly's TreeGrid library
         @function
@@ -378,11 +390,11 @@ function toTreeRow(item, parent, value, icon, dataParent=true, iconType='') {
         @param {} value - value of item
         @param {string} icon - name of fa icon to use (ie fa-asterisk)
         @param {boolean} dataParent - whether row item has a TreeGrid parent element
-        @param {string} iconType - the python item type (ie module, class, function, etc)
+        @param {string} paramType - the parameter item type (ie module, class, function, etc)
         @return {} parameter or default
     **/
     dataParent = toKwarg(dataParent, true);
-    iconType = toKwarg(iconType, null);
+    paramType = toKwarg(paramType, null);
     value = toKwarg(value, null);
     // -------------------------------------------------------------------------
 
@@ -416,7 +428,7 @@ function toTreeRow(item, parent, value, icon, dataParent=true, iconType='') {
         span.classList.add('fa');
         span.classList.add(icon);
     }
-    span.setAttribute('data-icon-type', iconType);
+    span.setAttribute('data-icon-type', paramType);
 
     key.appendChild(span);
 
@@ -430,7 +442,7 @@ function toTreeRow(item, parent, value, icon, dataParent=true, iconType='') {
     val.id = 'sidebar-value';
     // val.textContent = value;
 
-    var id = registerWidget(fullname, value);
+    var id = registerWidget(fullname, value, paramType);
     var widget = WIDGETS[id];
     if (widget != undefined) {
         val.appendChild(widget);
@@ -463,7 +475,7 @@ function toTreeFunction(func, parent, icon) {
         null,
         icon,
         dataParent=true,
-        iconType='function'
+        paramType='function'
     );
 
     // function row's id
@@ -471,7 +483,7 @@ function toTreeFunction(func, parent, icon) {
     parent = parent + '-' + func['name'];
 
     // add arg rows
-    if (dictContains('args', func)) {
+    if (_.has(func, 'args')) {
         for (i in func['args']) {
             var arg = func['args'][i];
 
@@ -481,7 +493,7 @@ function toTreeFunction(func, parent, icon) {
                 arg['value'],
                 ICONS['arg'],
                 dataParent=true,
-                iconType='arg'
+                paramType='arg'
             )
 
             output.push(arg);
@@ -489,7 +501,7 @@ function toTreeFunction(func, parent, icon) {
     }
 
     // add kwarg rows
-    if (dictContains('kwargs', func)) {
+    if (_.has(func, 'kwargs')) {
         for (i in func['kwargs']) {
             var kwarg = func['kwargs'][i];
 
@@ -499,7 +511,7 @@ function toTreeFunction(func, parent, icon) {
                 kwarg['default'],
                 ICONS['kwarg'],
                 dataParent=true,
-                iconType='kwarg'
+                paramType='kwarg'
             )
 
             output.push(kwarg);
@@ -524,7 +536,7 @@ function toTreeClass(cls, parent) {
         null,
         ICONS['class'],
         dataParent=true,
-        iconType='class'
+        paramType='class'
     );
 
     // class row's id
@@ -532,7 +544,7 @@ function toTreeClass(cls, parent) {
     parent = parent + '-' + cls['name'];
 
     // add method rows
-    if (dictContains('methods', cls)) {
+    if (_.has(cls, 'methods')) {
         for (i in cls['methods']) {
             var method = cls['methods'][i];
 
@@ -543,7 +555,7 @@ function toTreeClass(cls, parent) {
     }
 
     // add attribute rows
-    if (dictContains('attributes', cls)) {
+    if (_.has(cls, 'attributes')) {
         for (i in cls['attributes']) {
             var attribute = cls['attributes'][i];
             var attribute = toTreeRow(
@@ -552,7 +564,7 @@ function toTreeClass(cls, parent) {
                 attribute['value'],
                 ICONS['attribute'],
                 dataParent=true,
-                iconType='attribute'
+                paramType='attribute'
             )
 
             output.push(attribute);
@@ -577,12 +589,12 @@ function toTreeModule(module, parent) {
         null,
         ICONS['module'],
         dataParent=false,
-        iconType='module'
+        paramType='module'
     );
     var output = [row];
 
     // class rows
-    if (dictContains('classes', module)) {
+    if (_.has(module, 'classes')) {
         for (i in module['classes']) {
             var cls = module['classes'][i];
             cls = toTreeClass(cls, parent);
@@ -591,7 +603,7 @@ function toTreeModule(module, parent) {
     }
 
     // function rows
-    if (dictContains('functions', module)) {
+    if (_.has(module, 'functions')) {
         for (i in module['functions']) {
             var func = module['functions'][i];
             func = toTreeFunction(func, parent, ICONS['function']);
@@ -600,7 +612,7 @@ function toTreeModule(module, parent) {
     }
 
     // variable rows
-    if (dictContains('variables', module)) {
+    if (_.has(module, 'variables')) {
         for (i in module['variables']) {
             var variable = module['variables'][i];
 
@@ -610,7 +622,7 @@ function toTreeModule(module, parent) {
                 variable['value'],
                 ICONS['variable'],
                 dataParent=true,
-                iconType='variable'
+                paramType='variable'
             );
 
             output.push(variable);
@@ -645,12 +657,10 @@ function toggleSidebar() {
 }
 
 function toggleJsonEditor(e) {
-    console.log(e.target);
     var icon = e.target;
     var btn = icon.parentElement;
     var ace = btn.parentElement.parentElement.parentElement;
     ace = ace.children[1].children[0];
-    console.log(ace.style.display);
     if (ace.style.display == "inline-block") {
         ace.style.display = "none";
         icon.className = "jsoneditor-toggle-button-icon fa fa-caret-down fa-lg";
@@ -740,7 +750,7 @@ function refreshSidebar(cursor, destination) {
         if (moduleName != undefined) {
 
             // don't include module paths not in LIBRARY
-            if ( dictContains(moduleName, LIBRARY) ) {
+            if ( _.has(LIBRARY, moduleName) ) {
                 var module = toTreeModule(LIBRARY[moduleName], parent);
                 addChildren(body, module);
             }
@@ -774,7 +784,7 @@ function refreshSearchbar(cursor, destination) {
     var lib = cursorToLibraryList(cursor);
 
     // skips if cursor is at module level
-    if ( !dictContains(cursor, LIBRARY) ) {
+    if ( !_.has(LIBRARY, cursor) ) {
         for (i in lib) {
             var option = document.createElement('option');
             option.id = "searchbar-item";
@@ -886,13 +896,13 @@ function refreshApp(e) {
         @return {undefined}
     **/
     var keys = ['Enter']; //, '.'];
-    if (contains(e.key, keys)) {
+    if (_.includes(keys, e.key)) {
         var destination = document.getElementById('searchbar').value;
         var cursor = document.getElementById('breadcrumb-nav').getAttribute('data-cursor');
         var newCursor = cursor + '.' + destination;
 
         // if new cursor is a valid path in python library
-        if ( contains(newCursor, libraryToList(LIBRARY)) ) {
+        if ( _.includes(libraryToList(LIBRARY), newCursor) ) {
             _refreshApp(cursor, destination);
         }
     }
