@@ -1,5 +1,6 @@
 import os
-from flask import Flask, render_template
+import json
+from flask import Flask, render_template, request, make_response, jsonify
 from flask_bootstrap import Bootstrap
 import jinja2
 import yaml
@@ -41,6 +42,16 @@ def utility_processor():
 @app.route('/')
 def index():
     return render_template('html/index.html.j2', **data)
+
+@app.route('/api', methods=['POST'])
+def api():
+    data = request.get_json()
+    response = jsonify(
+        response=json.dumps(data),
+        status=200,
+        mimetype='application/json'
+    )
+    return response
 
 if __name__ == '__main__':
     app.run(debug=True)

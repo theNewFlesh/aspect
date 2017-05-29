@@ -106,6 +106,8 @@ var LIBRARY = {{ library | tojson }}
 /** List of objects to be sent upon execution **/
 var EVENTPOOL = [];
 
+var API_URL = "{{ api_url }}";
+
 function getContext(widget) {
     var ctx = Object({});
 
@@ -156,7 +158,15 @@ function getContext(widget) {
     return ctx;
 }
 
-function getLibraryItemParameter(item) {
+function getLibraryItemByType(item, type='param') {
+    toKwarg(type, 'param');
+
+    var ctx = getContext(item);
+    var sel = LIBRARY[ctx.moduleId];
+    if (type == 'module') {
+        return sel;
+    }
+
     // component name to LIBRARY key lookup table
     lut = {
         'arg'      : 'args',
@@ -168,23 +178,28 @@ function getLibraryItemParameter(item) {
         'module'   : 'modules',
         'variable' : 'variables'
     };
-    var ctx = getContext(item);
+
     var oType = lut[ctx.objectType];
     var pType = lut[ctx.paramType];
-
-    var sel = LIBRARY[ctx.moduleId];
 
     // resolve class
     if (_.has(ctx, 'clsName')) {
         sel = sel['classes'];
         var i = keyToIndex(sel, ctx.clsName);
         sel = sel[i];
+
+        if (type == 'class') {
+            return sel;
+        }
     }
 
     // resolve object
     sel = sel[oType];
     var i = keyToIndex(sel, ctx.objectName);
     sel = sel[i];
+    if (type == 'object') {
+        return sel;
+    }
 
     // resolve parameter
     sel = sel[pType];
@@ -195,16 +210,40 @@ function getLibraryItemParameter(item) {
 }
 
 function setLibraryItemParameter(item, value) {
-    sel = getLibraryItemParameter(item);
-
-    console.log(sel);
-    console.log(EVENTPOOL);
-
+    var sel = getLibraryItemByType(item);
     sel['value'] = value;
     EVENTPOOL.push(item);
+}
 
-    console.log(getLibraryItemParameter(item));
-    console.log(EVENTPOOL);
+function fireEvents() {
+    if (EVENTPOOL.length == 0) {
+        return;
+    }
+
+    var events = _.map(
+        EVENTPOOL,
+        function func(item) {
+            return getLibraryItemByType(item, 'object');
+        }
+    );
+    events = _.uniq(events);
+    for (i in events) {
+        var item = events[i];
+        var data = JSON.stringify(item);
+        console.log(data);
+
+        // send data
+        var xhr = new XMLHttpRequest();
+        xhr.open('POST', API_URL);
+
+        //Send the proper header information along with the request
+        xhr.setRequestHeader('Content-type', 'application/json');
+        response = xhr.send(data);
+        console.log(response);
+    }
+
+    // flush eventpool
+    EVENTPOOL = [];
 }
 
 // ---WIDGETS-------------------------------------------------------------------
