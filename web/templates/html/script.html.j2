@@ -108,16 +108,17 @@ var EVENTPOOL = [];
 
 var API_URL = "{{ api_url }}";
 
-function getContext(widget) {
-    var ctx = Object({});
+// ---EVENT_UTILS---------------------------------------------------------------
+function getInfo(widget) {
+    var info = Object({});
 
     // set component types
-    ctx.paramType = widget.getAttribute('data-param-type');
-    ctx.objectType = widget.getAttribute('data-object-type');
+    info.paramType = widget.getAttribute('data-param-type');
+    info.objectType = widget.getAttribute('data-object-type');
 
     // set widget id (ie full context)
     var id = widget.id;
-    ctx.widgetId = id;
+    info.widgetId = id;
 
     // set param id and name
     id = _.replace(id, '-widget', '');
@@ -138,37 +139,37 @@ function getContext(widget) {
     }
 
     // resolve module
-    ctx.moduleId = moduleId;
-    ctx.moduleName = _.last(_.split(moduleId, '.'));
+    info.moduleId = moduleId;
+    info.moduleName = _.last(_.split(moduleId, '.'));
 
     // resolve class
     var rem = _.slice(temp, i)
-    id = ctx.moduleId
-    if (_.includes(['method', 'attribute'], ctx.objectType)) {
-        ctx.clsName = _.first(rem);
-        id = id + '.' + ctx.clsName;
-        ctx.clsId = id;
+    id = info.moduleId
+    if (_.includes(['method', 'attribute'], info.objectType)) {
+        info.clsName = _.first(rem);
+        id = id + '.' + info.clsName;
+        info.clsId = id;
         rem = _.slice(rem, 1);
     }
 
     // resolve object
-    ctx.objectName = rem[0];
-     id = id + '.' + ctx.objectName;
-     ctx.objectId = id;
+    info.objectName = rem[0];
+     id = id + '.' + info.objectName;
+     info.objectId = id;
 
     // resolve parameter
-    ctx.paramName = rem[1];
-    id = id + '.' + ctx.paramName;
-    ctx.paramId = id;
+    info.paramName = rem[1];
+    id = id + '.' + info.paramName;
+    info.paramId = id;
 
-    return ctx;
+    return info;
 }
 
 function getLibraryItemByType(item, type='param') {
     toKwarg(type, 'param');
 
-    var ctx = getContext(item);
-    var sel = LIBRARY[ctx.moduleId];
+    var info = getInfo(item);
+    var sel = LIBRARY[info.moduleId];
     if (type == 'module') {
         return sel;
     }
@@ -185,13 +186,13 @@ function getLibraryItemByType(item, type='param') {
         'variable' : 'variables'
     };
 
-    var oType = lut[ctx.objectType];
-    var pType = lut[ctx.paramType];
+    var oType = lut[info.objectType];
+    var pType = lut[info.paramType];
 
     // resolve class
-    if (_.has(ctx, 'clsName')) {
+    if (_.has(info, 'clsName')) {
         sel = sel['classes'];
-        var i = keyToIndex(sel, ctx.clsName);
+        var i = keyToIndex(sel, info.clsName);
         sel = sel[i];
 
         if (type == 'class') {
@@ -201,7 +202,7 @@ function getLibraryItemByType(item, type='param') {
 
     // resolve object
     sel = sel[oType];
-    var i = keyToIndex(sel, ctx.objectName);
+    var i = keyToIndex(sel, info.objectName);
     sel = sel[i];
     if (type == 'object') {
         return sel;
@@ -209,7 +210,7 @@ function getLibraryItemByType(item, type='param') {
 
     // resolve parameter
     sel = sel[pType];
-    i = keyToIndex(sel, ctx.paramName);
+    i = keyToIndex(sel, info.paramName);
     sel = sel[i];
 
     return sel;
@@ -221,31 +222,106 @@ function setLibraryItemParameter(item, value) {
     EVENTPOOL.push(item);
 }
 
+function toArgData(obj) {
+    if (_.has(obj, 'args')) {
+        var output = [];
+        for (i in obj['args']) {
+            var arg = obj['args'][i]['value'];
+            output.push(arg);
+        }
+        return output;
+    } else {
+        return null;
+    }
+}
+
+function toKwargData(obj) {
+    if (_.has(obj, 'kwargs')) {
+        var output = {};
+        for (i in obj['kwargs']) {
+            var kwarg = obj['kwargs'][i];
+            output[kwarg['name']] = kwarg['value'];
+        }
+        return output;
+    } else {
+        return null;
+    }
+}
+
+function conform(widget, id) {
+    var info = getInfo(widget);
+    var data = {
+        'action': 'execute',
+        'module': info.moduleId
+    };
+
+    data[info.objectType] = info.objectName;
+
+    if (info.clsName != undefined) {
+        data['class_'] = info.clsName;
+    }
+
+    if (id != undefined) {
+        data['id_'] = id;
+    }
+
+    var obj = getLibraryItemByType(widget, 'object');
+
+    var args = toArgData(obj);
+    if (args != null) {
+        data['args'] = args;
+    }
+
+    var kwargs = toKwargData(obj);
+    if (kwargs != null) {
+        data['kwargs'] = kwargs;
+    }
+
+    return data;
+}
+
+function toUniqueEvents(events) {
+    var output = [];
+    var ids = [];
+    for (i in events) {
+        var event = events[i];
+        id = getInfo(event).objectId;
+        if (!_.includes(ids, id)) {
+            ids.push(id);
+            output.push(event);
+        }
+    }
+    return output;
+}
+
+function sendData(url, data) {
+    var xhr = new XMLHttpRequest();
+    var response = null;
+    xhr.onreadystatechange = function() {
+        if (this.readyState == 4 && this.status == 200) {
+            response = this;
+        }
+    };
+    xhr.open('POST', API_URL, true);
+    xhr.setRequestHeader('Content-type', 'application/json');
+    xhr.send(data);
+    return response;
+}
+
 function fireEvents() {
     if (EVENTPOOL.length == 0) {
         return;
     }
 
-    var events = _.map(
-        EVENTPOOL,
-        function func(item) {
-            ctx = getContext(item);
-            return ctx.objectId;
-        }
-    );
-    events = _.uniq(events);
+    var events = toUniqueEvents(EVENTPOOL);
     for (i in events) {
-        var item = events[i];
-        var data = JSON.stringify(item);
+        var data = events[i];
+        data = conform(data);
+        data = JSON.stringify(data);
         console.log(data);
 
         // send data
-        var xhr = new XMLHttpRequest();
-        xhr.open('POST', API_URL);
-
-        //Send the proper header information along with the request
-        xhr.setRequestHeader('Content-type', 'application/json');
-        response = xhr.send(data);
+        var response = sendData(API_URL, data);
         console.log(response);
     }
 
