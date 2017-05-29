@@ -103,8 +103,8 @@ var WIDGETS = {};
 /** Dict of all module of a library exposed by aspect **/
 var LIBRARY = {{ library | tojson }}
 
-/** List of objects to be called up execution **/
-var POOL = [];
+/** List of objects to be sent upon execution **/
+var EVENTPOOL = [];
 
 function getContext(widget) {
     var ctx = Object({});
@@ -196,9 +196,15 @@ function getLibraryItemParameter(item) {
 
 function setLibraryItemParameter(item, value) {
     sel = getLibraryItemParameter(item);
+
     console.log(sel);
+    console.log(EVENTPOOL);
+
     sel['value'] = value;
+    EVENTPOOL.push(item);
+
     console.log(getLibraryItemParameter(item));
+    console.log(EVENTPOOL);
 }
 
 // ---WIDGETS-------------------------------------------------------------------
