@@ -121,9 +121,7 @@ function getContext(widget) {
 
     // set param id and name
     id = _.replace(id, '-widget', '');
-    ctx.paramId = id;
     var temp = _.split(id, '-');
-    ctx.paramName = _.last(temp);
 
     // Find module id in LIBRARY
     var moduleId = null;
@@ -145,16 +143,24 @@ function getContext(widget) {
 
     // resolve class
     var rem = _.slice(temp, i)
+    id = ctx.moduleId
     if (_.includes(['method', 'attribute'], ctx.objectType)) {
         ctx.clsName = _.first(rem);
+        id = id + '.' + ctx.clsName;
+        ctx.clsId = id;
         rem = _.slice(rem, 1);
     }
 
     // resolve object
     ctx.objectName = rem[0];
+     id = id + '.' + ctx.objectName;
+     ctx.objectId = id;
 
     // resolve parameter
     ctx.paramName = rem[1];
+    id = id + '.' + ctx.paramName;
+    ctx.paramId = id;
+
     return ctx;
 }
 
@@ -223,7 +229,8 @@ function fireEvents() {
     var events = _.map(
         EVENTPOOL,
         function func(item) {
-            return getLibraryItemByType(item, 'object');
+            ctx = getContext(item);
+            return ctx.objectId;
         }
     );
     events = _.uniq(events);
