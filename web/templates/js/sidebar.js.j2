@@ -1,0 +1,132 @@
+/**
+The sidebar.js module contains the aspect sidebar logic.
+@module sidebar.js
+**/
+
+function toggleSidebar() {
+    /**
+        Toggles right side bar display and #left ad #rigtht widths
+        @function
+        @return {undefined}
+    **/
+    var right = document.getElementById("right");
+    var left = document.getElementById("left");
+    var sidebarIcon = document.getElementById("sidebar-icon");
+
+    // display right sidebar
+    if (right.style.display === 'none') {
+        right.style.display = 'block';
+        left.style.width = "65%";
+        sidebarIcon.className = "fa fa-caret-right fa-2x"
+
+    // hide right sidebar
+    } else {
+        right.style.display = 'none';
+        left.style.width = "100%";
+        sidebarIcon.className = "fa fa-caret-left fa-2x"
+    }
+}
+
+function toggleJsonEditor(e) {
+    var icon = e.target;
+    var btn = icon.parentElement;
+    var ace = btn.parentElement.parentElement.parentElement;
+    ace = ace.children[1].children[0];
+    if (ace.style.display == "inline-block") {
+        ace.style.display = "none";
+        icon.className = "jsoneditor-toggle-button-icon fa fa-caret-down fa-lg";
+    } else {
+        ace.style.display = "inline-block";
+        icon.className = "jsoneditor-toggle-button fa fa-caret-up fa-lg";
+    }
+}
+
+function refreshDictWidgets() {
+    // refresh jsoneditor widgets
+    var containers = $('.jsoneditor-container').toArray();
+    // var containers = document.getElementsByClassName('jsoneditor');
+    for (i in containers) {
+        var container = containers[i];
+        var value = container.value;
+        var editor = new JSONEditor(container, {
+            'mode': 'code'
+        });
+        editor.set(value);
+
+        var button = document.createElement('button');
+        button.classList.add('btn');
+        button.classList.add('jsoneditor-toggle-button');
+        button.setAttribute('onclick', 'toggleJsonEditor(event)');
+
+        var i = document.createElement('i');
+        i.className = "jsoneditor-toggle-button-icon fa fa-caret-down fa-lg";
+        button.appendChild(i);
+
+        var bcont = document.createElement('div');
+        bcont.classList.add("jsoneditor-toggle-container");
+        bcont.appendChild(button);
+
+        var menu = container.children[0].children[0];
+        menu.appendChild(bcont);
+    }
+}
+
+function refreshWidgets() {
+    // refresh treegrid
+    $('.table-treegrid').treegrid();
+
+    // refresh sliders
+    $('.bootstrap-slider').slider();
+
+    // refresh switches
+    $('.bootstrap-switch').bootstrapSwitch();
+
+    // refresh select widgets
+    $('.selectpicker').selectpicker({
+        'width': 'auto',
+        'liveSearch': true
+    });
+
+    // refresh combobox widgets
+    // $('.combobox').combobox();
+
+    refreshDictWidgets();
+}
+
+function refreshSidebar(cursor, destination) {
+    /**
+        Refreshes sidebar TreeGrid table
+        @function
+        @param {string} cursor - fullpath to a key in LIBRARY (ie lib.pkg.module)
+        @param {string} destination - partial path to python modules in LIBRARY
+                                      given cursor position (ie pkg.module)
+        @return {undefined}
+    **/
+    // append destination to cursor
+    if (destination != '') {
+        cursor = cursor + '.' + destination;
+    }
+
+    // get new list of modules given new cursor
+    var lib = cursorToLibraryList(cursor);
+
+    // clear current TreeGrid
+    var body = document.getElementById('sidebar-body');
+    clearChildren(body);
+
+    // append new modules to TreeGrid
+    for (i in lib) {
+        var moduleName = lib[i];
+        var parent = moduleName.split('.').join('-');
+        if (moduleName != undefined) {
+
+            // don't include module paths not in LIBRARY
+            if ( _.has(LIBRARY, moduleName) ) {
+                var module = toTreeModule(LIBRARY[moduleName], parent);
+                addChildren(body, module);
+            }
+        }
+    }
+
+    refreshWidgets();
+}

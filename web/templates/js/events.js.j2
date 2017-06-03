@@ -1,0 +1,234 @@
+/**
+The events.js module is responsible for handling client-side events fired by ui
+interactions.
+@module events.js
+**/
+
+function getInfo(widget) {
+    var info = Object({});
+
+    // set component types
+    info.paramType = widget.getAttribute('data-param-type');
+    info.objectType = widget.getAttribute('data-object-type');
+
+    // set widget id (ie full context)
+    var id = widget.id;
+    info.widgetId = id;
+
+    // set param id and name
+    id = _.replace(id, '-widget', '');
+    var temp = _.split(id, '-');
+
+    // Find module id in LIBRARY
+    var moduleId = null;
+    for (i=temp.length; i > 0; i--) {
+        moduleId = _.join(_.slice(temp, 0, i), '.');
+        if (_.has(LIBRARY, moduleId)) {
+            break;
+        }
+    }
+
+    // throw error if moduleId not in LIBRARY
+    if (moduleId == null) {
+        throw('Module ID not found in LIBRARY. Widget ID: ' + widget.id);
+    }
+
+    // resolve module
+    info.moduleId = moduleId;
+    info.moduleName = _.last(_.split(moduleId, '.'));
+
+    // resolve class
+    var rem = _.slice(temp, i)
+    id = info.moduleId
+    if (_.includes(['method', 'attribute'], info.objectType)) {
+        info.clsName = _.first(rem);
+        id = id + '.' + info.clsName;
+        info.clsId = id;
+        rem = _.slice(rem, 1);
+    }
+
+    // resolve object
+    info.objectName = rem[0];
+     id = id + '.' + info.objectName;
+     info.objectId = id;
+
+    // resolve parameter
+    info.paramName = rem[1];
+    id = id + '.' + info.paramName;
+    info.paramId = id;
+
+    return info;
+}
+
+function getLibraryItemByType(item, type='param') {
+    toKwarg(type, 'param');
+
+    var info = getInfo(item);
+    var sel = LIBRARY[info.moduleId];
+    if (type == 'module') {
+        return sel;
+    }
+
+    // component name to LIBRARY key lookup table
+    lut = {
+        'arg'      : 'args',
+        'attribute': 'attributes',
+        'class'    : 'classes',
+        'function' : 'functions',
+        'kwarg'    : 'kwargs',
+        'method'   : 'methods',
+        'module'   : 'modules',
+        'variable' : 'variables'
+    };
+
+    // resolve class
+    if (info.clsName != undefined) {
+        sel = sel['classes'];
+        var i = keyToIndex(sel, info.clsName);
+        sel = sel[i];
+
+        if (type == 'class') {
+            return sel;
+        }
+    }
+
+    // resolve object
+    if (info.objectType != undefined) {
+        var oType = lut[info.objectType];
+        console.log(oType);
+        sel = sel[oType];
+        var i = keyToIndex(sel, info.objectName);
+        sel = sel[i];
+        if (type == 'object') {
+            return sel;
+        }
+    }
+
+    // resolve parameter
+    if (info.paramType != undefined) {
+        var pType = lut[info.paramType];
+        sel = sel[pType];
+        i = keyToIndex(sel, info.paramName);
+        sel = sel[i];
+    }
+
+    console.log(sel);
+    return sel;
+}
+
+function setLibraryItemParameter(item, value) {
+    var sel = getLibraryItemByType(item);
+    sel['value'] = value;
+    EVENTPOOL.push(item);
+}
+
+function toArgData(obj) {
+    if (_.has(obj, 'args')) {
+        var output = [];
+        for (i in obj['args']) {
+            var arg = obj['args'][i]['value'];
+            output.push(arg);
+        }
+        return output;
+    } else {
+        return null;
+    }
+}
+
+function toKwargData(obj) {
+    if (_.has(obj, 'kwargs')) {
+        var output = {};
+        for (i in obj['kwargs']) {
+            var kwarg = obj['kwargs'][i];
+            output[kwarg['name']] = kwarg['value'];
+        }
+        return output;
+    } else {
+        return null;
+    }
+}
+
+function conform(widget, id) {
+    var info = getInfo(widget);
+    var data = {
+        'action': 'execute',
+        'module': info.moduleId
+    };
+
+    data[info.objectType] = info.objectName;
+
+    if (info.clsName != undefined) {
+        data['class_'] = info.clsName;
+    }
+
+    if (id != undefined) {
+        data['id_'] = id;
+    }
+
+    var obj = getLibraryItemByType(widget, 'object');
+
+    var args = toArgData(obj);
+    if (args != null) {
+        data['args'] = args;
+    }
+
+    var kwargs = toKwargData(obj);
+    if (kwargs != null) {
+        data['kwargs'] = kwargs;
+    }
+
+    return data;
+}
+
+function toUniqueEvents(events) {
+    var output = [];
+    var ids = [];
+    for (i in events) {
+        var event = events[i];
+        id = getInfo(event).objectId;
+        if (!_.includes(ids, id)) {
+            ids.push(id);
+            output.push(event);
+        }
+    }
+    return output;
+}
+
+function sendData(url, data) {
+    var response = null;
+    function getResponse (xhttp) {
+        response = JSON.parse(xhttp.response);
+        console.log({'RESPONSE': response});
+    }
+    var xhttp = new XMLHttpRequest();
+    xhttp.onreadystatechange = function() {
+        if (this.readyState == 4 && this.status == 200) {
+            getResponse(this);
+        }
+    };
+    xhttp.open('POST', API_URL, true);
+    xhttp.setRequestHeader('Content-type', 'application/json');
+    xhttp.send(data);
+
+    return response;
+}
+
+function fireEvents() {
+    if (EVENTPOOL.length == 0) {
+        return;
+    }
+
+    var events = toUniqueEvents(EVENTPOOL);
+    for (i in events) {
+        var data = events[i];
+        data = conform(data);
+        data = JSON.stringify(data);
+        console.log({'REQUEST': data});
+
+        // send data
+        var response = sendData(API_URL, data);
+    }
+
+    // flush eventpool
+    EVENTPOOL = [];
+}

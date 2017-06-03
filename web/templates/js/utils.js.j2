@@ -1,0 +1,82 @@
+/**
+The utils.js module contains general purpose functions for use within aspect.js
+@module utils.js
+**/
+
+function clearChildren (node) {
+    /**
+        Removes all children of given node
+        @function
+        @param {element} node - element with removeChild function
+        @return {undefined}
+    **/
+    while (node.hasChildNodes()) {
+        node.removeChild(node.lastChild);
+    }
+}
+
+function addChildren (node, children) {
+    /**
+        Adds children to given nodes' children
+        @function
+        @param {element} node - element with appendChild function
+        @param {Array} children - array of child elements
+        @return {undefined}
+    **/
+    for (var i=0; i < children.length; i++) {
+        node.appendChild(children[i]);
+    }
+}
+
+function undefinedError(item) {
+    /**
+        Throws a error if given item is undefined
+        @function
+        @param {Object} item - item to be checked
+        @throws undefined value
+    **/
+    if (item == undefined) {
+        throw 'undefined value';
+    }
+}
+
+function toKwarg(parameter, default_) {
+    /**
+        Returns default value if parameter is undefined
+        @function
+        @param {} parameter - item to be checked
+        @param {} default_ - default value to be returned
+        @return {} parameter or default_
+    **/
+    if (parameter == undefined) {
+        return default_;
+    }
+    return parameter;
+}
+
+function keyToIndex(array, key) {
+    return _.findIndex(array, function(item) {return item.name == key;} );
+}
+
+/** Dictionary of python object: fa icon pairs used by Tree functions **/
+var ICONS = {
+    // 'module': 'fa-file',
+    // 'class': 'fa-cogs',
+    // 'method': 'fa-cog',
+    'attribute': 'fa-flag-o',
+    // 'function': 'fa-circle-thin',
+    'arg': 'fa-asterisk',
+    'kwarg': 'fa-check-square',
+    'variable': 'fa-flag'
+};
+
+/** Dictionary of of widget elements: element id, element **/
+var WIDGETS = {};
+
+/** Dict of all module of a library exposed by aspect **/
+var LIBRARY = {{ library | tojson }}
+
+/** List of objects to be sent upon execution **/
+var EVENTPOOL = [];
+
+var API_URL = "{{ api_url }}";

@@ -1,0 +1,65 @@
+/**
+The library.js module contains functions for working with the library.
+@module library.js
+**/
+
+function libraryToList(lib, modules=true, classes=false) {
+    /**
+        Converts a library dictionary to an array of full module names (ie lib.pkg.pkg.module)
+        @function
+        @param {Object} lib - library dictionary
+        @param {boolean, opt} modules - include library module
+        @param {boolean, opt} classes - include library classes
+        @return {Array} - list of fullpaths to library modules and/or classes
+    **/
+    modules = toKwarg(modules, true);
+    classes = toKwarg(classes, false);
+    // -------------------------------------------------------------------------
+
+    items = [];
+    for (key in lib) {
+        // include modules
+        if (modules) {
+            var temp = key.split('.');
+            for (var i=0; i < temp.length; i++) {
+                items.push( temp.slice(0, i+1).join('.') );
+            }
+        }
+
+        // include classes
+        if (classes) {
+            if (_.has(lib[key], 'classes') ) {
+                var cls = lib[key]['classes'];
+                for (i in cls) {
+                    items.push(key + '.' + cls[i]['name']);
+                }
+            }
+        }
+    }
+
+    // make unique and sort alphabetically
+    items = [...new Set(items)];
+    items.sort();
+    return items;
+}
+
+function cursorToLibraryList(cursor) {
+    /**
+        Returns a list of library fullpath modules that reside under cursor location
+        @function
+        @param {string} cursor - library item fullpath (ie lib.pkg.module)
+        @return {} parameter or default
+    **/
+    var lib = libraryToList(LIBRARY);
+    var output = [];
+    for (i in lib) {
+        var item = lib[i];
+        if (item.includes(cursor)) {
+            // calling LIBRARY directly excludes classes
+            if (item != cursor || _.has(LIBRARY, item) ) {
+                output.push(item);
+            }
+        }
+    }
+    return output;
+}

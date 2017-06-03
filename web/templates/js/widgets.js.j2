@@ -1,0 +1,197 @@
+/**
+The widgets.js module contains all the widgets used by aspect.
+@module widgets.js
+**/
+
+function createFloatWidget(id, value, min=0, max=10, step=0.1) {
+    /**
+        Creates a bootstrap-slider widget
+        @function
+        @param {string} id - id of widget
+        @param {number} value - default value
+        @param {number, opt} min - minimum value for slider
+        @param {number, opt} max - maximum value for slider
+        @param {step, opt} min - step value for slider
+        @return {input} - slider element
+    **/
+    min = toKwarg(min, 0);
+    max = toKwarg(max, 10);
+    step = toKwarg(step, 0.1);
+    value = toKwarg(value, 5);
+
+    var widget = document.createElement('input');
+    widget.id = id;
+    widget.value = value;
+    widget.classList.add('bootstrap-slider');
+    widget.setAttribute('data-provide', 'slider');
+    widget.setAttribute('data-slider-id', '#' + id);
+    widget.setAttribute('data-slider-handle', 'custom');
+    widget.setAttribute('data-slider-min', String(min));
+    widget.setAttribute('data-slider-max', String(max));
+    widget.setAttribute('data-slider-step', String(step));
+
+    return widget;
+}
+
+function createTextArea(id, value) {
+    /**
+        Creates a text area widget
+        @function
+        @param {string} id - id of widget
+        @param {string} value - default value
+        @return {textarea} - textarea element
+    **/
+    value = toKwarg(value, '');
+    var widget = document.createElement('textarea');
+    widget.id = id;
+    widget.classList.add('form-control');
+    widget.setAttribute('rows', '1');
+    widget.value = value;
+    return widget;
+}
+
+function createStringWidget(id, value) {
+    /**
+        Creates a string editor widget
+        @function
+        @param {string} id - id of widget
+        @param {string} value - default value
+        @return {input} - input element
+    **/
+    value = toKwarg(value, '');
+
+    var widget = document.createElement('input');
+    widget.id = id;
+    widget.classList.add('sidebar-val-input');
+    widget.value = value;
+    widget.setAttribute('onchange', 'stringEvent(event)');
+    return widget;
+}
+
+function createListWidget(id, value) {
+    /**
+        Creates a patternfly multiple select dropdown widget
+        @function
+        @param {string} id - id of widget
+        @param {Array} value - default values
+        @return {input} - input element
+    **/
+    value = toKwarg(value, [1,2,3]);
+    var widget = document.createElement('select');
+    widget.classList.add('selectpicker');
+    widget.multiple = 'multiple';
+    widget.id = id;
+    widget.title = "-";
+
+    for (i in value) {
+        var option = document.createElement('option');
+        option.value = value[i];
+        option.text = String(value[i]);
+        widget.appendChild(option);
+    }
+    return widget;
+}
+
+function createComboBoxWidget(id, value) {
+    /**
+        Creates a bootstrap combobox dropdown widget
+        @function
+        @param {string} id - id of widget
+        @param {Array} value - default values
+        @return {input} - input element
+    **/
+    value = toKwarg(value, [1,2,3]);
+    var widget = document.createElement('select');
+    widget.classList.add('combobox');
+    widget.classList.add('form-control');
+    widget.id = id;
+
+    for (i in value) {
+        var option = document.createElement('option');
+        option.value = value[i];
+        option.text = String(value[i]);
+        widget.appendChild(option);
+    }
+    return widget;
+}
+
+function boolEvent(e) {
+    var widget = e.target;
+    var value = $(widget).bootstrapSwitch('state');
+    setLibraryItemParameter(widget, value);
+}
+
+function stringEvent(e) {
+    var widget = e.target;
+    var value = widget.value;
+    setLibraryItemParameter(widget, value);
+}
+
+function createBoolWidget(id, value) {
+    /**
+        Creates a bootstrap-switch widget
+        @function
+        @param {string} id - id of widget
+        @param {string} value - default value
+        @return {input} - switch element
+    **/
+    var widget = document.createElement('input');
+    widget.classList.add('bootstrap-switch');
+    widget.id = id;
+    widget.type = 'checkbox';
+    widget.checked = value;
+    widget.setAttribute('data-on-text', 'TRUE');
+    widget.setAttribute('data-off-text', 'FALSE');
+    widget.setAttribute('onchange', 'boolEvent(event)');
+    return widget;
+}
+
+function createDictWidget(id, value) {
+    /**
+        Creates a jsoneditor widget
+        @function
+        @param {string} id - id of widget
+        @param {object} value - default value
+        @return {input} - switch element
+    **/
+    var widget = document.createElement('div');
+    widget.classList.add('jsoneditor-container');
+    widget.id = id;
+    widget.value = value;
+    return widget;
+}
+
+function registerWidget(parent, value) {
+    /**
+        Registers a widget with WIDGETS.  Creates one if it key doesnt exist.
+        @function
+        @param {string} parent - name of parent element
+        @param {} value - default value of widget
+        @return {string} - id of widget (key in WIDGETS)
+    **/
+    var id = parent + '-widget';
+    if (!_.includes(WIDGETS, id)) {
+        var widget = null;
+
+        if (_.isBoolean(value)) {
+            widget = createBoolWidget(id, value);
+
+        } else if (_.isNumber(value)) {
+            widget = createFloatWidget(id, value);
+
+        } else if (_.isString(value)) {
+            widget = createStringWidget(id, value);
+
+        } else if (_.isArray(value)) {
+            widget = createListWidget(id, value);
+
+        } else if (_.isObject(value)) {
+            widget = createDictWidget(id, value);
+        }
+
+        if (widget != null) {
+            WIDGETS[id] = widget;
+        }
+    }
+    return id;
+}

@@ -1,0 +1,295 @@
+/**
+The tree.js module contains functions for drawing library item in the sidebar.
+@module tree.js
+**/
+
+// ---ROW-----------------------------------------------------------------------
+function toTreeRow(item, parent, value, paramType, objectType, dataParent=true) {
+    /**
+        Returns a table row object formated for Patternfly's TreeGrid library
+        @function
+        @param {Object} item - dictionary of row attributes (name, etc)
+        @param {string} parent - id of parent TreeGrid element
+        @param {} value - value of item
+        @param {string} paramType - target code parameter type (ie arg, kwarg)
+        @param {string} objectType - target code object type (ie class, function, etc)
+        @param {boolean} dataParent - whether row item has a TreeGrid parent element
+        @return {} parameter or default
+    **/
+    dataParent = toKwarg(dataParent, true);
+    value = toKwarg(value, null);
+    // -------------------------------------------------------------------------
+
+    var row = document.createElement('tr');
+    var name = '';
+    var fullname = parent + '-' + name;
+    if (dataParent) {
+        row.setAttribute('data-parent', '#' + parent);
+        name = item['name'];
+        row.id = parent + '-' + name;
+    } else {
+        row.id = parent;
+        name = parent.split('-').slice(-1)[0];
+    }
+
+    fullname = fullname + name;
+
+    // key cell (left side)
+    var key = document.createElement('td');
+    key.classList.add('treegrid-node');
+    key.id = 'sidebar-key';
+
+    // key cell icon
+    var span = document.createElement('span');
+    span.classList.add('treegrid-node');
+
+    // find icon
+    var icon = ICONS[paramType];
+    var iconType = paramType;
+
+    if (icon == undefined) {
+        var icon = ICONS[objectType];
+        var iconType = objectType;
+    }
+
+    // add icon
+    if (icon != undefined) {
+        span.classList.add('icon');
+        span.classList.add('node-icon');
+        span.classList.add('fa');
+        span.classList.add(icon);
+        span.setAttribute('data-icon-type', iconType);
+    }
+    span.setAttribute('data-object-type', objectType);
+
+    key.appendChild(span);
+
+    // key cell text
+    var text = document.createElement('span');
+    text.textContent = name;
+    key.appendChild(text);
+
+    // value cell (right side)
+    var val = document.createElement('td');
+    val.id = 'sidebar-value';
+    // val.textContent = value;
+
+    var id = registerWidget(fullname, value);
+    var widget = WIDGETS[id];
+    if (widget != undefined) {
+        widget.setAttribute('data-param-type', paramType);
+        widget.setAttribute('data-object-type', objectType);
+        val.appendChild(widget);
+    }
+
+    // full TreeGrid row
+    row.appendChild(key);
+    row.appendChild(val);
+
+    return row;
+}
+
+// ---VARIABLE-----------------------------------------------------------------
+function toTreeVariable(variable, parent) {
+    /**
+        Returns a list of TreeGrid rows represents a python method (args, kwargs)
+        @function
+        @param {Object} variable - python variable dictionary
+        @param {string} parent - id of parent TreeGrid element
+        @return {Object} - tree row
+    **/
+    return toTreeRow(variable, parent, variable['value'], 'variable', dataParent=true);
+}
+
+// ---FUNCTION------------------------------------------------------------------
+function _toTreeFunction(func, parent, objectType) {
+    /**
+        Returns a list of TreeGrid rows represents a python function (args, kwargs)
+        @function
+        @param {Object} func - python function dictionary
+        @param {string} parent - id of parent TreeGrid element
+        @param {string} objectType - target code object type (ie class, function, etc)
+        @return {Array} - list of row elements
+    **/
+    undefinedError(parent);
+    // -------------------------------------------------------------------------
+
+    // function row
+    var row = toTreeRow(
+        func,
+        parent,
+        null,
+        null,
+        objectType,
+        dataParent=true
+    );
+
+    // function row's id
+    var output = [row];
+    parent = parent + '-' + func['name'];
+
+    // add arg rows
+    if (_.has(func, 'args')) {
+        for (i in func['args']) {
+            var arg = func['args'][i];
+
+            arg = toTreeRow(
+                arg,
+                parent,
+                arg['value'],
+                'arg',
+                objectType,
+                dataParent=true
+            )
+
+            output.push(arg);
+        }
+    }
+
+    // add kwarg rows
+    if (_.has(func, 'kwargs')) {
+        for (i in func['kwargs']) {
+            var kwarg = func['kwargs'][i];
+
+            kwarg = toTreeRow(
+                kwarg,
+                parent,
+                kwarg['value'],
+                'kwarg',
+                objectType,
+                dataParent=true
+            )
+
+            output.push(kwarg);
+        }
+    }
+    return output;
+}
+
+function toTreeFunction(func, parent) {
+    /**
+        Returns a list of TreeGrid rows represents a python function (args, kwargs)
+        @function
+        @param {Object} func - python function dictionary
+        @param {string} parent - id of parent TreeGrid element
+        @return {Array} - list of row elements
+    **/
+    return _toTreeFunction(func, parent, 'function');
+}
+
+// ---ATTRIBUTE-----------------------------------------------------------------
+function toTreeAttribute(attribute, parent) {
+    /**
+        Returns a list of TreeGrid rows represents a python method (args, kwargs)
+        @function
+        @param {Object} attribute - python attribute dictionary
+        @param {string} parent - id of parent TreeGrid element
+        @return {Object} - tree row
+    **/
+    return toTreeRow(attribute, parent, attribute['value'], 'attribute', dataParent=true);
+}
+
+// ---METHOD--------------------------------------------------------------------
+function toTreeMethod(func, parent) {
+    /**
+        Returns a list of TreeGrid rows represents a python method (args, kwargs)
+        @function
+        @param {Object} func - python function dictionary
+        @param {string} parent - id of parent TreeGrid element
+        @return {Array} - list of row elements
+    **/
+    return _toTreeFunction(func, parent, 'method');
+}
+
+// ---CLASS---------------------------------------------------------------------
+function toTreeClass(cls, parent) {
+    /**
+        Returns a list of TreeGrid rows represents a python class (methods, attributes)
+        @function
+        @param {Object} cls - python class dictionary
+        @param {string} parent - id of parent TreeGrid element
+        @return {Array} - list of row elements
+    **/
+    // class row
+    var row = toTreeRow(
+        cls,
+        parent,
+        null,
+        'class',
+        dataParent=true
+    );
+
+    // class row's id
+    var output = [row];
+    parent = parent + '-' + cls['name'];
+
+    // add method rows
+    if (_.has(cls, 'methods')) {
+        for (i in cls['methods']) {
+            var method = cls['methods'][i];
+
+            // same as function with different icon
+            var method = toTreeMethod(method, parent);
+            output = output.concat(method);
+        }
+    }
+
+    // add attribute rows
+    if (_.has(cls, 'attributes')) {
+        for (i in cls['attributes']) {
+            var attribute = cls['attributes'][i];
+            attribute = toTreeAttribute(attribute, parent);
+            output.push(attribute);
+        }
+    }
+    return output;
+}
+
+// ---MODULE--------------------------------------------------------------------
+function toTreeModule(module, parent) {
+    /**
+        Returns a list of TreeGrid rows represents a python module (class, variables)
+        @function
+        @param {Object} cls - python class dictionary
+        @param {string} parent - id of parent TreeGrid element
+        @return {Array} - list of row elements
+    **/
+    // module row
+    var row = toTreeRow(
+        module,
+        parent,
+        null,
+        null,
+        'module',
+        dataParent=false
+    );
+    var output = [row];
+
+    // class rows
+    if (_.has(module, 'classes')) {
+        for (i in module['classes']) {
+            var cls = module['classes'][i];
+            cls = toTreeClass(cls, parent);
+            output = output.concat(cls);
+        }
+    }
+
+    // function rows
+    if (_.has(module, 'functions')) {
+        for (i in module['functions']) {
+            var func = module['functions'][i];
+            func = toTreeFunction(func, parent);
+            output = output.concat(func);
+        }
+    }
+
+    // variable rows
+    if (_.has(module, 'variables')) {
+        for (i in module['variables']) {
+            var variable = module['variables'][i];
+            variable = toTreeVariable(variable, parent);
+            output.push(variable);
+        }
+    }
+    return output;
+}
