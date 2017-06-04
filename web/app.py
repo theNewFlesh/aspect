@@ -47,10 +47,11 @@ def index():
 def api():
     data = request.get_json()
     response = jsonify(
-        response=json.dumps(data),
+        data=data,
         status=200,
         mimetype='application/json'
     )
+    print(data)
     return response
 
 if __name__ == '__main__':

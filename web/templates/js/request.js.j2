@@ -290,11 +290,21 @@ class Request {
         console.log({'REQUEST': data});
 
         var response = null;
-        function getResponse(http) {
-            response = JSON.parse(http.response);
-            console.log({'RESPONSE': response});
+        function getResponse() {
+            if (this.readyState == 4 && this.status == 200) {
+                var response = JSON.parse(this.response).data;
+                console.log({'RESPONSE': response});
+            }
         }
-        return $.post(this._url, data, getResponse);
+
+        var xhr = new XMLHttpRequest();
+        xhr.onreadystatechange = getResponse;
+        xhr.open('POST', this._url, true);
+        xhr.setRequestHeader('Content-type', 'application/json');
+        xhr.send(data);
+
+        // console.log(response);
+        // return response.data;
     }
 }
 // -----------------------------------------------------------------------------
