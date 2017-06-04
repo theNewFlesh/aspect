@@ -3,6 +3,10 @@ The tree.js module contains functions for drawing library item in the sidebar.
 @module tree.js
 **/
 
+// IMPORTS
+{% include 'js/widgets.js.j2' %}
+// -----------------------------------------------------------------------------
+
 // ---ROW-----------------------------------------------------------------------
 function toTreeRow(item, parent, value, paramType, objectType, dataParent=true) {
     /**
@@ -74,9 +78,10 @@ function toTreeRow(item, parent, value, paramType, objectType, dataParent=true) 
     val.id = 'sidebar-value';
     // val.textContent = value;
 
-    var id = registerWidget(fullname, value);
-    var widget = WIDGETS[id];
-    if (widget != undefined) {
+    var gen = new WidgetGenerator(fullname, value);
+    var widget = gen.infer();
+    APP.registerWidget(gen.id, widget);
+    if (widget != null) {
         widget.setAttribute('data-param-type', paramType);
         widget.setAttribute('data-object-type', objectType);
         val.appendChild(widget);
@@ -130,7 +135,7 @@ function _toTreeFunction(func, parent, objectType) {
 
     // add arg rows
     if (_.has(func, 'args')) {
-        for (i in func['args']) {
+        for (var i in func['args']) {
             var arg = func['args'][i];
 
             arg = toTreeRow(
@@ -148,7 +153,7 @@ function _toTreeFunction(func, parent, objectType) {
 
     // add kwarg rows
     if (_.has(func, 'kwargs')) {
-        for (i in func['kwargs']) {
+        for (var i in func['kwargs']) {
             var kwarg = func['kwargs'][i];
 
             kwarg = toTreeRow(
@@ -225,7 +230,7 @@ function toTreeClass(cls, parent) {
 
     // add method rows
     if (_.has(cls, 'methods')) {
-        for (i in cls['methods']) {
+        for (var i in cls['methods']) {
             var method = cls['methods'][i];
 
             // same as function with different icon
@@ -236,7 +241,7 @@ function toTreeClass(cls, parent) {
 
     // add attribute rows
     if (_.has(cls, 'attributes')) {
-        for (i in cls['attributes']) {
+        for (var i in cls['attributes']) {
             var attribute = cls['attributes'][i];
             attribute = toTreeAttribute(attribute, parent);
             output.push(attribute);
@@ -267,7 +272,7 @@ function toTreeModule(module, parent) {
 
     // class rows
     if (_.has(module, 'classes')) {
-        for (i in module['classes']) {
+        for (var i in module['classes']) {
             var cls = module['classes'][i];
             cls = toTreeClass(cls, parent);
             output = output.concat(cls);
@@ -276,7 +281,7 @@ function toTreeModule(module, parent) {
 
     // function rows
     if (_.has(module, 'functions')) {
-        for (i in module['functions']) {
+        for (var i in module['functions']) {
             var func = module['functions'][i];
             func = toTreeFunction(func, parent);
             output = output.concat(func);
@@ -285,7 +290,7 @@ function toTreeModule(module, parent) {
 
     // variable rows
     if (_.has(module, 'variables')) {
-        for (i in module['variables']) {
+        for (var i in module['variables']) {
             var variable = module['variables'][i];
             variable = toTreeVariable(variable, parent);
             output.push(variable);

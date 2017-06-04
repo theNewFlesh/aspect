@@ -57,26 +57,3 @@ function toKwarg(parameter, default_) {
 function keyToIndex(array, key) {
     return _.findIndex(array, function(item) {return item.name == key;} );
 }
-
-/** Dictionary of python object: fa icon pairs used by Tree functions **/
-var ICONS = {
-    // 'module': 'fa-file',
-    // 'class': 'fa-cogs',
-    // 'method': 'fa-cog',
-    'attribute': 'fa-flag-o',
-    // 'function': 'fa-circle-thin',
-    'arg': 'fa-asterisk',
-    'kwarg': 'fa-check-square',
-    'variable': 'fa-flag'
-};
-
-/** Dictionary of of widget elements: element id, element **/
-var WIDGETS = {};
-
-/** Dict of all module of a library exposed by aspect **/
-var LIBRARY = {{ library | tojson }}
-
-/** List of objects to be sent upon execution **/
-var EVENTPOOL = [];
-
-var API_URL = "{{ api_url }}";

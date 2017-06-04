@@ -1,0 +1,151 @@
+/**
+The events.js module is responsible for handling client-side events fired by ui
+interactions.
+@module events.js
+**/
+// -----------------------------------------------------------------------------
+
+class Request {
+    constructor(widget, library) {
+        this._setInfo(widget);
+        this._data = to_data(widget);
+        this._url = API_URL;
+        this._library = library;
+    }
+
+    _setInfo(widget) {
+        // set component types
+        this.paramType = widget.getAttribute('data-param-type');
+        this.objectType = widget.getAttribute('data-object-type');
+
+        // set widget id (ie full context)
+        var id = widget.id;
+        this.widgetId = id;
+
+        // set param id and name
+        id = _.replace(id, '-widget', '');
+        var temp = _.split(id, '-');
+
+        // Find module id in this._library
+        var moduleId = null;
+        for (var i = temp.length; i > 0; i--) {
+            moduleId = _.join(_.slice(temp, 0, i), '.');
+            if (_.has(this._library, moduleId)) {
+                break;
+            }
+        }
+
+        // throw error if moduleId not in this._library
+        if (moduleId == null) {
+            throw('Module ID not found in this._library. Widget ID: ' + widget.id);
+        }
+
+        // resolve module
+        this.moduleId = moduleId;
+        this.moduleName = _.last(_.split(moduleId, '.'));
+
+        // resolve class
+        var rem = _.slice(temp, i)
+        id = this.moduleId
+        if (_.includes(['method', 'attribute'], this.objectType)) {
+            this.clsName = _.first(rem);
+            id = id + '.' + this.clsName;
+            this.clsId = id;
+            rem = _.slice(rem, 1);
+        }
+
+        // resolve object
+        this.objectName = rem[0];
+         id = id + '.' + this.objectName;
+         this.objectId = id;
+
+        // resolve parameter
+        this.paramName = rem[1];
+        id = id + '.' + this.paramName;
+        this.paramId = id;
+    }
+    // -------------------------------------------------------------------------
+
+    _toData(widget, id) {
+        var lib = this._lib;
+        var data = {
+            'action': 'execute',
+            'module': this.moduleId
+        };
+
+        data[this.objectType] = this.objectName;
+
+        if (this.clsName != undefined) {
+            data['class_'] = this.clsName;
+        }
+
+        if (id != undefined) {
+            data['id_'] = id;
+        }
+        var obj = lib.fromRequest(new Request(widget), 'object');
+
+        var args = this._toArgData(obj);
+        if (args != null) {
+            data['args'] = args;
+        }
+
+        var kwargs = this._toKwargData(obj);
+        if (kwargs != null) {
+            data['kwargs'] = kwargs;
+        }
+
+        return data;
+    }
+
+    _toArgData(obj) {
+        if (_.has(obj, 'args')) {
+            var output = [];
+            for (var i in obj['args']) {
+                var arg = obj['args'][i]['value'];
+                output.push(arg);
+            }
+            return output;
+        } else {
+            return null;
+        }
+    }
+
+    _toKwargData(obj) {
+        if (_.has(obj, 'kwargs')) {
+            var output = {};
+            for (var i in obj['kwargs']) {
+                var kwarg = obj['kwargs'][i];
+                output[kwarg['name']] = kwarg['value'];
+            }
+            return output;
+        } else {
+            return null;
+        }
+    }
+    // -------------------------------------------------------------------------
+
+    send() {
+        var data = this._data;
+        var data = conform(data);
+        var data = JSON.stringify(data);
+        console.log({'REQUEST': data});
+
+        var response = null;
+        function getResponse (xhttp) {
+            response = JSON.parse(xhttp.response);
+            console.log({'RESPONSE': response});
+        }
+        var xhttp = new XMLHttpRequest();
+        xhttp.onreadystatechange = function() {
+            if (this.readyState == 4 && this.status == 200) {
+                getResponse(this);
+            }
+        };
+        xhttp.open('POST', self._url, true);
+        xhttp.setRequestHeader('Content-type', 'application/json');
+        xhttp.send(data);
+
+        return response;
+    }
+}
+// -----------------------------------------------------------------------------

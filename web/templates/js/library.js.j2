@@ -3,151 +3,152 @@ The library.js module contains functions for working with the library.
 @module library.js
 **/
 
-function libraryToList(lib, modules=true, classes=false) {
-    /**
-        Converts a library dictionary to an array of full module names (ie lib.pkg.pkg.module)
-        @function
-        @param {Object} lib - library dictionary
-        @param {boolean, opt} modules - include library module
-        @param {boolean, opt} classes - include library classes
-        @return {Array} - list of fullpaths to library modules and/or classes
-    **/
-    modules = toKwarg(modules, true);
-    classes = toKwarg(classes, false);
+class Library {
+    constructor(data) {
+        this._data = data;
+    }
+
+    hasKey(key) {
+        return _.has(this._data, key);
+    }
+
+    get(key) {
+        return this._data[key];
+    }
+
+    set(key, value) {
+        this._data[key] = value;
+    }
     // -------------------------------------------------------------------------
 
-    items = [];
-    for (key in lib) {
-        // include modules
-        if (modules) {
-            var temp = key.split('.');
-            for (var i=0; i < temp.length; i++) {
-                items.push( temp.slice(0, i+1).join('.') );
-            }
-        }
+    // libraryToList
+    toList(modules=true, classes=false) {
+        /**
+            Converts a library dictionary to an array of full module names (ie lib.pkg.pkg.module)
+            @function
+            @param {Object} lib - library dictionary
+            @param {boolean, opt} modules - include library module
+            @param {boolean, opt} classes - include library classes
+            @return {Array} - list of fullpaths to library modules and/or classes
+        **/
+        modules = toKwarg(modules, true);
+        classes = toKwarg(classes, false);
+        // ---------------------------------------------------------------------
+        var data = this._data;
 
-        // include classes
-        if (classes) {
-            if (_.has(lib[key], 'classes') ) {
-                var cls = lib[key]['classes'];
-                for (i in cls) {
-                    items.push(key + '.' + cls[i]['name']);
+        var items = [];
+        for (var key in data) {
+            // include modules
+            if (modules) {
+                var temp = key.split('.');
+                for (var i=0; i < temp.length; i++) {
+                    items.push( temp.slice(0, i+1).join('.') );
+                }
+            }
+
+            // include classes
+            if (classes) {
+                if (_.has(data[key], 'classes') ) {
+                    var cls = data[key]['classes'];
+                    for (var i in cls) {
+                        items.push(key + '.' + cls[i]['name']);
+                    }
                 }
             }
         }
+
+        // make unique and sort alphabetically
+        items = [...new Set(items)];
+        items.sort();
+        return items;
     }
+    // -------------------------------------------------------------------------
 
-    // make unique and sort alphabetically
-    items = [...new Set(items)];
-    items.sort();
-    return items;
-}
-
-function cursorToLibraryList(cursor) {
-    /**
-        Returns a list of library fullpath modules that reside under cursor location
-        @function
-        @param {string} cursor - library item fullpath (ie lib.pkg.module)
-        @return {} parameter or default
-    **/
-    var lib = libraryToList(LIBRARY);
-    var output = [];
-    for (i in lib) {
-        var item = lib[i];
-        if (item.includes(cursor)) {
-            // calling LIBRARY directly excludes classes
-            if (item != cursor || _.has(LIBRARY, item) ) {
-                output.push(item);
+    // cursorToLibraryList
+    fromCursor(cursor) {
+        /**
+            Returns a list of library fullpath modules that reside under cursor location
+            @function
+            @param {string} cursor - library item fullpath (ie lib.pkg.module)
+            @return {} parameter or default
+        **/
+        var data = this._data;
+        var lib = this.toList();
+        var output = [];
+        for (var i in lib) {
+            var item = lib[i];
+            if (item.includes(cursor)) {
+                // calling data directly excludes classes
+                if (item != cursor || _.has(data, item) ) {
+                    output.push(item);
+                }
             }
         }
+        return output;
     }
-    return output;
-}
+    // -------------------------------------------------------------------------
 
-function getLibraryItemByType(item, type='param') {
-    toKwarg(type, 'param');
+    // getLibraryItemByType
+    fromRequest(request, type='param') {
+        toKwarg(type, 'param');
 
-    var info = getInfo(item);
-    var sel = LIBRARY[info.moduleId];
-    if (type == 'module') {
+        var data = this._data;
+        var sel = data[request.moduleId];
+        if (type == 'module') {
+            return sel;
+        }
+
+        // component name to data key lookup table
+        lut = {
+            'arg'      : 'args',
+            'attribute': 'attributes',
+            'class'    : 'classes',
+            'function' : 'functions',
+            'kwarg'    : 'kwargs',
+            'method'   : 'methods',
+            'module'   : 'modules',
+            'variable' : 'variables'
+        };
+
+        // resolve class
+        if (request.clsName != undefined) {
+            sel = sel['classes'];
+            var i = keyToIndex(sel, request.clsName);
+            sel = sel[i];
+
+            if (type == 'class') {
+                return sel;
+            }
+        }
+
+        // resolve object
+        if (request.objectType != undefined) {
+            var oType = lut[request.objectType];
+            console.log(oType);
+            sel = sel[oType];
+            var i = keyToIndex(sel, request.objectName);
+            sel = sel[i];
+            if (type == 'object') {
+                return sel;
+            }
+        }
+
+        // resolve parameter
+        if (request.paramType != undefined) {
+            var pType = lut[request.paramType];
+            sel = sel[pType];
+            i = keyToIndex(sel, request.paramName);
+            sel = sel[i];
+        }
+
+        console.log(sel);
         return sel;
     }
+    // -------------------------------------------------------------------------
 
-    // component name to LIBRARY key lookup table
-    lut = {
-        'arg'      : 'args',
-        'attribute': 'attributes',
-        'class'    : 'classes',
-        'function' : 'functions',
-        'kwarg'    : 'kwargs',
-        'method'   : 'methods',
-        'module'   : 'modules',
-        'variable' : 'variables'
-    };
-
-    // resolve class
-    if (info.clsName != undefined) {
-        sel = sel['classes'];
-        var i = keyToIndex(sel, info.clsName);
-        sel = sel[i];
-
-        if (type == 'class') {
-            return sel;
-        }
-    }
-
-    // resolve object
-    if (info.objectType != undefined) {
-        var oType = lut[info.objectType];
-        console.log(oType);
-        sel = sel[oType];
-        var i = keyToIndex(sel, info.objectName);
-        sel = sel[i];
-        if (type == 'object') {
-            return sel;
-        }
-    }
-
-    // resolve parameter
-    if (info.paramType != undefined) {
-        var pType = lut[info.paramType];
-        sel = sel[pType];
-        i = keyToIndex(sel, info.paramName);
-        sel = sel[i];
-    }
-
-    console.log(sel);
-    return sel;
-}
-
-function setLibraryItemParameter(item, value) {
-    var sel = getLibraryItemByType(item);
-    sel['value'] = value;
-    EVENTPOOL.push(item);
-}
-
-function toArgData(obj) {
-    if (_.has(obj, 'args')) {
-        var output = [];
-        for (i in obj['args']) {
-            var arg = obj['args'][i]['value'];
-            output.push(arg);
-        }
-        return output;
-    } else {
-        return null;
-    }
-}
-
-function toKwargData(obj) {
-    if (_.has(obj, 'kwargs')) {
-        var output = {};
-        for (i in obj['kwargs']) {
-            var kwarg = obj['kwargs'][i];
-            output[kwarg['name']] = kwarg['value'];
-        }
-        return output;
-    } else {
-        return null;
+    // setLibraryItemParameter
+    setItemParameter(widget, value) {
+        var sel = this.fromWidget(widget);
+        sel['value'] = value;
     }
 }

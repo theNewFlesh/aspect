@@ -3,65 +3,119 @@ The app.js module contains the aspect app logic.
 @module app.js
 **/
 
-function refreshLayout() {
-    $(".panel-left").resizable({
-        handleSelector: ".splitter",
-        resizeHeight: false,
-        resixeWidthFrom: 'right'
-    });
-}
+// IMPORTS
+{% include 'js/library.js.j2' %}
+{% include 'js/sidebar.js.j2' %}
+{% include 'js/navbar.js.j2' %}
+// -----------------------------------------------------------------------------
 
-function _refreshApp(cursor, destination) {
-    /**
-        Clears all interactive elements relevant to library navigation
-          - breadcrumb
-          - searchbar
-          - sidebar
-        @function
-        @param {string} cursor - fullpath to a key in LIBRARY (ie lib.pkg.module)
-        @param {string} destination - partial path to python modules in LIBRARY
-                                      given cursor position (ie pkg.module)
-        @return {undefined}
-    **/
-    refreshLayout();
-    refreshBreadcrumb(cursor, destination);
-    refreshSearchbar(cursor, destination);
-    refreshSidebar(cursor, destination);
-}
+class App {
+    constructor(library) {
+        this._requestPool = [];
+        this.widgets = {};
+        this.library = new Library(library);
+        this.navbar = new Navbar(this);
+        this.sidebar = new Sidebar(this);
+    }
+    // -------------------------------------------------------------------------
 
-function refreshApp(e) {
-    /**
-        Event listener that calls _refreshApp upon enter key and valid cursor
-        @function
-        @param {event} e - event object used to signal a call attempt
-        @return {undefined}
-    **/
-    var keys = ['Enter']; //, '.'];
-    if (_.includes(keys, e.key)) {
-        var destination = document.getElementById('searchbar').value;
-        var cursor = document.getElementById('breadcrumb-nav').getAttribute('data-cursor');
-        var newCursor = cursor + '.' + destination;
+    _refreshLayout() {
+        $(".panel-left").resizable({
+            handleSelector: ".splitter",
+            resizeHeight: false,
+            resixeWidthFrom: 'right'
+        });
+    }
 
-        // if new cursor is a valid path in python library
-        if ( _.includes(libraryToList(LIBRARY), newCursor) ) {
-            _refreshApp(cursor, destination);
+    _refresh(cursor, destination) {
+        /**
+            Clears all interactive elements relevant to library navigation
+              - breadcrumb
+              - searchbar
+              - sidebar
+            @function
+            @param {string} cursor - fullpath to a key in LIBRARY (ie lib.pkg.module)
+            @param {string} destination - partial path to python modules in LIBRARY
+                                          given cursor position (ie pkg.module)
+            @return {undefined}
+        **/
+        this._refreshLayout();
+        this.navbar.refresh(cursor, destination);
+        this.sidebar.refresh(cursor, destination);
+    }
+
+    refresh(e) {
+        /**
+            Event listener that calls _refreshApp upon enter key and valid cursor
+            @function
+            @param {event} e - event object used to signal a call attempt
+            @return {undefined}
+        **/
+        var keys = ['Enter']; //, '.'];
+        if (_.includes(keys, e.key)) {
+            var destination = document.getElementById('searchbar').value;
+            var cursor = document.getElementById('breadcrumb-nav').getAttribute('data-cursor');
+            var newCursor = cursor + '.' + destination;
+
+            // if new cursor is a valid path in python library
+            var lib = this.library.toList();
+            if ( _.includes(lib, newCursor) ) {
+                this._refresh(cursor, destination);
+            }
         }
     }
-}
+    // -------------------------------------------------------------------------
 
-// ---MAIN----------------------------------------------------------------------
-function main() {
-    /**
-        Calls _refreshApp when page is loaded
-        @function
-        @return {undefined}
-    **/
-    var breadcrumb = document.getElementById('breadcrumb-nav');
-    var cursor = libraryToList(LIBRARY)[0];
-    breadcrumb.setAttribute('data-cursor', cursor);
-    _refreshApp(cursor, '');
-}
+    getRequestPool() {
+        var output = [];
+        var ids = [];
+        var pool = this._requestPool;
+        for (var i in pool) {
+            var request = pool[i];
+            if (!_.includes(ids, request.objectId)) {
+                ids.push(id);
+                output.push(request);
+            }
+        }
+        return output;
+    }
 
-$(document).ready(function(){
-    main();
-});
+    sendRequests() {
+        var pool = this.getRequestPool();
+        if (pool.length == 0) {
+            return;
+        }
+
+        for (var i in pool) {
+            var request = pool[i];
+            console.log({'REQUEST': request._data});
+
+            // send data
+            var response = request.send();
+            console.log({'RESPONSE': response});
+        }
+
+        // flush pool
+        this.requestPool = [];
+    }
+    // -------------------------------------------------------------------------
+
+    registerWidget(id, widget) {
+        if (widget != null) {
+                this.widgets[id] = widget;
+        }
+    }
+    // -------------------------------------------------------------------------
+
+    run() {
+        /**
+            Calls _refreshApp when page is loaded
+            @function
+            @return {undefined}
+        **/
+        var breadcrumb = document.getElementById('breadcrumb-nav');
+        var cursor = this.library.toList()[0];
+        breadcrumb.setAttribute('data-cursor', cursor);
+        this._refresh(cursor, '');
+    }
+}

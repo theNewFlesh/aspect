@@ -4,26 +4,36 @@ request functionality of aspect.
 @module aspect.js
 **/
 
+// ---CONSTANTS-----------------------------------------------------------------
+/** request api **/
+var API_URL = "{{ api_url }}";
+
+/** Dictionary of python object: fa icon pairs used by Tree functions **/
+var ICONS = {
+    // 'module': 'fa-file',
+    // 'class': 'fa-cogs',
+    // 'method': 'fa-cog',
+    'attribute': 'fa-flag-o',
+    // 'function': 'fa-circle-thin',
+    'arg': 'fa-asterisk',
+    'kwarg': 'fa-check-square',
+    'variable': 'fa-flag'
+};
+
 // ---UTILS---------------------------------------------------------------------
 {% include 'js/utils.js.j2' %}
 
-// ---EVENTS--------------------------------------------------------------------
-{% include 'js/events.js.j2' %}
-
-// ---WIDGETS-------------------------------------------------------------------
-{% include 'js/widgets.js.j2' %}
-
-// ---LIBRARY-------------------------------------------------------------------
-{% include 'js/library.js.j2' %}
-
-// ---TREE----------------------------------------------------------------------
-{% include 'js/tree.js.j2' %}
-
-// ---SIDEBAR-------------------------------------------------------------------
-{% include 'js/sidebar.js.j2' %}
-
-// ---NAVBAR--------------------------------------------------------------------
-{% include 'js/navbar.js.j2' %}
+// ---REQUESTS------------------------------------------------------------------
+{% include 'js/request.js.j2' %}
 
 // ---APP-----------------------------------------------------------------------
 {% include 'js/app.js.j2' %}
+
+// ---MAIN----------------------------------------------------------------------
+/** Dict of all module of a library exposed by aspect **/
+var LIBRARY = {{ library | tojson }}
+var APP = new App(LIBRARY);
+
+$(document).ready(function(){
+    APP.run();
+});

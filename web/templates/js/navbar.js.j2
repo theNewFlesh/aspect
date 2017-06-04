@@ -1,105 +1,116 @@
 /**
-The searchbar.js module contains the aspect searchbar logic.
-@module searchbar.js
+The navbar.js module contains the aspect navbar logic.
+@module navbar.js
 **/
 
-// ---SEARCHBAR-----------------------------------------------------------------
-function refreshSearchbar(cursor, destination) {
-    /**
-        Clears searchbar, updates placeholder and library items
-        @function
-        @param {string} cursor - fullpath to a key in LIBRARY (ie lib.pkg.module)
-        @param {string} destination - partial path to python modules in LIBRARY
-                                      given cursor position (ie pkg.module)
-        @return {undefined}
-    **/
-    // append destination to cursor
-    if (destination != '') {
-        cursor = cursor + '.' + destination;
+class Navbar {
+    constructor(parent) {
+        this.parent = parent;
     }
 
-    // clear searchbar's library items
-    var searchbarLib = document.getElementById('library');
-    searchbarLib.value = '';
-    clearChildren(searchbarLib);
+    _refreshSearchbar(cursor, destination) {
+        /**
+            Clears searchbar, updates placeholder and library items
+            @function
+            @param {string} cursor - fullpath to a key in LIBRARY (ie lib.pkg.module)
+            @param {string} destination - partial path to python modules in LIBRARY
+                                          given cursor position (ie pkg.module)
+            @return {undefined}
+        **/
+        var lib = this.parent.library;
 
-    // get new library items given new cursor
-    var lib = cursorToLibraryList(cursor);
-
-    // skips if cursor is at module level
-    if ( !_.has(LIBRARY, cursor) ) {
-        for (i in lib) {
-            var option = document.createElement('option');
-            option.id = "searchbar-item";
-
-            // make path relative to new cursor
-            option.value = lib[i].replace(cursor + '.', '');
-            searchbarLib.appendChild(option);
+        // append destination to cursor
+        if (destination != '') {
+            cursor = cursor + '.' + destination;
         }
-    }
 
-    // clear input text and update placeholder
-    var searchbar = document.getElementById('searchbar');
-    searchbar.placeholder = 'search ' + cursor.split('.').slice(-1)[0];
-    searchbar.value = '';
-}
+        // clear searchbar's library items
+        var searchbarLib = document.getElementById('library');
+        searchbarLib.value = '';
+        clearChildren(searchbarLib);
 
-// ---BREADCRUMB----------------------------------------------------------------
-function setBreadcrumbItemLink(e) {
-    /**
-        Event listener for breadcrumb links, calls _refreshApp with new cursor
-        @function
-        @param {event} e - event object used to derive new cursor
-        @return {Array} - list of row elements
-    **/
-    var cursor = e.srcElement.getAttribute('data-cursor');
-    _refreshApp(cursor, '');
-}
+        // get new library items given new cursor
+        var lib = lib.fromCursor(cursor);
 
-function refreshBreadcrumb(cursor, destination) {
-    /**
-        Clears the breadcrumb and then populates with new library location
-        @function
-        @param {string} cursor - fullpath to a key in LIBRARY (ie lib.pkg.module)
-        @param {string} destination - partial path to python modules in LIBRARY
-                                      given cursor position (ie pkg.module)
-        @return {Array} - list of row elements
-    **/
-    if (destination != '') {
-        cursor = cursor + '.' + destination;
-    }
+        // skips if cursor is at module level
+        if ( !_.has(self._library, cursor) ) {
+            for (var i in lib) {
+                var option = document.createElement('option');
+                option.id = "searchbar-item";
 
-    var breadcrumb = document.getElementById('breadcrumb-nav');
-    clearChildren(breadcrumb);
-
-    var items = [];
-    if (cursor != '') {
-        items = cursor.split('.');
-    }
-
-    for (var i = 0; i < items.length; i++) {
-        var item = items[i];
-        var element = document.createElement('li');
-        element.classList.add('breadcrumb-item');
-
-        var a = document.createElement('a');
-        a.textContent = item;
-        a.setAttribute( 'data-cursor', items.slice(0, i+1).join('.') );
-        a.setAttribute('onclick', 'setBreadcrumbItemLink(event)');
-        element.appendChild(a);
-        breadcrumb.appendChild(element);
-
-        if (i == items.length - 1) {
-            element.classList.add('active');
-            a.removeAttribute('onclick');
+                // make path relative to new cursor
+                option.value = lib[i].replace(cursor + '.', '');
+                searchbarLib.appendChild(option);
+            }
         }
+
+        // clear input text and update placeholder
+        var searchbar = document.getElementById('searchbar');
+        searchbar.placeholder = 'search ' + cursor.split('.').slice(-1)[0];
+        searchbar.value = '';
     }
 
-    // ol cannot be empty for proper display
-    var empty = document.createElement('li')
-    empty.id = "breadcrumb-last-dot";
-    breadcrumb.appendChild(empty);
+    setBreadcrumbItemLink(e) {
+        /**
+            Event listener for breadcrumb links, calls _refreshApp with new cursor
+            @function
+            @param {event} e - event object used to derive new cursor
+            @return {Array} - list of row elements
+        **/
+        var cursor = e.srcElement.getAttribute('data-cursor');
+        this.parent._refresh(cursor, '');
+    }
 
-    // set new cursor
-    breadcrumb.setAttribute('data-cursor', cursor);
+    _refreshBreadcrumb(cursor, destination) {
+        /**
+            Clears the breadcrumb and then populates with new library location
+            @function
+            @param {string} cursor - fullpath to a key in LIBRARY (ie lib.pkg.module)
+            @param {string} destination - partial path to python modules in LIBRARY
+                                          given cursor position (ie pkg.module)
+            @return {Array} - list of row elements
+        **/
+        if (destination != '') {
+            cursor = cursor + '.' + destination;
+        }
+
+        var breadcrumb = document.getElementById('breadcrumb-nav');
+        clearChildren(breadcrumb);
+
+        var items = [];
+        if (cursor != '') {
+            items = cursor.split('.');
+        }
+
+        for (var i = 0; i < items.length; i++) {
+            var item = items[i];
+            var element = document.createElement('li');
+            element.classList.add('breadcrumb-item');
+
+            var a = document.createElement('a');
+            a.textContent = item;
+            a.setAttribute( 'data-cursor', items.slice(0, i+1).join('.') );
+            a.setAttribute('onclick', 'APP.navbar.setBreadcrumbItemLink(event)');
+            element.appendChild(a);
+            breadcrumb.appendChild(element);
+
+            if (i == items.length - 1) {
+                element.classList.add('active');
+                a.removeAttribute('onclick');
+            }
+        }
+
+        // ol cannot be empty for proper display
+        var empty = document.createElement('li')
+        empty.id = "breadcrumb-last-dot";
+        breadcrumb.appendChild(empty);
+
+        // set new cursor
+        breadcrumb.setAttribute('data-cursor', cursor);
+    }
+
+    refresh(cursor, destination) {
+        this._refreshSearchbar(cursor, destination);
+        this._refreshBreadcrumb(cursor, destination);
+    }
 }
