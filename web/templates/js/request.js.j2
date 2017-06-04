@@ -83,68 +83,6 @@ class Request {
     }
     // -------------------------------------------------------------------------
 
-    toData(id=null) {
-        var lib = this._library;
-        var data = {
-            'action': 'execute',
-            'module': this.moduleId
-        };
-        var oType = this.objectType;
-        data[oType] = this.objectName;
-
-        if (this.clsName != undefined) {
-            data['class_'] = this.clsName;
-        }
-
-        if (id != null) {
-            data['id_'] = id;
-        }
-
-        var obj = this.toType('object');
-
-        if (_.includes(['variable', 'attribute'], oType)) {
-            data['value'] = this.value;
-        }
-
-        var args = this._toArgData(obj);
-        if (args != null) {
-            data['args'] = args;
-        }
-
-        var kwargs = this._toKwargData(obj);
-        if (kwargs != null) {
-            data['kwargs'] = kwargs;
-        }
-
-        return data;
-    }
-
-    _toArgData(obj) {
-        if (_.has(obj, 'args')) {
-            var output = [];
-            for (var i in obj['args']) {
-                var arg = obj['args'][i]['value'];
-                output.push(arg);
-            }
-            return output;
-        } else {
-            return null;
-        }
-    }
-
-    _toKwargData(obj) {
-        if (_.has(obj, 'kwargs')) {
-            var output = {};
-            for (var i in obj['kwargs']) {
-                var kwarg = obj['kwargs'][i];
-                output[kwarg['name']] = kwarg['value'];
-            }
-            return output;
-        } else {
-            return null;
-        }
-    }
-
     toModule() {
         this.cursor = [];
         this.cursor.push(this.moduleId);
@@ -284,12 +222,65 @@ class Request {
             }
         }
     }
+    // -------------------------------------------------------------------------
+
+    toData(id=null) {
+        var lib = this._library;
+        var data = {
+            'action': 'execute',
+            'module': this.moduleId
+        };
+        var oType = this.objectType;
+        data[oType] = this.objectName;
+
+        if (this.clsName != undefined) {
+            data['class_'] = this.clsName;
+        }
+
+        if (id != null) {
+            data['id_'] = id;
+        }
+
+        var obj = this.toType('object');
+
+        if (_.has(obj, 'value')) {
+            data['value'] = obj.value;
+
+        } else {
+            var args = this._addArgData(obj, data);
+            var kwargs = this._addKwargData(obj, data);
+        }
+
+        return data;
+    }
+
+    _addArgData(obj, data) {
+        if (_.has(obj, 'args')) {
+            var args = [];
+            for (var i in obj['args']) {
+                var arg = obj['args'][i]['value'];
+                args.push(arg);
+            }
+            data['args'] = args;
+        }
+    }
+
+    _addKwargData(obj, data) {
+        if (_.has(obj, 'kwargs')) {
+            var kwargs = {};
+            for (var i in obj['kwargs']) {
+                var kwarg = obj['kwargs'][i];
+                kwargs[kwarg['name']] = kwarg['value'];
+            }
+            data['kwargs'] = kwargs;
+        }
+    }
+    // -------------------------------------------------------------------------
 
     set(value) {
         var item = this.toParameter();
-        this._library.set(this.cursor, value);
+        // this._library.set(this.cursor, value);
         item['value'] = value;
-        console.log(item);
     }
     // -------------------------------------------------------------------------
 
