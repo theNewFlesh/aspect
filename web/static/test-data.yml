@@ -53,14 +53,12 @@ library:
           - name: method1
             args:
               - name: arg1
-                value: ['a', 'b', 'c']
+                value: false
               - name: arg2
                 value: true
             kwargs:
               - name: kwarg1
                 value: [1,2,3]
-              - name: kwarg2
-                value: {'a': 1, 'b': 2, 'c': [1, "a", 2 ]}
       - name: ClassBar
         methods:
           - name: method2

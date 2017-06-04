@@ -9,15 +9,35 @@ class Library {
         this._data = data;
     }
 
+    _getWithCursor(cursor) {
+        var lib = this._data;
+        for (var i in cursor) {
+            var cur = cursor[i];
+            lib = lib[cur];
+        }
+        return lib;
+    }
+
+    _setWithCursor(cursor, value) {
+        var lib = this._getWithCursor(cursor);
+        lib['value'] = value;
+    }
+
     hasKey(key) {
         return _.has(this._data, key);
     }
 
     get(key) {
+        if (_.isArray(key)) {
+            return this._getWithCursor(key);
+        }
         return this._data[key];
     }
 
     set(key, value) {
+        if (_.isArray(key)) {
+            return this._setWithCursor(key, value);
+        }
         this._data[key] = value;
     }
     // -------------------------------------------------------------------------

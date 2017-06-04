@@ -71,18 +71,14 @@ class App {
     // -------------------------------------------------------------------------
     addRequest(widget, value) {
         var request = new Request(widget, this.library);
-        if (_.has(request, 'objectType')) {
-            var func = 'to' + _.capitalize(request.objectType);
-            var item = request[func]();
-            item['value'] = value;
-            this.requestPool.push(new Request(widget, this.library));
-        }
+        request.set(value);
+        this.requestPool.push(request);
     }
 
     getRequestPool() {
         var output = [];
         var ids = [];
-        var pool = this.requestPool;
+        var pool = _.reverse(this.requestPool);
         for (var i in pool) {
             var request = pool[i];
             if (!_.includes(ids, request.objectId)) {
@@ -90,19 +86,15 @@ class App {
                 output.push(request);
             }
         }
+        output = _.reverse(output);
         return output;
     }
 
     sendRequests() {
         var pool = this.getRequestPool();
-        if (pool.length == 0) {
-            return;
-        }
-
         for (var i in pool) {
             var response = pool[i].send();
         }
-
         // flush pool
         this.requestPool = [];
     }

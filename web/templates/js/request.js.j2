@@ -7,12 +7,13 @@ interactions.
 var API_URL = "{{ api_url }}";
 
 class Request {
-    constructor(widget, library, id=null) {
+    constructor(widget, library) {
         undefinedError(widget);
         undefinedError(library);
 
         this._url = API_URL;
         this._library = library;
+        this.cursor = [];
 
         // component name to data key lookup table
         this.lut = {
@@ -27,7 +28,6 @@ class Request {
         };
 
         this._setProperties(widget);
-        this._data = this._toData(widget, id);
     }
 
     _setProperties(widget) {
@@ -83,14 +83,14 @@ class Request {
     }
     // -------------------------------------------------------------------------
 
-    _toData(widget, id) {
+    toData(id=null) {
         var lib = this._library;
         var data = {
             'action': 'execute',
             'module': this.moduleId
         };
-
-        data[this.objectType] = this.objectName;
+        var oType = this.objectType;
+        data[oType] = this.objectName;
 
         if (this.clsName != undefined) {
             data['class_'] = this.clsName;
@@ -101,6 +101,10 @@ class Request {
         }
 
         var obj = this.toType('object');
+
+        if (_.includes(['variable', 'attribute'], oType)) {
+            data['value'] = this.value;
+        }
 
         var args = this._toArgData(obj);
         if (args != null) {
@@ -142,6 +146,8 @@ class Request {
     }
 
     toModule() {
+        this.cursor = [];
+        this.cursor.push(this.moduleId);
         return this._library.get(this.moduleId);
     }
 
@@ -149,7 +155,11 @@ class Request {
         var sel = this.toModule();
         if (this.clsName != undefined) {
             sel = sel['classes'];
+            this.cursor.push('classes');
+
             var i = keyToIndex(sel, this.clsName);
+            this.cursor.push(i);
+
             return sel[i];
         }
         throw 'class not found: ' + sel.moduleId;
@@ -160,7 +170,10 @@ class Request {
         if (this.objectType != undefined) {
             var oType = this.lut[this.objectType];
             sel = sel[oType];
+            this.cursor.push(oType);
+
             var i = keyToIndex(sel, this.objectName);
+            this.cursor.push(i);
             return sel[i];
         }
         throw 'method not found: ' + sel.classId;
@@ -171,7 +184,10 @@ class Request {
         if (this.objectType != undefined) {
             var oType = this.lut[this.objectType];
             sel = sel[oType];
+            this.cursor.push(oType);
+
             var i = keyToIndex(sel, this.objectName);
+            this.cursor.push(i);
             return sel[i];
         }
         throw 'attribute not found: ' + sel.classId;
@@ -182,7 +198,10 @@ class Request {
         if (this.objectType != undefined) {
             var oType = this.lut[this.objectType];
             sel = sel[oType];
+            this.cursor.push(oType);
+
             var i = keyToIndex(sel, this.objectName);
+            this.cursor.push(i);
             return sel[i];
         }
         throw 'function not found: ' + sel.moduleId;
@@ -192,10 +211,17 @@ class Request {
     toParameter() {
         var sel = this.toType('object');
         if (this.paramType != undefined) {
-            var pType = this.lut[this.paramType];
-            sel = sel[pType];
-            var i = keyToIndex(sel, this.paramName);
-            return sel[i];
+            if (_.includes(['arg', 'kwarg'], this.paramType)) {
+                var pType = this.lut[this.paramType];
+                sel = sel[pType];
+                this.cursor.push(pType);
+
+                var i = keyToIndex(sel, this.paramName);
+                this.cursor.push(i);
+                return sel[i];
+            } else {
+                return sel;
+            }
         }
         throw 'parameter not found: ' + sel.objectId;
     }
@@ -205,7 +231,10 @@ class Request {
         if (this.objectType != undefined) {
             var oType = this.lut[this.objectType];
             sel = sel[oType];
+            this.cursor.push(oType);
+
             var i = keyToIndex(sel, this.objectName);
+            this.cursor.push(i);
             return sel[i];
         }
         throw 'variable not found: ' + sel.moduleId;
@@ -255,10 +284,18 @@ class Request {
             }
         }
     }
+
+    set(value) {
+        var item = this.toParameter();
+        this._library.set(this.cursor, value);
+        item['value'] = value;
+        console.log(item);
+    }
     // -------------------------------------------------------------------------
 
     send() {
-        var data = JSON.stringify(this._data);
+        var data = this.toData();
+        data = JSON.stringify(data);
         console.log({'REQUEST': data});
 
         var response = null;
