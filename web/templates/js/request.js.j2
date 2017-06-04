@@ -4,6 +4,7 @@ interactions.
 @module events.js
 **/
 // -----------------------------------------------------------------------------
+var API_URL = "{{ api_url }}";
 
 class Request {
     constructor(widget, library, id=null) {
@@ -227,17 +228,18 @@ class Request {
             response = JSON.parse(xhttp.response);
             console.log({'RESPONSE': response});
         }
-        var xhttp = new XMLHttpRequest();
-        xhttp.onreadystatechange = function() {
-            if (this.readyState == 4 && this.status == 200) {
-                getResponse(this);
-            }
-        };
-        xhttp.open('POST', self._url, true);
-        xhttp.setRequestHeader('Content-type', 'application/json');
-        xhttp.send(data);
+        return $.post(this._url, data, getResponse);
+        // var xhttp = new XMLHttpRequest();
+        // xhttp.onreadystatechange = function() {
+        //     if (this.readyState == 4 && this.status == 200) {
+        //         getResponse(this);
+        //     }
+        // };
+        // xhttp.open('POST', self._url, true);
+        // xhttp.setRequestHeader('Content-type', 'application/json');
+        // xhttp.send(data);
 
-        return response;
+        // return response;
     }
 }
 // -----------------------------------------------------------------------------
