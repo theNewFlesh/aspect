@@ -1,4 +1,5 @@
 import os
+from pprint import pprint
 import json
 from flask import Flask, render_template, request, make_response, jsonify
 from flask_bootstrap import Bootstrap
@@ -46,12 +47,15 @@ def index():
 @app.route('/api', methods=['POST'])
 def api():
     data = request.get_json()
+    print
+    pprint(data)
+    print
+
     response = jsonify(
-        data=data,
+        body=data,
         status=200,
         mimetype='application/json'
     )
-    print(data)
     return response
 
 if __name__ == '__main__':

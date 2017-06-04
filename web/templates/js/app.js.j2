@@ -97,7 +97,6 @@ class App {
 
         for (var i in pool) {
             var response = pool[i].send();
-            console.log({'RESPONSE': response});
         }
         // flush pool
         this.requestPool = [];
