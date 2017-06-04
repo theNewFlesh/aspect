@@ -45,6 +45,7 @@ class WidgetGenerator {
         step = toKwarg(step, 0.1);
 
         var widget = this._toNumber(min, max, step);
+
         widget.setAttribute('onchange', 'floatEvent(event)');
         return widget;
     }
@@ -55,24 +56,8 @@ class WidgetGenerator {
         step = toKwarg(step, 1);
 
         var widget = this._toNumber(min, max, step);
-        widget.setAttribute('onchange', 'intEvent(event)');
-        return widget;
-    }
 
-    toTextArea() {
-        /**
-            Creates a text area widget
-            @function
-            @param {string} id - id of widget
-            @param {string} value - default value
-            @return {textarea} - textarea element
-        **/
-        var value = toKwarg(this.value, '');
-        var widget = document.createElement('textarea');
-        widget.id = this.id;
-        widget.classList.add('form-control');
-        widget.setAttribute('rows', '1');
-        widget.value = value;
+        widget.setAttribute('onchange', 'intEvent(event)');
         return widget;
     }
 
@@ -89,6 +74,7 @@ class WidgetGenerator {
         widget.id = this.id;
         widget.classList.add('sidebar-val-input');
         widget.value = value;
+
         widget.setAttribute('onchange', 'stringEvent(event)');
         return widget;
     }
@@ -114,10 +100,69 @@ class WidgetGenerator {
             option.text = String(value[i]);
             widget.appendChild(option);
         }
+
         widget.setAttribute('onchange', 'listEvent(event)');
         return widget;
     }
 
+    toBool() {
+        /**
+            Creates a bootstrap-switch widget
+            @function
+            @param {string} id - id of widget
+            @param {string} value - default value
+            @return {input} - switch element
+        **/
+        var value = toKwarg(this.value, true);
+        var widget = document.createElement('input');
+        widget.classList.add('bootstrap-switch');
+        widget.id = this.id;
+        widget.type = 'checkbox';
+        widget.checked = value;
+        widget.setAttribute('data-on-text', 'TRUE');
+        widget.setAttribute('data-off-text', 'FALSE');
+
+        widget.setAttribute('onchange', 'boolEvent(event)');
+        return widget;
+    }
+
+    toDict() {
+        /**
+            Creates a jsoneditor widget
+            @function
+            @param {string} id - id of widget
+            @param {object} value - default value
+            @return {input} - switch element
+        **/
+        var value = toKwarg(this.value, {});
+        var widget = document.createElement('div');
+        widget.classList.add('jsoneditor-container');
+        widget.id = this.id;
+        widget.value = value;
+
+        // dictEvent set within jsoneditor widget in sidebar.js
+        return widget;
+    }
+
+    // unused
+    toTextArea() {
+        /**
+            Creates a text area widget
+            @function
+            @param {string} id - id of widget
+            @param {string} value - default value
+            @return {textarea} - textarea element
+        **/
+        var value = toKwarg(this.value, '');
+        var widget = document.createElement('textarea');
+        widget.id = this.id;
+        widget.classList.add('form-control');
+        widget.setAttribute('rows', '1');
+        widget.value = value;
+        return widget;
+    }
+
+    // unused
     toComboBox() {
         /**
             Creates a bootstrap combobox dropdown widget
@@ -138,42 +183,6 @@ class WidgetGenerator {
             option.text = String(value[i]);
             widget.appendChild(option);
         }
-        return widget;
-    }
-
-    toBool() {
-        /**
-            Creates a bootstrap-switch widget
-            @function
-            @param {string} id - id of widget
-            @param {string} value - default value
-            @return {input} - switch element
-        **/
-        var value = toKwarg(this.value, true);
-        var widget = document.createElement('input');
-        widget.classList.add('bootstrap-switch');
-        widget.id = this.id;
-        widget.type = 'checkbox';
-        widget.checked = value;
-        widget.setAttribute('data-on-text', 'TRUE');
-        widget.setAttribute('data-off-text', 'FALSE');
-        widget.setAttribute('onchange', 'boolEvent(event)');
-        return widget;
-    }
-
-    toDict() {
-        /**
-            Creates a jsoneditor widget
-            @function
-            @param {string} id - id of widget
-            @param {object} value - default value
-            @return {input} - switch element
-        **/
-        var value = toKwarg(this.value, {});
-        var widget = document.createElement('div');
-        widget.classList.add('jsoneditor-container');
-        widget.id = this.id;
-        widget.value = value;
         return widget;
     }
 

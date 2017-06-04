@@ -29,8 +29,13 @@ class AspectRequest {
 
         this._setProperties(widget);
 
-        this.value = value;
-        this.set(value);
+        // error function
+        if (_.isFunction(value)) {
+            this.error = value;
+        } else {
+            this.value = value;
+            this.set(value);
+        }
     }
 
     _setProperties(widget) {
@@ -288,6 +293,10 @@ class AspectRequest {
     // -------------------------------------------------------------------------
 
     send() {
+        if (this.error != undefined) {
+            this.error();
+        }
+
         var data = this.toData();
         data = JSON.stringify(data);
         console.log({'REQUEST': data});

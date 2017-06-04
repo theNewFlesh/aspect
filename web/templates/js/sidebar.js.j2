@@ -60,8 +60,21 @@ class Sidebar {
             var container = containers[i];
             var value = container.value;
             var editor = new JSONEditor(container, {
-                'mode': 'code'
+                mode: 'code',
+                onChange: function() {
+                    try {
+                        var value = editor.get();
+                        APP.addRequest(editor.container, value);
+                    } catch(err) {
+                        function error() {
+                            throw '\n#' + editor.container.id + ' has invalid json\n' + err;
+                        }
+                        APP.addRequest(editor.container, error);
+
+                    }
+                }
             });
+
             editor.set(value);
 
             var button = document.createElement('button');

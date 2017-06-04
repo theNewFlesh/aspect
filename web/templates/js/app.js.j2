@@ -91,6 +91,10 @@ class App {
 
     sendRequests() {
         var pool = this.getRequestPool();
+        if (pool.length == 0) {
+            console.log('No requests to submit');
+        }
+
         for (var i in pool) {
             var response = pool[i].send();
             console.log({'RESPONSE': response});
