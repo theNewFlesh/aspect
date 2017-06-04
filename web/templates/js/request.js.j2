@@ -298,12 +298,14 @@ class AspectRequest {
         }
 
         var data = this.toData();
-        data = JSON.stringify(data);
-        console.log({'REQUEST': {
-            data: data,
-            aspectRequest: this
-            }
+        console.log({'REQUEST':
+            data
+            // {
+            //     data: data,
+            //     aspectRequest: this
+            // }
         });
+        data = JSON.stringify(data);
         // ---------------------------------------------------------------------
 
         let response = await fetch(this._url, {
