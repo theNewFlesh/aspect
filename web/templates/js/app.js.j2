@@ -73,7 +73,6 @@ class App {
         var request = new Request(widget, this.library);
         if (_.has(request, 'objectType')) {
             var func = 'to' + _.capitalize(request.objectType);
-            console.log(func);
             var item = request[func]();
             item['value'] = value;
             this.requestPool.push(new Request(widget, this.library));
