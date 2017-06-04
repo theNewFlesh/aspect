@@ -166,6 +166,17 @@ class Request {
         throw 'method not found: ' + sel.classId;
     }
 
+    toAttribute() {
+        var sel = this.toClass();
+        if (this.objectType != undefined) {
+            var oType = this.lut[this.objectType];
+            sel = sel[oType];
+            var i = keyToIndex(sel, this.objectName);
+            return sel[i];
+        }
+        throw 'attribute not found: ' + sel.classId;
+    }
+
     toFunction() {
         var sel = this.toModule();
         if (this.objectType != undefined) {
@@ -189,6 +200,17 @@ class Request {
         throw 'parameter not found: ' + sel.objectId;
     }
 
+    toVariable() {
+        var sel = this.toModule();
+        if (this.objectType != undefined) {
+            var oType = this.lut[this.objectType];
+            sel = sel[oType];
+            var i = keyToIndex(sel, this.objectName);
+            return sel[i];
+        }
+        throw 'variable not found: ' + sel.moduleId;
+    }
+
     toType(type='parameter') {
         if (type == 'module') {
             return this.toModule();;
@@ -206,15 +228,31 @@ class Request {
             return this.toFunction();
         }
 
+        if (type == 'attribute') {
+            return this.toAttribute();
+        }
+
         if (type == 'parameter') {
             return this.toParameter();
+        }
+
+        if (type == 'variable') {
+            return this.toVariable();
         }
 
         if (type == 'object') {
             if (this.objectType == 'method') {
                 return this.toMethod();
+
+            } else if (this.objectType == 'function') {
+                return this.toMethod();
+
+            } else if (this.objectType == 'attribute') {
+                return this.toAttribute();
+
+            } else if (this.objectType == 'variable') {
+                return this.toVariable();
             }
-            return this.toFunction();
         }
     }
     // -------------------------------------------------------------------------
@@ -224,22 +262,11 @@ class Request {
         console.log({'REQUEST': data});
 
         var response = null;
-        function getResponse (xhttp) {
-            response = JSON.parse(xhttp.response);
+        function getResponse(http) {
+            response = JSON.parse(http.response);
             console.log({'RESPONSE': response});
         }
         return $.post(this._url, data, getResponse);
-        // var xhttp = new XMLHttpRequest();
-        // xhttp.onreadystatechange = function() {
-        //     if (this.readyState == 4 && this.status == 200) {
-        //         getResponse(this);
-        //     }
-        // };
-        // xhttp.open('POST', self._url, true);
-        // xhttp.setRequestHeader('Content-type', 'application/json');
-        // xhttp.send(data);
-
-        // return response;
     }
 }
 // -----------------------------------------------------------------------------

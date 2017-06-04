@@ -103,7 +103,7 @@ function toTreeVariable(variable, parent) {
         @param {string} parent - id of parent TreeGrid element
         @return {Object} - tree row
     **/
-    return toTreeRow(variable, parent, variable['value'], 'variable', dataParent=true);
+    return toTreeRow(variable, parent, variable['value'], 'variable', 'variable', dataParent=true);
 }
 
 // ---FUNCTION------------------------------------------------------------------
@@ -191,7 +191,7 @@ function toTreeAttribute(attribute, parent) {
         @param {string} parent - id of parent TreeGrid element
         @return {Object} - tree row
     **/
-    return toTreeRow(attribute, parent, attribute['value'], 'attribute', dataParent=true);
+    return toTreeRow(attribute, parent, attribute['value'], 'attribute', 'attribute', dataParent=true);
 }
 
 // ---METHOD--------------------------------------------------------------------

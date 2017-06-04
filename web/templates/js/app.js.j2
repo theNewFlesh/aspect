@@ -71,9 +71,13 @@ class App {
     // -------------------------------------------------------------------------
     addRequest(widget, value) {
         var request = new Request(widget, this.library);
-        var param = request.toParameter();
-        param['value'] = value;
-        this.requestPool.push(request);
+        if (_.has(request, 'objectType')) {
+            var func = 'to' + _.capitalize(request.objectType);
+            console.log(func);
+            var item = request[func]();
+            item['value'] = value;
+            this.requestPool.push(new Request(widget, this.library));
+        }
     }
 
     getRequestPool() {
