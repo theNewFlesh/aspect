@@ -6,14 +6,30 @@ interactions.
 // -----------------------------------------------------------------------------
 
 class Request {
-    constructor(widget, library) {
-        this._setInfo(widget);
-        this._data = to_data(widget);
+    constructor(widget, library, id=null) {
+        undefinedError(widget);
+        undefinedError(library);
+
         this._url = API_URL;
         this._library = library;
+
+        // component name to data key lookup table
+        this.lut = {
+            'arg'      : 'args',
+            'attribute': 'attributes',
+            'class'    : 'classes',
+            'function' : 'functions',
+            'kwarg'    : 'kwargs',
+            'method'   : 'methods',
+            'module'   : 'modules',
+            'variable' : 'variables'
+        };
+
+        this._setProperties(widget);
+        this._data = this._toData(widget, id);
     }
 
-    _setInfo(widget) {
+    _setProperties(widget) {
         // set component types
         this.paramType = widget.getAttribute('data-param-type');
         this.objectType = widget.getAttribute('data-object-type');
@@ -27,26 +43,26 @@ class Request {
         var temp = _.split(id, '-');
 
         // Find module id in this._library
-        var moduleId = null;
+        var modId = null;
         for (var i = temp.length; i > 0; i--) {
-            moduleId = _.join(_.slice(temp, 0, i), '.');
-            if (_.has(this._library, moduleId)) {
+            modId = _.join(_.slice(temp, 0, i), '.');
+            if (_.includes(this._library.toList(), modId)) {
                 break;
             }
         }
 
-        // throw error if moduleId not in this._library
-        if (moduleId == null) {
+        // throw error if modId not in this._library
+        if (modId == null) {
             throw('Module ID not found in this._library. Widget ID: ' + widget.id);
         }
 
         // resolve module
-        this.moduleId = moduleId;
-        this.moduleName = _.last(_.split(moduleId, '.'));
+        this.moduleId = modId;
+        this.moduleName = _.last(_.split(modId, '.'));
 
         // resolve class
-        var rem = _.slice(temp, i)
-        id = this.moduleId
+        var rem = _.slice(temp, i);
+        id = this.moduleId;
         if (_.includes(['method', 'attribute'], this.objectType)) {
             this.clsName = _.first(rem);
             id = id + '.' + this.clsName;
@@ -56,8 +72,8 @@ class Request {
 
         // resolve object
         this.objectName = rem[0];
-         id = id + '.' + this.objectName;
-         this.objectId = id;
+        id = id + '.' + this.objectName;
+        this.objectId = id;
 
         // resolve parameter
         this.paramName = rem[1];
@@ -67,7 +83,7 @@ class Request {
     // -------------------------------------------------------------------------
 
     _toData(widget, id) {
-        var lib = this._lib;
+        var lib = this._library;
         var data = {
             'action': 'execute',
             'module': this.moduleId
@@ -79,10 +95,11 @@ class Request {
             data['class_'] = this.clsName;
         }
 
-        if (id != undefined) {
+        if (id != null) {
             data['id_'] = id;
         }
-        var obj = lib.fromRequest(new Request(widget), 'object');
+
+        var obj = this.toType('object');
 
         var args = this._toArgData(obj);
         if (args != null) {
@@ -122,12 +139,87 @@ class Request {
             return null;
         }
     }
+
+    toModule() {
+        return this._library.get(this.moduleId);
+    }
+
+    toClass() {
+        var sel = this.toModule();
+        if (this.clsName != undefined) {
+            sel = sel['classes'];
+            var i = keyToIndex(sel, this.clsName);
+            return sel[i];
+        }
+        throw 'class not found: ' + sel.moduleId;
+    }
+
+    toMethod() {
+        var sel = this.toClass();
+        if (this.objectType != undefined) {
+            var oType = this.lut[this.objectType];
+            sel = sel[oType];
+            var i = keyToIndex(sel, this.objectName);
+            return sel[i];
+        }
+        throw 'method not found: ' + sel.classId;
+    }
+
+    toFunction() {
+        var sel = this.toModule();
+        if (this.objectType != undefined) {
+            var oType = this.lut[this.objectType];
+            sel = sel[oType];
+            var i = keyToIndex(sel, this.objectName);
+            return sel[i];
+        }
+        throw 'function not found: ' + sel.moduleId;
+    }
+
+
+    toParameter() {
+        var sel = this.toType('object');
+        if (this.paramType != undefined) {
+            var pType = this.lut[this.paramType];
+            sel = sel[pType];
+            var i = keyToIndex(sel, this.paramName);
+            return sel[i];
+        }
+        throw 'parameter not found: ' + sel.objectId;
+    }
+
+    toType(type='parameter') {
+        if (type == 'module') {
+            return this.toModule();;
+        }
+
+        if (type == 'class') {
+            return this.toClass();
+        }
+
+        if (type == 'method') {
+            return this.toMethod();
+        }
+
+        if (type == 'function') {
+            return this.toFunction();
+        }
+
+        if (type == 'parameter') {
+            return this.toParameter();
+        }
+
+        if (type == 'object') {
+            if (this.objectType == 'method') {
+                return this.toMethod();
+            }
+            return this.toFunction();
+        }
+    }
     // -------------------------------------------------------------------------
 
     send() {
-        var data = this._data;
-        var data = conform(data);
-        var data = JSON.stringify(data);
+        var data = JSON.stringify(this._data);
         console.log({'REQUEST': data});
 
         var response = null;

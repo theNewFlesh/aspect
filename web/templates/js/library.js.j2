@@ -5,6 +5,7 @@ The library.js module contains functions for working with the library.
 
 class Library {
     constructor(data) {
+        undefinedError(data);
         this._data = data;
     }
 
@@ -21,7 +22,6 @@ class Library {
     }
     // -------------------------------------------------------------------------
 
-    // libraryToList
     toList(modules=true, classes=false) {
         /**
             Converts a library dictionary to an array of full module names (ie lib.pkg.pkg.module)
@@ -64,7 +64,6 @@ class Library {
     }
     // -------------------------------------------------------------------------
 
-    // cursorToLibraryList
     fromCursor(cursor) {
         /**
             Returns a list of library fullpath modules that reside under cursor location
@@ -85,70 +84,5 @@ class Library {
             }
         }
         return output;
-    }
-    // -------------------------------------------------------------------------
-
-    // getLibraryItemByType
-    fromRequest(request, type='param') {
-        toKwarg(type, 'param');
-
-        var data = this._data;
-        var sel = data[request.moduleId];
-        if (type == 'module') {
-            return sel;
-        }
-
-        // component name to data key lookup table
-        lut = {
-            'arg'      : 'args',
-            'attribute': 'attributes',
-            'class'    : 'classes',
-            'function' : 'functions',
-            'kwarg'    : 'kwargs',
-            'method'   : 'methods',
-            'module'   : 'modules',
-            'variable' : 'variables'
-        };
-
-        // resolve class
-        if (request.clsName != undefined) {
-            sel = sel['classes'];
-            var i = keyToIndex(sel, request.clsName);
-            sel = sel[i];
-
-            if (type == 'class') {
-                return sel;
-            }
-        }
-
-        // resolve object
-        if (request.objectType != undefined) {
-            var oType = lut[request.objectType];
-            console.log(oType);
-            sel = sel[oType];
-            var i = keyToIndex(sel, request.objectName);
-            sel = sel[i];
-            if (type == 'object') {
-                return sel;
-            }
-        }
-
-        // resolve parameter
-        if (request.paramType != undefined) {
-            var pType = lut[request.paramType];
-            sel = sel[pType];
-            i = keyToIndex(sel, request.paramName);
-            sel = sel[i];
-        }
-
-        console.log(sel);
-        return sel;
-    }
-    // -------------------------------------------------------------------------
-
-    // setLibraryItemParameter
-    setItemParameter(widget, value) {
-        var sel = this.fromWidget(widget);
-        sel['value'] = value;
     }
 }

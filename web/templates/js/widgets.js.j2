@@ -5,6 +5,8 @@ The widgets.js module contains all the widgets used by aspect.
 
 class WidgetGenerator {
     constructor(id, value) {
+        undefinedError(id);
+
         this.id = id + '-widget';
         this.value = value;
     }
@@ -191,15 +193,11 @@ class WidgetGenerator {
 }
 
 function boolEvent(e) {
-    var widget = e.target;
-    var value = $(widget).bootstrapSwitch('state');
-    setLibraryItemParameter(widget, value);
-    EVENTPOOL.push(item);
+    var value = $(e.target).bootstrapSwitch('state');
+    APP.addRequest(e.target, value);
 }
 
 function stringEvent(e) {
-    var widget = e.target;
-    var value = widget.value;
-    setLibraryItemParameter(widget, value);
-    EVENTPOOL.push(item);
+    var value = e.target.value;
+    APP.addRequest(e.target, value);
 }

@@ -40,6 +40,18 @@ function undefinedError(item) {
     }
 }
 
+function nullError(item) {
+    /**
+        Throws a error if given item is undefined
+        @function
+        @param {Object} item - item to be checked
+        @throws undefined value
+    **/
+    if (item == null) {
+        throw 'null value';
+    }
+}
+
 function toKwarg(parameter, default_) {
     /**
         Returns default value if parameter is undefined
