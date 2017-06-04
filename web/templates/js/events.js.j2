@@ -1,0 +1,39 @@
+/**
+The events.js module contains all the events used by aspect.
+@module events.js
+**/
+// -----------------------------------------------------------------------------
+
+function stringEvent(e) {
+    APP.addRequest(e.target, e.target.value);
+}
+
+function boolEvent(e) {
+    var value = $(e.target).bootstrapSwitch('state');
+    APP.addRequest(e.target, value);
+}
+
+function intEvent(e) {
+    APP.addRequest(e.target, parseInt(e.target.value));
+}
+
+function floatEvent(e) {
+    APP.addRequest(e.target, parseFloat(e.target.value));
+}
+
+function listEvent(e) {
+    var value = _.map(e.target.selectedOptions, x => x.value);
+    APP.addRequest(e.target, value);
+}
+
+function dictEvent(e) {
+    APP.addRequest(e.target, value);
+}
+
+// function textAreaEvent(e) {
+
+// }
+
+// function comboBoxEvent(e) {
+
+// }

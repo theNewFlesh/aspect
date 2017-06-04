@@ -117,7 +117,7 @@ library:
           - name: method6
             args:
               - name: sfdfewsda
-                value: 50
+                value: 50.6
         attributes:
           - name: name
             value: "ClassBar's name"

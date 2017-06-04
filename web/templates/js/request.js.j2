@@ -6,8 +6,8 @@ interactions.
 // -----------------------------------------------------------------------------
 var API_URL = "{{ api_url }}";
 
-class Request {
-    constructor(widget, library) {
+class AspectRequest {
+    constructor(widget, value, library) {
         undefinedError(widget);
         undefinedError(library);
 
@@ -28,6 +28,9 @@ class Request {
         };
 
         this._setProperties(widget);
+
+        this.value = value;
+        this.set(value);
     }
 
     _setProperties(widget) {
@@ -289,22 +292,35 @@ class Request {
         data = JSON.stringify(data);
         console.log({'REQUEST': data});
 
-        var response = null;
         function getResponse() {
             if (this.readyState == 4 && this.status == 200) {
                 var response = JSON.parse(this.response).data;
-                console.log({'RESPONSE': response});
+                console.log(response);
             }
         }
+
+        // var request = new Request(this._url, {
+        //     headers: new Headers({
+        //         'Content-Type': 'application/json',
+        //         'method': 'POST',
+        //         'data': data
+        //     })
+        // });
+
+        // fetch(request).then(function() {
+        //     if (this.readyState == 4 && this.status == 200) {
+        //         var response = JSON.parse(this.response).data;
+        //         return response;
+        //     }
+        // }).catch(function(err) {
+        //     console.log(err);
+        // });
 
         var xhr = new XMLHttpRequest();
         xhr.onreadystatechange = getResponse;
         xhr.open('POST', this._url, true);
         xhr.setRequestHeader('Content-type', 'application/json');
         xhr.send(data);
-
-        // console.log(response);
-        // return response.data;
     }
 }
 // -----------------------------------------------------------------------------

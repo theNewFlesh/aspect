@@ -70,8 +70,7 @@ class App {
     }
     // -------------------------------------------------------------------------
     addRequest(widget, value) {
-        var request = new Request(widget, this.library);
-        request.set(value);
+        var request = new AspectRequest(widget, value, this.library);
         this.requestPool.push(request);
     }
 
@@ -94,6 +93,7 @@ class App {
         var pool = this.getRequestPool();
         for (var i in pool) {
             var response = pool[i].send();
+            console.log({'RESPONSE': response});
         }
         // flush pool
         this.requestPool = [];
