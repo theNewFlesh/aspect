@@ -3,10 +3,4 @@ web/static/node_modules/
 web/static/css/style.css
 web/static/index.html
 
-*.css
-
-*.pyc
-
-*.css
-
 *.pyc
