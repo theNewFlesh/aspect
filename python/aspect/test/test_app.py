@@ -1,29 +1,55 @@
 from __future__ import print_function
+import os
 from pprint import pprint
 
-from aspect.test.tests import aspect
-from aspect.core.utils import aspect_to_dataframe
+from flask import Flask, render_template, request, make_response, jsonify
+from flask_bootstrap import Bootstrap
+import jinja2
+import yaml
 
-from flask import Flask, request, Response, render_template, jsonify
-app = Flask(__name__)
-# ------------------------------------------------------------------------------
+from aspect.core.utils import module_relative_path as modpath
+from aspect.core.server import Aspect
+ASPECT = Aspect(
+    config=modpath(__file__, 'test-config.yml')
+)
+# --------------------------------------------------------------------------------
 
-@app.route('/', methods=['POST'])
+# def render_css():
+#     env = jinja2.Environment(
+#             keep_trailing_newline=True,
+#             loader=jinja2.FileSystemLoader(modpath(__file__, 'templates'))
+#     )
+
+#     with open(modpath(__file__, 'static/css/style.css'), 'w') as f:
+#         css = env.get_template('css/style.css.j2').render(ASPECT.to_client_data())
+#         f.write(css)
+
+# render_css(ASPECT)
+
+app = Flask('test',
+    static_folder=modpath(__file__, '../client/static'),
+    template_folder=modpath(__file__, '../client/templates')
+)
+
+@app.route('/')
 def index():
-	'''
-	flask index.html endpoint
-	'''
-	if request.method == 'POST':
-		spec = request.get_json(silent=True)
-		response = aspect.request(spec, json_errors=True)
-		print(aspect_to_dataframe(aspect))
-		print()
-		# pprint(aspect._library)
-		# print()
+    data = ASPECT.to_client_data()
+    render_template('css/style.css.j2', **data)
+    return render_template('html/index.html.j2', **data)
 
-		return jsonify(response=response)
-		# return render_template('index.html', response)
+@app.route('/api', methods=['POST'])
+def api():
+    data = request.get_json()
+    data = ASPECT.request(data, json_errors=True)
+    response = jsonify(
+        body=data,
+        status=200,
+        mimetype='application/json'
+    )
+
+    print(ASPECT.to_dataframe())
+    return response
+
 # ------------------------------------------------------------------------------
-
 if __name__ == '__main__':
-    app.run()
+    app.run(debug=False)

@@ -158,7 +158,7 @@ def _add_object(parent, key, item):
 
 def to_client_data(specs, config, default_value={}):
     modules = defaultdict(lambda: {})
-    for item in specs:
+    for item in specs.values():
         kind = item['kind']
         mod = modules[item['module']]
         if item['class_'] is None:

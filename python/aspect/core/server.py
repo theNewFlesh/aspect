@@ -8,9 +8,10 @@ import re
 import sys
 
 from schematics.exceptions import ValidationError
-from utils import *
-from validators import *
 import yaml
+
+from aspect.core.utils import *
+from validators import *
 # ------------------------------------------------------------------------------
 
 class Aspect(object):
@@ -232,6 +233,15 @@ class Aspect(object):
 
         response = fire(row['object'], spec['args'], spec['kwargs'])
         return response
+    # --------------------------------------------------------------------------
+
+    def to_client_data(self, default_value={}):
+        return to_client_data(
+            self._specs, self._config.to_native(), default_value=default_value
+        )
+
+    def to_dataframe(self):
+        return aspect_to_dataframe(self)
 # ------------------------------------------------------------------------------
 
 def main():

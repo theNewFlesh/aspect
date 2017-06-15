@@ -5,7 +5,7 @@ from flask_bootstrap import Bootstrap
 import jinja2
 import yaml
 from aspect.core.utils import module_relative_path as modpath
-# --------------------------------------------------------------------------------
+# ------------------------------------------------------------------------------
 
 # DATA_FILE = modpath(__file__, 'static/test-data.yml')
 DATA_FILE = '/Users/alex/Desktop/new-data.yml'
@@ -39,9 +39,6 @@ def index():
 @app.route('/api', methods=['POST'])
 def api():
     data = request.get_json()
-    print
-    pprint(data)
-    print
 
     response = jsonify(
         body=data,
@@ -49,6 +46,7 @@ def api():
         mimetype='application/json'
     )
     return response
+# ------------------------------------------------------------------------------
 
 if __name__ == '__main__':
     app.run(debug=True)

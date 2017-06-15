@@ -1,0 +1,2 @@
+cd python
+python -c "import aspect; aspect.test.test_app.app.run(debug=False)"
