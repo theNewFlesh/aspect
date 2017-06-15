@@ -8,3 +8,5 @@ web/static/index.html
 *.pyc
 
 *.css
+
+*.pyc

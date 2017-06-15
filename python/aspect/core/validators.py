@@ -36,10 +36,10 @@ def is_id(item):
 class BaseSpec(Model):
     action = StringType(required=True, validators=[is_action])
     fullname = StringType(default='')
-
-class CreateSpec(BaseSpec):
     module = StringType(required=True)
     class_ = StringType(required=True)
+
+class CreateSpec(BaseSpec):
     args = ListType(BaseType, default=[])
     kwargs = DictType(BaseType, default={})
 
@@ -56,7 +56,6 @@ class DeleteSpec(BaseSpec):
     id_ = IntType(required=True, validators=[is_id])
 
 class FunctionSpec(BaseSpec):
-    module = StringType(required=True)
     function = StringType(required=True)
     args = ListType(BaseType, default=[])
     kwargs = DictType(BaseType, default={})
