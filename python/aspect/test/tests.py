@@ -3,7 +3,8 @@ from nose import with_setup
 from nose.tools import assert_raises
 
 from aspect.core.aspect import Aspect
-aspect = Aspect()
+from aspect.core.utils import module_relative_path as modpath
+aspect = Aspect()#config=modpath(__file__, 'test-config.yml'))
 
 from aspect.test.test_module_1 import Test1
 from aspect.test.test_module_2 import Test2

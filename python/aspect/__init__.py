@@ -1,2 +1,3 @@
-import core
-import test
+import aspect.client
+import aspect.core
+import aspect.test

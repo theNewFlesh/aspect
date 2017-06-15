@@ -3,51 +3,6 @@ import jinja2
 from jinja2 import Environment, FileSystemLoader
 # ------------------------------------------------------------------------------
 
-def is_list(item):
-    return isinstance(item, list)
-
-# def library_to_list(library):
-#     def _recurse(items, parent='', store=[]):
-#         if isinstance(items, str):
-#             return parent[:-1]
-
-#         if isinstance(items, list):
-#             for item in items:
-#                 store.append( _recurse(item, parent, store) )
-
-#         elif isinstance(items, dict):
-#             parent += items['name'] + '.'
-#             for key, val in items.items():
-#                 store.append( _recurse(val, parent, store) )
-
-#     output = []
-#     _recurse([library], store=output)
-#     output = filter(lambda x: x is not None, set(output))
-#     output = sorted(list(output))
-#     return output
-
-def library_to_list(item):
-    items = []
-    for item in item.keys():
-        temp = item.split('.')
-        for i in range(len(temp)):
-            items.append('.'.join(temp[:i+1]))
-    items = sorted(list(set(items)))
-    return items
-
-def module_relative_path(path):
-    root = os.path.dirname(os.path.abspath(__file__))
-    new_path = []
-    for dir_ in path.split(os.sep):
-        if dir_ == '..':
-            root = os.path.dirname(root)
-        elif dir_ == '.':
-            pass
-        else:
-            new_path.append(dir_)
-    new_path = os.path.join(root, *new_path)
-    return os.path.abspath(new_path)
-
 def render(template_path, data, extensions, strict=False):
     dirpath = os.path.dirname(template_path)
 
@@ -73,10 +28,7 @@ def main():
 # ------------------------------------------------------------------------------
 
 __all__ = [
-    'is_list',
-    'library_to_list',
-    'render',
-    'module_relative_path'
+    'render'
 ]
 
 if __name__ == '__main__':

@@ -2,7 +2,7 @@ from __future__ import print_function
 from pprint import pprint
 
 from aspect.test.tests import aspect
-from aspect.test.utils import aspect_to_dataframe
+from aspect.core.utils import aspect_to_dataframe
 
 from flask import Flask, request, Response, render_template, jsonify
 app = Flask(__name__)
