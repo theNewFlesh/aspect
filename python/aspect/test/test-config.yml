@@ -47,20 +47,19 @@ dashboard:
 
 library:
   aspect.test.test_module_1.Test1.__init__:
-    fullname: aspect.test.test_module_1.Test1.__init__
     blacklist: true
 
   aspect.test.test_module_1.Test1.method3:
-    fullname: aspect.test.test_module_1.Test1.method3
     default_args: {arg1of2: 'foo', arg2of2: 'bar'}
     default_kwargs: {kwarg1of2: 1, kwarg2of2: 2}
 
   aspect.test.test_module_1.Test1.method4:
-    fullname: aspect.test.test_module_1.Test1.method4
     default_args: {arg1of2: 'foo', arg2of2: 'bar'}
     default_kwargs: {kwarg1of2: 1, kwarg2of2: 2}
 
   aspect.test.test_module_1.Test1.method5:
-    fullname: aspect.test.test_module_1.Test1.method5
     default_args: {arg1of2: 'foo', arg2of2: 'bar'}
     default_kwargs: {kwarg1of2: 1, kwarg2of2: 2}
+
+  aspect.test.test_module_1.Test1.property_:
+    default_value: foo

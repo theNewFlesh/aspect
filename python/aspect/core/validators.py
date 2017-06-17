@@ -69,12 +69,9 @@ class MethodSpec(BaseSpec):
 
 class LibraryItem(Model):
     fullname=StringType(required=True)
-    # name=StringType(default=None)
-    # module=StringType(default=None)
-    # class_=StringType(default=None)
-    default_args=DictType(BaseType, default={})
-    default_kwargs=DictType(BaseType, default={})
-    default_value=ListType(BaseType, default=[])
+    default_args=DictType(BaseType)
+    default_kwargs=DictType(BaseType)
+    default_value=BaseType()
     blacklist=BooleanType(required=True, default=False)
 
 class DashboardType(BaseType):

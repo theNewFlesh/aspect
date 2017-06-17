@@ -162,6 +162,15 @@ class ClientDataConformer(object):
         spec = self.configure_spec(item, spec)
         return spec
 
+    def to_value(self, item):
+        spec = dict(name=item['name'], value=self._default)
+        temp = dict(fullname=item['fullname'], name=item['name'])
+        if item.has_key('value'):
+            temp['value'] = item['value']
+
+        spec = self.configure_spec(temp, spec)
+        return spec
+
     def add_object(self, parent, key, item):
         if key not in parent:
             parent[key] = []
@@ -172,6 +181,10 @@ class ClientDataConformer(object):
         lib = self._config['library']
         if lib.has_key(name):
             conf = lib[name]
+
+            if conf.has_key('default_value'):
+                spec['value'] = conf['default_value']
+                return spec
 
             if conf.has_key('default_args'):
                 spec['args'] = self.to_kwargs(conf['default_args'])
@@ -193,7 +206,7 @@ class ClientDataConformer(object):
                     self.add_object(mod, 'functions', func)
 
                 if kind == 'data':
-                    var = dict(name=item['name'], value=self._default)
+                    var = self.to_value(item)
                     self.add_object(mod, 'variables', var)
 
             else:
@@ -211,11 +224,13 @@ class ClientDataConformer(object):
                 if kind == 'method':
                     meth = self.to_function(item)
                     self.add_object(cls, 'methods', meth)
+
                 if kind == 'data':
-                    attr = dict(name=item['name'], value=self._default)
+                    attr = self.to_value(item)
                     self.add_object(cls, 'attributes', attr)
+
                 if kind == 'property':
-                    prop = dict(name=item['name'], value=self._default)
+                    prop = self.to_value(item)
                     self.add_object(cls, 'properties', prop)
 
             modules[item['module']] = mod
@@ -226,54 +241,6 @@ class ClientDataConformer(object):
         del config['library']
         config.update(dict(library=modules))
         return config
-    # ------------------------------------------------------------------------------
-
-    # def to_config(config):
-    #     def conform_library(items):
-    #         lib = []
-    #         for item in items:
-    #             temp = dict(
-    #                 name=None,
-    #                 module=None,
-    #                 class_=None,
-    #                 kind=None,
-    #                 default_args=[],
-    #                 default_kwargs={},
-    #                 default_value=None,
-    #                 blacklist=False
-    #             )
-    #             temp.update(item)
-    #             lib.append(temp)
-    #         return lib
-
-    #     with open(config) as f:
-    #         conf = yaml.load(f)
-
-    #     if 'library' in config:
-    #         lib = conform_library(config['library'])
-
-    #     api_url: http://localhost:5000/api
-    #     title: aspect
-
-    #     dashboard = [
-    #             dict(
-    #                 title='card-0'
-    #                 html='<div></div>'
-    #                 flex_grow='1'
-    #                 flex_shrink='0'
-    #                 width='250px'
-    #                 height='250px'
-    #                 id='0'
-    #             )
-    #         ] * 6
-
-    #     blacklist = []
-    #     for item in filter(lambda x: x['blacklist'] == True, lib):
-    #         blacklist[item['module']].append(item['name'])
-
-    #     lib = filter(lambda x: x['blacklist'] == False, lib)
-    #     config['library'] = list(lib)
-    #     return config
 # ------------------------------------------------------------------------------
 
 def main():

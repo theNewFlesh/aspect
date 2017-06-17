@@ -48,8 +48,11 @@ class Aspect(object):
             with open(fullpath) as f:
                 config = Config(yaml.load(f)).to_native()
 
-            lib = config['library']
-            lib = {k:LibraryItem(v).to_native() for k,v in lib.items()}
+            lib = {}
+            for key, val in config['library'].items():
+                val['fullname'] = key
+                lib[key] = LibraryItem(val).to_native()
+
             config['library'] = lib
 
             for key, val in config['library'].items():
