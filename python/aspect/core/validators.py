@@ -88,6 +88,7 @@ class Config(Model):
     title=StringType(default='aspect')
     dashboard=ListType(DashboardType, default=[])
     library=DictType(BaseType, default={})
+    levels=ListType(StringType, default=['public', 'private', 'semiprivate'])
 # ------------------------------------------------------------------------------
 
 def main():

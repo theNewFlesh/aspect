@@ -16,7 +16,7 @@ from validators import *
 # ------------------------------------------------------------------------------
 
 class Aspect(object):
-    def __init__(self, levels=['public'], config=None):
+    def __init__(self, config=None):
         '''
         Args:
             levels opt(list):
@@ -27,11 +27,11 @@ class Aspect(object):
                     'builtin'
                 default: ['public']
         '''
-        self.levels     = levels
         self._specs     = {}
         self._library   = {}
         self._blacklist = {}
         self._config    = self._to_config(config)
+        self.levels     = self._config['levels']
     # --------------------------------------------------------------------------
 
     def __repr__(self):
@@ -76,7 +76,8 @@ class Aspect(object):
             title='aspect',
             api_url='http://localhost:5000/api',
             dashboard=[dash],
-            library={}
+            library={},
+            levels=['public', 'private', 'semiprivate']
         )
 
         return conf

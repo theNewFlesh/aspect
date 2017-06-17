@@ -152,7 +152,7 @@ class ClientDataConformer(object):
             return []
 
         if isinstance(params, list):
-            params = {p:None for p in params}
+            params = {p:self._default for p in params}
         return [dict(name=key, value=val) for key, val in params.items()]
 
     def _add_function(self, module, item):
