@@ -1,3 +1,4 @@
+from copy import deepcopy
 from collections import defaultdict
 from inspect import *
 from itertools import *
@@ -41,7 +42,9 @@ def aspect_to_dataframe(aspect):
             (data.class_ == item['class_']) &
             (data.name == '__init__')
         ]
-        data.loc[row.index, 'instances'] = data.loc[row.index, 'instances'].apply(lambda x: add_instance(x, id_, item['instance']))
+        data.loc[row.index, 'instances'] = data.loc[row.index, 'instances'].apply(
+            lambda x: add_instance(x, id_, item['instance'])
+        )
 
     return data
 
@@ -138,115 +141,139 @@ def fire(func, args=[], kwargs={}):
         return func()
 # ------------------------------------------------------------------------------
 
-def _to_args(args):
-    return [dict(name=arg, value=None) for arg in args]
+class ClientDataConformer(object):
+    def __init__(self, specs, config, default={}):
+        self._specs = specs
+        self._config = config
+        self._default = default
 
-def _to_kwargs(kwargs):
-    return [dict(name=key, value=val) for key, val in kwargs.items()]
+    def to_args(self, args):
+        return [dict(name=arg, value=None) for arg in args]
 
-def _to_function(item):
-    return dict(
-        name=item['name'],
-        args=_to_args(item['args']),
-        kwargs=_to_kwargs(item['kwargs'])
-    )
+    def to_kwargs(self, kwargs):
+        return [dict(name=key, value=val) for key, val in kwargs.items()]
 
-def _add_object(parent, key, item):
-    if key not in parent:
-        parent[key] = []
-    parent[key].append(item)
+    def to_function(self, item):
+        spec = dict(
+            name=item['name'],
+            args=self.to_args(item['args']),
+            kwargs=self.to_kwargs(item['kwargs'])
+        )
+        spec = self.configure_spec(item, spec)
+        return spec
 
-def to_client_data(specs, config, default_value={}):
-    modules = defaultdict(lambda: {})
-    for item in specs.values():
-        kind = item['kind']
-        mod = modules[item['module']]
-        if item['class_'] is None:
-            if kind == 'function':
-                func = _to_function(item)
-                _add_object(mod, 'functions', func)
+    def add_object(self, parent, key, item):
+        if key not in parent:
+            parent[key] = []
+        parent[key].append(item)
 
-            if kind == 'data':
-                var = dict(name=item['name'], value=default_value)
-                _add_object(mod, 'variables', var)
+    def configure_spec(self, item, spec):
+        name = item['fullname']
+        lib = self._config['library']
+        if lib.has_key(name):
+            conf = lib[name]
 
-        else:
-            cls_name = item['class_']
-            cls = dict(name=item['class_'])
-            if 'classes' not in mod:
-                mod['classes'] = [cls]
+            if conf.has_key('default_args'):
+                spec['args'] = self.to_kwargs(conf['default_args'])
+
+            if conf.has_key('default_kwargs'):
+                spec['kwargs'] = self.to_kwargs(conf['default_kwargs'])
+
+        return spec
+
+    @property
+    def data(self):
+        modules = defaultdict(lambda: {})
+        for item in self._specs.values():
+            kind = item['kind']
+            mod = modules[item['module']]
+            if item['class_'] is None:
+                if kind == 'function':
+                    func = self.to_function(item)
+                    self.add_object(mod, 'functions', func)
+
+                if kind == 'data':
+                    var = dict(name=item['name'], value=self._default)
+                    self.add_object(mod, 'variables', var)
+
             else:
-                temp = list(filter(lambda x: x['name'] == cls_name, mod['classes']))
-                if temp != []:
-                    cls = temp[0]
+                cls_name = item['class_']
+                cls = dict(name=item['class_'])
+                if 'classes' not in mod:
+                    mod['classes'] = [cls]
                 else:
-                    mod['classes'].append(cls)
+                    temp = list(filter(lambda x: x['name'] == cls_name, mod['classes']))
+                    if temp != []:
+                        cls = temp[0]
+                    else:
+                        mod['classes'].append(cls)
 
-            if kind == 'method':
-                meth = _to_function(item)
-                _add_object(cls, 'methods', meth)
-            if kind == 'data':
-                attr = dict(name=item['name'], value=default_value)
-                _add_object(cls, 'attributes', attr)
-            if kind == 'property':
-                prop = dict(name=item['name'], value=default_value)
-                _add_object(cls, 'properties', prop)
+                if kind == 'method':
+                    meth = self.to_function(item)
+                    self.add_object(cls, 'methods', meth)
+                if kind == 'data':
+                    attr = dict(name=item['name'], value=self._default)
+                    self.add_object(cls, 'attributes', attr)
+                if kind == 'property':
+                    prop = dict(name=item['name'], value=self._default)
+                    self.add_object(cls, 'properties', prop)
 
-        modules[item['module']] = mod
+            modules[item['module']] = mod
 
-    modules = dict(modules)
+        modules = dict(modules)
 
-    del config['library']
-    config.update(dict(library=modules))
-    return config
-# ------------------------------------------------------------------------------
+        config = deepcopy(self._config)
+        del config['library']
+        config.update(dict(library=modules))
+        return config
+    # ------------------------------------------------------------------------------
 
-# def to_config(config):
-#     def conform_library(items):
-#         lib = []
-#         for item in items:
-#             temp = dict(
-#                 name=None,
-#                 module=None,
-#                 class_=None,
-#                 kind=None,
-#                 default_args=[],
-#                 default_kwargs={},
-#                 default_value=None,
-#                 blacklist=False
-#             )
-#             temp.update(item)
-#             lib.append(temp)
-#         return lib
+    # def to_config(config):
+    #     def conform_library(items):
+    #         lib = []
+    #         for item in items:
+    #             temp = dict(
+    #                 name=None,
+    #                 module=None,
+    #                 class_=None,
+    #                 kind=None,
+    #                 default_args=[],
+    #                 default_kwargs={},
+    #                 default_value=None,
+    #                 blacklist=False
+    #             )
+    #             temp.update(item)
+    #             lib.append(temp)
+    #         return lib
 
-#     with open(config) as f:
-#         conf = yaml.load(f)
+    #     with open(config) as f:
+    #         conf = yaml.load(f)
 
-#     if 'library' in config:
-#         lib = conform_library(config['library'])
+    #     if 'library' in config:
+    #         lib = conform_library(config['library'])
 
-#     api_url: http://localhost:5000/api
-#     title: aspect
+    #     api_url: http://localhost:5000/api
+    #     title: aspect
 
-#     dashboard = [
-#             dict(
-#                 title='card-0'
-#                 html='<div></div>'
-#                 flex_grow='1'
-#                 flex_shrink='0'
-#                 width='250px'
-#                 height='250px'
-#                 id='0'
-#             )
-#         ] * 6
+    #     dashboard = [
+    #             dict(
+    #                 title='card-0'
+    #                 html='<div></div>'
+    #                 flex_grow='1'
+    #                 flex_shrink='0'
+    #                 width='250px'
+    #                 height='250px'
+    #                 id='0'
+    #             )
+    #         ] * 6
 
-#     blacklist = []
-#     for item in filter(lambda x: x['blacklist'] == True, lib):
-#         blacklist[item['module']].append(item['name'])
+    #     blacklist = []
+    #     for item in filter(lambda x: x['blacklist'] == True, lib):
+    #         blacklist[item['module']].append(item['name'])
 
-#     lib = filter(lambda x: x['blacklist'] == False, lib)
-#     config['library'] = list(lib)
-#     return config
+    #     lib = filter(lambda x: x['blacklist'] == False, lib)
+    #     config['library'] = list(lib)
+    #     return config
 # ------------------------------------------------------------------------------
 
 def main():
@@ -266,7 +293,7 @@ __all__ = [
     'class_to_specs',
     'get_module_specs',
     'fire',
-    'to_client_data'
+    'ClientDataConformer'
     # 'to_config'
 ]
 

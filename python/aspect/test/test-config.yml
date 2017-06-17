@@ -2,107 +2,65 @@ title: aspect
 api_url: http://localhost:5000/api
 
 dashboard:
-- flex_grow: 1
-  flex_shrink: 0
-  height: 250px
-  html: <div></div>
-  id: 0
-  title: card-0
-  width: 250px
-- flex_grow: 10
-  flex_shrink: 0
-  height: 250px
-  html: <div></div>
-  id: 1
-  title: card-1
-  width: 500px
-- flex_grow: 1
-  flex_shrink: 0
-  height: 250px
-  html: <div></div>
-  id: 2
-  title: card-2
-  width: 250px
-- flex_grow: 10
-  flex_shrink: 0
-  height: 250px
-  html: <div></div>
-  id: 3
-  title: card-3
-  width: 250px
-- flex_grow: 1
-  flex_shrink: 0
-  height: 500px
-  html: <div></div>
-  id: 4
-  title: card-4
-  width: 500px
-- flex_grow: 1
-  flex_shrink: 0
-  height: 500px
-  html: <div></div>
-  id: 5
-  title: card-5
-  width: 500px
+  - flex_grow: 1
+    flex_shrink: 0
+    height: 250px
+    html: <div></div>
+    id: 0
+    title: card-0
+    width: 250px
+  - flex_grow: 10
+    flex_shrink: 0
+    height: 250px
+    html: <div></div>
+    id: 1
+    title: card-1
+    width: 500px
+  - flex_grow: 1
+    flex_shrink: 0
+    height: 250px
+    html: <div></div>
+    id: 2
+    title: card-2
+    width: 250px
+  - flex_grow: 10
+    flex_shrink: 0
+    height: 250px
+    html: <div></div>
+    id: 3
+    title: card-3
+    width: 250px
+  - flex_grow: 1
+    flex_shrink: 0
+    height: 500px
+    html: <div></div>
+    id: 4
+    title: card-4
+    width: 500px
+  - flex_grow: 1
+    flex_shrink: 0
+    height: 500px
+    html: <div></div>
+    id: 5
+    title: card-5
+    width: 500px
 
 library:
-  - default_args: []
+  aspect.test.test_module_1.Test1.__init__:
+    fullname: aspect.test.test_module_1.Test1.__init__
     blacklist: true
-    class_: Test1
-    default_kwargs: {}
-    module: aspect.test.test_module_1
-    name: __init__
-  - default_args: []
-    blacklist: false
-    class_: Test1
-    default_kwargs: {}
-    module: aspect.test.test_module_1
-    name: class_attr
-  - default_args: [arg]
-    blacklist: true
-    class_: Test1
-    default_kwargs: {}
-    module: aspect.test.test_module_1
-    name: method1
-  - default_args: [arg1of2, arg2of2]
-    blacklist: false
-    class_: Test1
-    default_kwargs: {}
-    module: aspect.test.test_module_1
-    name: method2
-  - default_args: [arg1of1]
-    blacklist: false
-    class_: Test1
+
+  aspect.test.test_module_1.Test1.method3:
+    fullname: aspect.test.test_module_1.Test1.method3
+    default_args: {arg1of2: 'foo', arg2of2: 'bar'}
     default_kwargs: {kwarg1of2: 1, kwarg2of2: 2}
-    module: aspect.test.test_module_1
-    name: method3
-  - default_args: [arg1of2, arg2of2]
-    blacklist: false
-    class_: Test1
+
+  aspect.test.test_module_1.Test1.method4:
+    fullname: aspect.test.test_module_1.Test1.method4
+    default_args: {arg1of2: 'foo', arg2of2: 'bar'}
     default_kwargs: {kwarg1of2: 1, kwarg2of2: 2}
-    module: aspect.test.test_module_1
-    name: method4
-  - default_args: [arg1of2, arg2of2]
-    blacklist: false
-    class_: Test1
+
+  aspect.test.test_module_1.Test1.method5:
+    fullname: aspect.test.test_module_1.Test1.method5
+    default_args: {arg1of2: 'foo', arg2of2: 'bar'}
     default_kwargs: {kwarg1of2: 1, kwarg2of2: 2}
-    module: aspect.test.test_module_1
-    name: method5
-  - default_args: []
-    blacklist: false
-    class_: Test1
-    default_kwargs: {}
-    module: aspect.test.test_module_1
-    name: property_
-  - default_args: [arg1of2, arg2of2]
-    blacklist: false
-    class_: null
-    default_kwargs: {}
-    module: aspect.test.test_module_1
-    name: module1_func1
-  - default_args: []
-    blacklist: false
-    class_: Test2
-    default_kwargs: {}
-    module: aspect.test.test_module_2
-    name: __init__

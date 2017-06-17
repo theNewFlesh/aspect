@@ -67,14 +67,15 @@ class MethodSpec(BaseSpec):
     kwargs = DictType(BaseType, default={})
 # ------------------------------------------------------------------------------
 
-class LibraryType(BaseType):
-    name=StringType(required=True)
-    module=StringType(required=True)
-    class_=StringType(default=None)
-    default_args=ListType(BaseType, default=[])
+class LibraryItem(Model):
+    fullname=StringType(required=True)
+    # name=StringType(default=None)
+    # module=StringType(default=None)
+    # class_=StringType(default=None)
+    default_args=DictType(BaseType, default={})
     default_kwargs=DictType(BaseType, default={})
     default_value=ListType(BaseType, default=[])
-    blacklist=BooleanType(default=False)
+    blacklist=BooleanType(required=True, default=False)
 
 class DashboardType(BaseType):
     title=StringType(default='card-0')
@@ -89,7 +90,7 @@ class Config(Model):
     api_url=URLType(default='http://localhost:5000/api')
     title=StringType(default='aspect')
     dashboard=ListType(DashboardType, default=[])
-    library=ListType(LibraryType, default=[])
+    library=DictType(BaseType, default={})
 # ------------------------------------------------------------------------------
 
 def main():
@@ -108,6 +109,7 @@ __all__ = [
     'DeleteSpec',
     'FunctionSpec',
     'MethodSpec',
+    'LibraryItem',
     'Config'
 ]
 

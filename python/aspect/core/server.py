@@ -1,3 +1,4 @@
+from copy import deepcopy
 from collections import *
 from functools import wraps, partial
 from inspect import *
@@ -45,14 +46,37 @@ class Aspect(object):
     def _to_config(self, fullpath):
         if fullpath:
             with open(fullpath) as f:
-                config = Config(yaml.load(f))
+                config = Config(yaml.load(f)).to_native()
 
-                for item in config['library']:
-                    if item['blacklist']:
-                        self._blacklist[self._get_fullname(item)] = item
+            lib = config['library']
+            lib = {k:LibraryItem(v).to_native() for k,v in lib.items()}
+            config['library'] = lib
 
-                return config
-        return None
+            for key, val in config['library'].items():
+                if val['blacklist']:
+                    self._blacklist[key] = val
+
+            return config
+        # ----------------------------------------------------------------------
+
+        dash = dict(
+            flex_grow=1,
+            flex_shrink=0,
+            height='250px',
+            html='<div></div>',
+            id=0,
+            title='card-0',
+            width='250px'
+        )
+
+        conf = dict(
+            title='aspect',
+            api_url='http://localhost:5000/api',
+            dashboard=[dash],
+            library={}
+        )
+
+        return conf
 
     def _in_blacklist(self, spec):
         return self._blacklist.has_key(self._get_fullname(spec))
@@ -61,6 +85,7 @@ class Aspect(object):
         if spec['class_']:
             return '.'.join([ spec['module'], spec['class_'], spec['name'] ])
         return '.'.join([ spec['module'], spec['name'] ])
+    # --------------------------------------------------------------------------
 
     def register(self, module):
         specs = get_module_specs(sys.modules[module])
@@ -70,6 +95,8 @@ class Aspect(object):
         for spec in specs:
             name = self._get_fullname(spec)
             spec['fullname'] = name
+            if self.config['library'].has_key(name):
+                spec.update(self._config['library'][name])
             self._specs[name] = spec
 
     def deregister(self, func=None, class_=None):
@@ -235,13 +262,17 @@ class Aspect(object):
         return response
     # --------------------------------------------------------------------------
 
-    def to_client_data(self, default_value={}):
-        return to_client_data(
-            self._specs, self._config.to_native(), default_value=default_value
-        )
+    def to_client_data(self, default={}):
+        return ClientDataConformer(
+            self._specs, self._config, default=default
+        ).data
 
     def to_dataframe(self):
         return aspect_to_dataframe(self)
+
+    @property
+    def config(self):
+        return deepcopy(self._config)
 # ------------------------------------------------------------------------------
 
 def main():
