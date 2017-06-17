@@ -49,13 +49,16 @@ library:
   aspect.test.test_module_1.Test1.__init__:
     blacklist: true
 
+  aspect.test.test_module_1.Test1.method1:
+    default_args: {arg1of1: 'banana'}
+
   aspect.test.test_module_1.Test1.method3:
-    default_args: {arg1of2: 'foo', arg2of2: 'bar'}
-    default_kwargs: {kwarg1of2: 1, kwarg2of2: 2}
+    default_args: {arg1of2: 1.0, arg2of2: {'meat': 'chicken'}}
+    default_kwargs: {kwarg1of2: {}, kwarg2of2: ['apple', 'kiwi']}
 
   aspect.test.test_module_1.Test1.method4:
-    default_args: {arg1of2: 'foo', arg2of2: 'bar'}
-    default_kwargs: {kwarg1of2: 1, kwarg2of2: 2}
+    default_args: {arg1of2: 'foo', arg2of2: []}
+    default_kwargs: {kwarg1of2: 1.0, kwarg2of2: 'kjfsd'}
 
   aspect.test.test_module_1.Test1.method5:
     default_args: {arg1of2: 'foo', arg2of2: 'bar'}

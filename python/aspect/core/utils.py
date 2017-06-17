@@ -147,36 +147,80 @@ class ClientDataConformer(object):
         self._config = config
         self._default = default
 
-    def to_args(self, args):
-        return [dict(name=arg, value=None) for arg in args]
+    def _to_params(self, params):
+        if params is None:
+            return []
 
-    def to_kwargs(self, kwargs):
-        return [dict(name=key, value=val) for key, val in kwargs.items()]
+        if isinstance(params, list):
+            params = {p:None for p in params}
+        return [dict(name=key, value=val) for key, val in params.items()]
 
-    def to_function(self, item):
+    def _add_function(self, module, item):
         spec = dict(
             name=item['name'],
-            args=self.to_args(item['args']),
-            kwargs=self.to_kwargs(item['kwargs'])
         )
-        spec = self.configure_spec(item, spec)
-        return spec
+        if item.has_key('args'):
+            spec['args'] = self._to_params(item['args'])
 
-    def to_value(self, item):
-        spec = dict(name=item['name'], value=self._default)
-        temp = dict(fullname=item['fullname'], name=item['name'])
+        if item.has_key('kwargs'):
+            spec['kwargs'] = self._to_params(item['kwargs'])
+
+        spec = self._configure_func(item, spec)
+        self._add_object(module, 'functions', spec)
+
+    def _add_variable(self, module, item):
+        spec = dict(
+            name=item['name'],
+            value=item['value']
+        )
+        spec = self._configure_attr(item, spec)
+        self._add_object(module, 'variables', spec)
+
+    def _add_method(self, cls, item):
+        spec = dict(
+            name=item['name'],
+            args=self._to_params(item['args']),
+            kwargs=self._to_params(item['kwargs'])
+        )
+        spec = self._configure_func(item, spec)
+        self._add_object(cls, 'methods', spec)
+
+    def _add_property(self, cls, item):
+        spec = dict(
+            name=item['name']
+        )
+        self._add_object(cls, 'properties', spec)
+
+    def _add_attribute(self, cls, item):
+        spec = dict(
+            name=item['name']
+        )
         if item.has_key('value'):
-            temp['value'] = item['value']
+            spec['value'] = item['value']
 
-        spec = self.configure_spec(temp, spec)
-        return spec
+        spec = self._configure_attr(item, spec)
+        self._add_object(cls, 'attributes', spec)
 
-    def add_object(self, parent, key, item):
+    def _add_object(self, parent, key, item):
         if key not in parent:
             parent[key] = []
         parent[key].append(item)
 
-    def configure_spec(self, item, spec):
+    def _configure_func(self, item, spec):
+        name = item['fullname']
+        lib = self._config['library']
+        if lib.has_key(name):
+            conf = lib[name]
+
+            if conf.has_key('default_args'):
+                spec['args'] = self._to_params(conf['default_args'])
+
+            if conf.has_key('default_kwargs'):
+                spec['kwargs'] = self._to_params(conf['default_kwargs'])
+
+        return spec
+
+    def _configure_attr(self, item, spec):
         name = item['fullname']
         lib = self._config['library']
         if lib.has_key(name):
@@ -184,13 +228,6 @@ class ClientDataConformer(object):
 
             if conf.has_key('default_value'):
                 spec['value'] = conf['default_value']
-                return spec
-
-            if conf.has_key('default_args'):
-                spec['args'] = self.to_kwargs(conf['default_args'])
-
-            if conf.has_key('default_kwargs'):
-                spec['kwargs'] = self.to_kwargs(conf['default_kwargs'])
 
         return spec
 
@@ -200,14 +237,12 @@ class ClientDataConformer(object):
         for item in self._specs.values():
             kind = item['kind']
             mod = modules[item['module']]
+
             if item['class_'] is None:
                 if kind == 'function':
-                    func = self.to_function(item)
-                    self.add_object(mod, 'functions', func)
-
+                    self._add_function(mod, item)
                 if kind == 'data':
-                    var = self.to_value(item)
-                    self.add_object(mod, 'variables', var)
+                    self._add_variable(mod, item)
 
             else:
                 cls_name = item['class_']
@@ -222,16 +257,13 @@ class ClientDataConformer(object):
                         mod['classes'].append(cls)
 
                 if kind == 'method':
-                    meth = self.to_function(item)
-                    self.add_object(cls, 'methods', meth)
+                    self._add_method(cls, item)
 
                 if kind == 'data':
-                    attr = self.to_value(item)
-                    self.add_object(cls, 'attributes', attr)
+                    self._add_attribute(cls, item)
 
                 if kind == 'property':
-                    prop = self.to_value(item)
-                    self.add_object(cls, 'properties', prop)
+                    self._add_property(cls, item)
 
             modules[item['module']] = mod
 
@@ -261,7 +293,6 @@ __all__ = [
     'get_module_specs',
     'fire',
     'ClientDataConformer'
-    # 'to_config'
 ]
 
 if __name__ == '__main__':

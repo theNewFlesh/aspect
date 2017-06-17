@@ -2,6 +2,8 @@ from __future__ import print_function
 from aspect.test.test_app import ASPECT
 # ------------------------------------------------------------------------------
 
+module_variable = 'banana'
+
 class Test1(object):
     '''Test class docstring'''
     class_attr = 99
