@@ -55,7 +55,7 @@ class Test1(object):
 
 def module1_func1(arg1of2, arg2of2, **kwargs):
     '''module1_func1 docstring'''
-    return arg1of2, arg2of2, kwargs
+    return 'module1_func1 fired'
 
 @ASPECT.deregister()
 def module1_deregistered_func2(arg1of2, arg2of2, kwarg1of1=3):

@@ -19,28 +19,30 @@ class Aspect(object):
     def __init__(self, config=None):
         '''
         Args:
-            levels opt(list):
-                options include:
-                    'public'
-                    'semiprivate'
-                    'private'
-                    'builtin'
-                default: ['public']
+            config opt(str): aspect configuration fullpath. Default: None.
         '''
         self._specs     = {}
         self._library   = {}
         self._blacklist = {}
         self._config    = self._to_config(config)
-        self.levels     = self._config['levels']
     # --------------------------------------------------------------------------
 
     def __repr__(self):
         output = [
-                   'LEVELS:', '\t' + ', '.join(self.levels) + '\n',
+                   'CONFIG:', pformat(self._config) + '\n',
                     'SPECS:', pformat(self._specs) + '\n',
                   'LIBRARY:', pformat(self._library) + '\n',
         ]
         return '\n'.join(output)
+    # --------------------------------------------------------------------------
+
+    @property
+    def config(self):
+        return deepcopy(self._config)
+
+    @property
+    def specs(self):
+        return deepcopy(self._specs)
     # --------------------------------------------------------------------------
 
     def _to_config(self, fullpath):
@@ -93,7 +95,7 @@ class Aspect(object):
 
     def register(self, module):
         specs = get_module_specs(sys.modules[module])
-        specs = filter(lambda x: x['level'] in self.levels, specs)
+        specs = filter(lambda x: x['level'] in self._config['levels'], specs)
         specs = filter(lambda x: not self._in_blacklist(x), specs)
 
         for spec in specs:
@@ -273,10 +275,6 @@ class Aspect(object):
 
     def to_dataframe(self):
         return aspect_to_dataframe(self)
-
-    @property
-    def config(self):
-        return deepcopy(self._config)
 # ------------------------------------------------------------------------------
 
 def main():

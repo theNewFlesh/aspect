@@ -66,3 +66,6 @@ library:
 
   aspect.test.test_module_1.Test1.property_:
     default_value: foo
+
+  aspect.test.test_module_1.module1_func1:
+    default_args: {'arg1of2': 'a', 'arg2of2': 'b'}

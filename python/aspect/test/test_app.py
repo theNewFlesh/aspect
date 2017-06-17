@@ -40,14 +40,15 @@ def index():
 @app.route('/api', methods=['POST'])
 def api():
     data = request.get_json()
-    data = ASPECT.request(data, json_errors=True)
+    # data = ASPECT.request(data, json_errors=True)
+    data = ASPECT.request(data, json_errors=False)
     response = jsonify(
         body=data,
         status=200,
         mimetype='application/json'
     )
 
-    print(ASPECT.to_dataframe())
+    # print(ASPECT.to_dataframe())
     return response
 
 # ------------------------------------------------------------------------------

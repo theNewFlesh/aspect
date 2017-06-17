@@ -37,7 +37,7 @@ class BaseSpec(Model):
     action = StringType(required=True, validators=[is_action])
     fullname = StringType(default='')
     module = StringType(required=True)
-    class_ = StringType(required=True)
+    class_ = StringType(default=None)
 
 class CreateSpec(BaseSpec):
     args = ListType(BaseType, default=[])
@@ -88,7 +88,8 @@ class Config(Model):
     title=StringType(default='aspect')
     dashboard=ListType(DashboardType, default=[])
     library=DictType(BaseType, default={})
-    levels=ListType(StringType, default=['public', 'private', 'semiprivate'])
+    # levels=ListType(StringType, default=['public', 'private', 'semiprivate', 'builtin'])
+    levels=ListType(StringType, default=['public'])
 # ------------------------------------------------------------------------------
 
 def main():
