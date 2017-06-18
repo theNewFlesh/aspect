@@ -29,9 +29,9 @@ class Aspect(object):
 
     def __repr__(self):
         output = [
-                   'CONFIG:', pformat(self._config) + '\n',
-                    'SPECS:', pformat(self._specs) + '\n',
-                  'LIBRARY:', pformat(self._library) + '\n',
+           'CONFIG:', pformat(self._config) + '\n',
+            'SPECS:', pformat(self._specs) + '\n',
+          'LIBRARY:', pformat(self._library) + '\n',
         ]
         return '\n'.join(output)
     # --------------------------------------------------------------------------

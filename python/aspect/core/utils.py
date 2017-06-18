@@ -28,15 +28,27 @@ def aspect_to_dataframe(aspect):
         item[id_] = instance
         return item
 
-    data = pd.DataFrame(aspect._specs.values())
+    data = deepcopy(aspect._specs)
+    keys = ['blacklist', 'default_args', 'default_kwargs', 'default_value']
+    for name, item in aspect._config['library'].items():
+        for key in keys:
+            if item.has_key(key) and data.has_key(name):
+                data[name][key] = item[key]
+
+    data = pd.DataFrame(data.values())
     data['instances'] = None
     data.instances = data.instances.apply(lambda x: {})
 
-    cols = ['fullname', 'name', 'module', 'class_', 'kind',  'level', 'args',
-            'kwargs', 'varargs', 'varkwargs', 'object', 'instances']
+    cols = [
+        'fullname', 'name', 'module', 'class_', 'kind',  'level', 'args',
+        'kwargs', 'varargs', 'varkwargs', 'object', 'instances'
+    ]
+    cols.extend(keys)
+    cols = filter(lambda x: x in data.columns.tolist(), cols)
+    cols = list(cols)
     data = data[cols]
 
-    for id_, item in aspect._library.iteritems():
+    for id_, item in aspect._library.items():
         row = data[
             (data.module == item['module']) &
             (data.class_ == item['class_']) &
