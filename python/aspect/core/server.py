@@ -202,6 +202,8 @@ class Aspect(object):
         row = filter(lambda x: x['name'] == '__init__', row)
         if len(row) > 1:
             raise ValidationError( 'multiple inits found for ' + spec['class_'] )
+        if len(row) < 1:
+            raise ValidationError( 'class not found: ' + spec['class_'] )
         row = row[0]
 
         id_ = randint(1000000000, 9999999999)

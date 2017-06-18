@@ -20,11 +20,11 @@ def id_setup():
         class_='Test1',
         instance=Test1()
     )
-    aspect._library[id_] = spec
+    ASPECT._library[id_] = spec
 
 def id_teardown():
     id_ = 1111111111
-    del aspect._library[id_]
+    del ASPECT._library[id_]
 
 def create_001_test():
     spec = dict(
@@ -34,7 +34,7 @@ def create_001_test():
         args=['name'],
         kwargs=dict(kwarg1=10, kwarg2=11)
     )
-    response = aspect.request(spec)
+    response = ASPECT.request(spec)
     assert(isinstance(response, int) and len(str(response)) == 10)
 
 @with_setup(id_setup, id_teardown)
@@ -44,7 +44,7 @@ def read_001_test():
         id_=1111111111,
         attribute='property_'
     )
-    response = aspect.request(spec)
+    response = ASPECT.request(spec)
     assert(response == 'the_value_of_property_')
 
 @with_setup(id_setup, id_teardown)
@@ -55,7 +55,7 @@ def update_001_test():
         attribute='class_attr',
         value='new_value'
     )
-    response = aspect.request(spec)
+    response = ASPECT.request(spec)
     assert(response == True)
 
 @with_setup(id_setup)
@@ -64,7 +64,7 @@ def delete_001_test():
         action='delete',
         id_=1111111111
     )
-    response = aspect.request(spec)
+    response = ASPECT.request(spec)
     assert(response == True)
 
 @with_setup(id_setup, id_teardown)
@@ -76,7 +76,7 @@ def execute_method_001_test():
         args=[1],
         kwargs={}
     )
-    response = aspect.request(spec)
+    response = ASPECT.request(spec)
     assert(response == 'method1 fired')
 
 def execute_function_001_test():
@@ -87,7 +87,7 @@ def execute_function_001_test():
         args=[1,2],
         kwargs={}
     )
-    response = aspect.request(spec)
+    response = ASPECT.request(spec)
     print(response)
     assert( response == (1,2,{}) )
 
@@ -100,7 +100,7 @@ def execute_deregistered_function_001_test():
         kwargs={}
     )
     with assert_raises(ValidationError):
-        aspect.request(spec, json_errors=False)
+        ASPECT.request(spec, json_errors=False)
 # ------------------------------------------------------------------------------
 
 def main():
