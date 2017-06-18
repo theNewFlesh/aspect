@@ -58,7 +58,7 @@ library:
 
   aspect.test.test_module_1.Test1.method4:
     default_args: {arg1of2: 'foo', arg2of2: []}
-    default_kwargs: {kwarg1of2: 1.0, kwarg2of2: 'kjfsd'}
+    default_kwargs: {kwarg1of2: 1.0, kwarg2of2: 'pizza'}
 
   aspect.test.test_module_1.Test1.method5:
     default_args: {arg1of2: 'foo', arg2of2: 'bar'}
