@@ -10,7 +10,7 @@ import yaml
 from aspect.core.utils import module_relative_path as modpath
 from aspect.core.server import Aspect
 ASPECT = Aspect(
-    config=modpath(__file__, 'test-config.yml')
+    # config=modpath(__file__, 'test-config.yml')
 )
 # --------------------------------------------------------------------------------
 

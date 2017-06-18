@@ -25,7 +25,7 @@ class Test2(object):
     def __property(self):
         return self.__instance_attr
 
-    @ASPECT.deregister(class_='Test2')
+    # @ASPECT.deregister(class_='Test2')
     def deregistered_method(self, arg):
         return 'deregistered method fired'
 
@@ -55,7 +55,7 @@ def module2_func1(arg1of2, arg2of2, **kwargs):
     '''module2_func1 docstring'''
     return arg1of2, arg2of2, kwargs
 
-@ASPECT.deregister()
+# @ASPECT.deregister()
 def module2_deregistered_func2(arg1of2, arg2of2, kwarg1of1=3):
     '''module2_deregistered_func2 docstring'''
     return arg1of2, arg2of2, kwarg1of1

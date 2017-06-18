@@ -185,7 +185,7 @@ class Aspect(object):
         if spec.has_key('id_'):
             id_ = spec['id_']
             if not self._library.has_key(id_):
-                raise ValidationError( str(id_) + ' id not found' )
+                raise ValidationError('object not found: ' + str(id_))
 
             spec['module'] = self._library[id_]['module']
             spec['class_'] = self._library[id_]['class_']
