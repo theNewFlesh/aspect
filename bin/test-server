@@ -1,2 +1,2 @@
 cd python
-python -c "import aspect; aspect.test.test_app.app.run(debug=False)"
+python3.8 -c "import aspect; aspect.test.test_app.app.run(debug=False)"

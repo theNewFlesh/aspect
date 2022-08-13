@@ -1,0 +1,7 @@
+python==3.7
+flask
+flask-bootstrap
+jinja2
+pandas
+schematics
+pyyaml

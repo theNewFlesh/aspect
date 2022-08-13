@@ -12,7 +12,7 @@ from schematics.exceptions import ValidationError
 import yaml
 
 from aspect.core.utils import *
-from validators import *
+from aspect.core.validators import *
 # ------------------------------------------------------------------------------
 
 class Aspect(object):
